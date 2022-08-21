@@ -214,7 +214,7 @@ To get an **A** in the course:
 * Master at least 2 challenge assignments
 
 Each grade bundle is an indivisible unit; all assignments in a bundle must meet expectations in order to
-earn the associated grade. For example, if you only master one project, the highest grade you can achieve is a C.
+earn the associated grade. For example, if you only master one project, the highest grade you can achieve is a B.
 
 
 ## Late work
