@@ -4,6 +4,7 @@ title: Binary data and logistic regression
 
 August 22
 : Welcome to STA 712, Intro to logistic regression
+  : [Slides](https://sta712-f22.github.io/slides/lecture_1.pdf)
   
 : [ggplot2 cheat sheet](https://raw.githubusercontent.com/rstudio/cheatsheets/master/data-visualization.pdf)
 
@@ -21,4 +22,4 @@ August 26
   
 : Textbook 4.4 - 4.8
 
-: *Homework 1 released**{: .label .label-yellow }
+: **Homework 1 released**{: .label .label-yellow }

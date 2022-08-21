@@ -240,10 +240,90 @@ Work in groups of 2-3 for 5 minutes on the following questions:
 
 ---
 
+### Class overview
+
+.large[
+Full details of the course can be found in the syllabus:
+
+[https://sta712-f22.github.io/about/](https://sta712-f22.github.io/about/)
+]
+
+---
+
 ### Class goals
 
 .large[
 By the end of this class, you should be able to:
 
-* 
+* Use core GLM theory to investigate models with different response variables
+* Fit and assess generalized linear models on data to answer real research questions
+* Connect GLMs to topics in the broader statistical landscape (e.g. linear regression, classification, GAMs, neural networks)
+* Independently learn and apply new statistical topics
+]
+
+---
+
+### Course components
+
+.large[
+* Regular homework assignments
+  * Practice material from class
+* Challenge assignments
+  * Learn additional material related to course
+* 2 take-home exams
+  * Demonstrate knowledge of theory and methodology
+  * No final exam!
+* 2 projects
+  * Apply material to real data and real research questions
+]
+
+---
+
+### Grading philosophy
+
+.large[
+* Focusing on grades can detract from the learning process
+* Homework should be an opportunity to *practice* the material. It is ok to make mistakes when practicing, as long as you make an honest effort
+* Errors are a good opportunity to learn and revise your work
+* Partial credit and weighted averages of scores make the meaning of a grade confusing. Does an 85 in the course mean you know 85% of everything, or everything about 85% of the material?
+]
+
+---
+
+### Grading in this course
+
+.large[
+* I will give you feedback on every assignment
+* Homework is graded on completeness and effort, not correctness
+* All other assignments (challenge, exams, projects) are graded as Mastered / Not yet mastered
+* If you haven't yet mastered something, you get to try again!
+]
+
+---
+
+### Assigning grades: specifications grading
+
+.large[
+To get a **B** in the course:
+
+* Receive credit for at least 5 homework assignments
+* Master one project
+* Master at least 80% of the questions on both exams
+
+To get an **A** in the course:
+
+* Receive credit for at least 5 homework assignments
+* Master both projects
+* Master at least 80% of the questions on both exams
+* Master at least 2 challenge assignments
+]
+
+---
+
+### Late work and resubmissions
+
+.large[
+* You get a bank of **5** extension days. You can use 1--2 days on any assignment, exam, or project.
+* No other late work will be accepted (except in extenuating circumstances!)
+* "Not yet mastered" challenge questions, exams, and projects may be resubmitted once
 ]
