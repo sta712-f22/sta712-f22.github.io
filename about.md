@@ -203,7 +203,7 @@ To get a **C** in the course:
 To get a **B** in the course:
 
 * Receive credit for at least 5 homework assignments
-* Master both projects
+* Master one project
 * Master at least 80% of the questions on both exams
 
 To get an **A** in the course:
