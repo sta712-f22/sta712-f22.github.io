@@ -1,0 +1,159 @@
+---
+title: Fitting logistic regression models
+output:
+  xaringan::moon_reader:
+    css: "lab-slides.css"
+    lib_dir: libs
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, echo=F, message=F, warning=F}
+library(tidyverse)
+library(knitr)
+dengue <- read.csv("https://sta279-s22.github.io/labs/dengue.csv")
+
+hook_output <- knit_hooks$get("output")
+knit_hooks$set(output = function(x, options) {
+   lines <- options$output.lines
+   if (is.null(lines)) {
+     return(hook_output(x, options))  # pass to default hook
+   }
+   x <- unlist(strsplit(x, "\n"))
+   more <- "..."
+   if (length(lines)==1) {        # first n lines
+     if (length(x) > lines) {
+       # truncate the output, but add ....
+       x <- c(head(x, lines), more)
+     }
+   } else {
+     x <- c(more, x[lines], more)
+   }
+   # paste these lines together
+   x <- paste(c(x, ""), collapse = "\n")
+   hook_output(x, options)
+ })
+```
+
+### Motivating example: Dengue data
+
+.large[
+**Data:** Data on 5720 Vietnamese children, admitted to the hospital with possible dengue fever. Variables include:
+
+* *Sex*: patient's sex (female or male)
+* *Age*: patient's age (in years)
+* *WBC*: white blood cell count
+* *PLT*: platelet count
+* other diagnostic variables...
+* *Dengue*: whether the patient has dengue (0 = no, 1 = yes)
+]
+
+---
+
+### Last time: Logistic regression model
+
+.large[
+$$Y_i = \text{dengue status (0 = negative, 1 = positive)}$$
+
+$$Y_i \sim Bernoulli(p_i)$$
+
+$$\log \left( \dfrac{p_i}{1 - p_i} \right) = \beta_0 + \beta_1 WBC_i$$
+
+We get $n$ observations $(WBC_1, Y_1), ..., (WBC_n, Y_n)$. Want estimates $\widehat{\beta}_0$, $\widehat{\beta}_1$
+]
+
+---
+
+### Fitting logistic regression in R
+
+.large[
+```{r, output.lines = 10:22}
+m1 <- glm(Dengue ~ WBC, data = dengue, 
+          family = binomial)
+summary(m1)
+```
+]
+
+---
+
+### Recap: ways of fitting a *linear* regression model
+
+.large[
+$$Y_i = \beta_0 + \beta_1 X_{i, 1} + \beta_2 X_{i, 2} + \cdots + \beta_k X_{i, k} + \varepsilon_i \hspace{1.5cm} \varepsilon_i \overset{iid}{\sim} N(0, \sigma_\varepsilon^2)$$
+]
+
+.large[
+.question[
+How do we fit this linear regression model? That is, how do we estimate $$\beta = \begin{bmatrix} \beta_0 \\ \beta_1 \\ \vdots \\ \beta_k \end{bmatrix}$$
+
+Go to [https://pollev.com/ciaranevans637](https://pollev.com/ciaranevans637) to respond.
+]
+]
+
+---
+
+### Method 1: Minimize SSE
+
+---
+
+### Method 2: Projection argument
+
+---
+
+### Method 3: Maximizing likelihood
+
+---
+
+### Summary: three ways of fitting linear regression models
+
+.large[
+* Minimize SSE, via derivatives of $\sum \limits_{i=1}^n (Y_i - \beta_0 - \beta_1 X_{i,1} - \cdots - \beta_k X_{i,k})^2$
+* Minimize $||\widehat{Y}||$ (equivalent to minimizing SSE)
+* Maximize likelihood (for *normal* data, equivalent to minimizing SSE)
+]
+
+.large[
+.question[
+Which of these three methods, if any, is appropriate for fitting a logistic regression model? Do any changes need to be made for the logistic regression setting?
+
+Discuss with your neighbor for 2--3 minutes.
+]
+]
+
+---
+
+### Maximum likelihood for logistic regression
+
+.large[
+$$Y_i \sim Bernoulli(p_i)$$
+
+$$\log \left( \dfrac{p_i}{1 - p_i} \right) = \beta_0 + \beta_1 X_{i,1} + \cdots + \beta_k X_{i,k}$$
+
+.question[
+Suppose we observe independent samples $(X_1, Y_1),...,(X_n, Y_n)$. Write down the likelihood function
+
+$$L(\beta) = \prod \limits_{i=1}^n f(Y_i; \beta)$$
+
+for the logistic regression problem. Take 2--3 minutes, then we will discuss as a class.
+]
+]
+
+---
+
+### Maximum likelihood for logistic regression
+
+.large[
+$L(\beta) =$
+
+<br/>
+
+<br/>
+
+.question[
+I want to choose $\beta$ to maximize $L(\beta)$. What are the usual steps to take?
+]
+]
