@@ -80,6 +80,131 @@ How should we interpret the slope -0.361?
 
 ---
 
+### Getting probabilities
+
+.large[
+$$Y_i = \text{dengue status (0 = no, 1 = yes)} \hspace{1cm} Y_i \sim Bernoulli(p_i)$$
+
+$$\log \left(\dfrac{\widehat{p}_i}{1 - \widehat{p}_i}\right) = 1.737 - 0.361 \ WBC_i$$
+
+.question[
+How do I calculate estimated probabilities $\widehat{p}_i$?
+]
+]
+
+---
+
+### Plotting the fitted model for dengue data
+
+```{r echo=F, message=F, warning=F, fig.align='center', fig.width=7, fig.height=5}
+dengue %>%
+  ggplot(aes(x = WBC, y = Dengue)) +
+  geom_point(size=2) +
+  geom_smooth(method = "glm", method.args = list(family = "binomial"),
+              lwd = 1.2, se=F) +
+  theme_bw() +
+  theme(text = element_text(size = 20)) +
+  labs(y = "P(Dengue = 1 | WBC)")
+```
+
+---
+
+### Shape of the regression curve
+
+.large[
+.pull-left[
+$\log \left( \dfrac{p_i}{1 - p_i} \right) = \beta_0 + \beta_1 \ X_i \hspace{0.5cm}$
+
+```{r echo=F, message=F, warning=F, fig.align='center', fig.width=6, fig.height=4}
+
+data.frame(x = seq(-5, 6, length.out=100),
+           y1 = -1 + seq(-5, 6, length.out=100)) %>%
+  ggplot(aes(x = x, y = y1)) +
+  geom_line(lwd = 2.5) +
+  theme_bw() +
+  labs(x = "x", y = "Log odds") +
+  theme(text = element_text(size = 30))
+```
+]
+
+.pull-right[
+$p_i = \dfrac{e^{\beta_0 + \beta_1 \ X_i}}{1 + e^{\beta_0 + \beta_1 \ X_i}}$
+
+```{r echo=F, message=F, warning=F, fig.align='center', fig.width=6, fig.height=4}
+
+expit <- function(p){
+  return(exp(p)/(1 + exp(p)))
+}
+
+data.frame(x = seq(-5, 6, length.out=100),
+           y1 = expit(-1 + seq(-5, 6, length.out=100))) %>%
+  ggplot(aes(x = x, y = y1)) +
+  geom_line(lwd = 2.5) +
+  theme_bw() +
+  labs(x = "x", y = "P(y = 1)") +
+  theme(text = element_text(size = 30))
+```
+]
+]
+
+---
+
+### Shape of the regression curve
+
+.large[
+How does the shape of the fitted logistic regression depend on $\beta_0$ and $\beta_1$?
+
+.pull-left[
+$p_i = \dfrac{\exp\{\beta_0 +  X_i \}}{1 + \exp\{\beta_0 + X_i \}} \hspace{0.5cm}$ for $\beta_0 = -3, -1, 1$
+
+```{r echo=F, message=F, warning=F, fig.align='center', fig.width=6, fig.height=4}
+
+expit <- function(p){
+  return(exp(p)/(1 + exp(p)))
+}
+
+data.frame(x = seq(-5, 6, length.out=100),
+           y1 = expit(-1 + seq(-5, 6, length.out=100)),
+           y2 = expit(-3 + seq(-5, 6, length.out=100)),
+           y3 = expit(1 + seq(-5, 6, length.out=100))) %>%
+  ggplot(aes(x = x, y = y1)) +
+  geom_line(lwd = 2.5) +
+  geom_line(aes(y = y2), lwd=2.5, lty = 2, color="blue") +
+  geom_line(aes(y = y3), lwd=2.5, lty = 3, color="red") +
+  theme_bw() +
+  labs(x = "x", y = "P(y = 1)") +
+  annotate("text", x = -2, y = 0.4, label="1", size=8) +
+  annotate("text", x = 0, y = 0.4, label="-1", size=9) +
+  annotate("text", x = 3.5, y = 0.4, label="-3", size=8) +
+  theme(text = element_text(size = 30))
+```
+]
+
+.pull-right[
+$p_i = \dfrac{\exp\{-1 +  \beta_1 \ X_i \}}{1 + \exp\{-1 +  \beta_1 \ X_i \}} \hspace{0.5cm}$ for $\beta_1 = 0.5, 1, 2$
+
+```{r echo=F, message=F, warning=F, fig.align='center', fig.width=6, fig.height=4}
+
+data.frame(x = seq(-5, 6, length.out=100),
+           y1 = expit(-1 + 0.5*seq(-5, 6, length.out=100)),
+           y2 = expit(-1 + seq(-5, 6, length.out=100)),
+           y3 = expit(-1 + 2*seq(-5, 6, length.out=100))) %>%
+  ggplot(aes(x = x, y = y1)) +
+  geom_line(lwd = 2.5) +
+  geom_line(aes(y = y2), lwd=2.5, lty = 2, color="blue") +
+  geom_line(aes(y = y3), lwd=2.5, lty = 3, color="red") +
+  theme_bw() +
+  labs(x = "x", y = "P(y = 1)") +
+  annotate("text", x = 3, y = 0.75, label="0.5", size=8) +
+  annotate("text", x = 1.5, y = 0.75, label="1", size=9) +
+  annotate("text", x = 0.5, y = 0.75, label="2", size=8) +
+  theme(text = element_text(size = 30))
+```
+]
+]
+
+---
+
 ### Fitting logistic regression in R
 
 .large[

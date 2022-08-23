@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.22 (TeX Live 2021) (preloaded format=pdflatex 2021.8.13)  23 AUG 2022 13:37
+This is pdfTeX, Version 3.141592653-2.6-1.40.22 (TeX Live 2021) (preloaded format=pdflatex 2021.8.13)  23 AUG 2022 13:40
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -174,7 +174,7 @@ b></usr/local/texlive/2021/texmf-dist/fonts/type1/public/amsfonts/cm/cmti10.pfb
 </usr/local/texlive/2021/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.
 pfb></usr/local/texlive/2021/texmf-dist/fonts/type1/public/cm-super/sfrm1095.pf
 b>
-Output written on challenge_1.pdf (2 pages, 153942 bytes).
+Output written on challenge_1.pdf (2 pages, 154016 bytes).
 PDF statistics:
  72 PDF objects out of 1000 (max. 8388607)
  52 compressed objects within 1 object stream

@@ -60,6 +60,64 @@ How should we interpret the slope -0.361?
 
 ---
 
+### Getting probabilities
+
+.large[
+`$$Y_i = \text{dengue status (0 = no, 1 = yes)} \hspace{1cm} Y_i \sim Bernoulli(p_i)$$`
+
+`$$\log \left(\dfrac{\widehat{p}_i}{1 - \widehat{p}_i}\right) = 1.737 - 0.361 \ WBC_i$$`
+
+.question[
+How do I calculate estimated probabilities `\(\widehat{p}_i\)`?
+]
+]
+
+---
+
+### Plotting the fitted model for dengue data
+
+&lt;img src="lecture_2_files/figure-html/unnamed-chunk-1-1.png" style="display: block; margin: auto;" /&gt;
+
+---
+
+### Shape of the regression curve
+
+.large[
+.pull-left[
+`\(\log \left( \dfrac{p_i}{1 - p_i} \right) = \beta_0 + \beta_1 \ X_i \hspace{0.5cm}\)`
+
+&lt;img src="lecture_2_files/figure-html/unnamed-chunk-2-1.png" style="display: block; margin: auto;" /&gt;
+]
+
+.pull-right[
+`\(p_i = \dfrac{e^{\beta_0 + \beta_1 \ X_i}}{1 + e^{\beta_0 + \beta_1 \ X_i}}\)`
+
+&lt;img src="lecture_2_files/figure-html/unnamed-chunk-3-1.png" style="display: block; margin: auto;" /&gt;
+]
+]
+
+---
+
+### Shape of the regression curve
+
+.large[
+How does the shape of the fitted logistic regression depend on `\(\beta_0\)` and `\(\beta_1\)`?
+
+.pull-left[
+`\(p_i = \dfrac{\exp\{\beta_0 +  X_i \}}{1 + \exp\{\beta_0 + X_i \}} \hspace{0.5cm}\)` for `\(\beta_0 = -3, -1, 1\)`
+
+&lt;img src="lecture_2_files/figure-html/unnamed-chunk-4-1.png" style="display: block; margin: auto;" /&gt;
+]
+
+.pull-right[
+`\(p_i = \dfrac{\exp\{-1 +  \beta_1 \ X_i \}}{1 + \exp\{-1 +  \beta_1 \ X_i \}} \hspace{0.5cm}\)` for `\(\beta_1 = 0.5, 1, 2\)`
+
+&lt;img src="lecture_2_files/figure-html/unnamed-chunk-5-1.png" style="display: block; margin: auto;" /&gt;
+]
+]
+
+---
+
 ### Fitting logistic regression in R
 
 .large[

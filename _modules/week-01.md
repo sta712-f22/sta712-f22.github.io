@@ -14,6 +14,7 @@ August 22
 
 August 24
 : Fitting logistic regression models, Fisher scoring
+  : [Slides](https://sta712-f22.github.io/slides/lecture_2.pdf)
   
 : Textbook 4.4 - 4.8
 
@@ -23,3 +24,5 @@ August 26
 : Textbook 4.4 - 4.8
 
 : **Homework 1 released**{: .label .label-yellow }
+
+: **Challenge Assignment 1 released**{: .label .label-yellow }
