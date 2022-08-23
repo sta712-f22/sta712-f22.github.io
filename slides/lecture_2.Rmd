@@ -68,6 +68,18 @@ We get $n$ observations $(WBC_1, Y_1), ..., (WBC_n, Y_n)$. Want estimates $\wide
 
 ---
 
+### Last time: Logistic regression model
+
+.large[
+$$Y_i = \text{dengue status (0 = no, 1 = yes)} \hspace{1cm} Y_i \sim Bernoulli(p_i)$$
+
+$$\log \left(\dfrac{\widehat{p}_i}{1 - \widehat{p}_i}\right) = 1.737 - 0.361 \ WBC_i$$
+
+How should we interpret the slope -0.361?
+]
+
+---
+
 ### Fitting logistic regression in R
 
 .large[
@@ -90,7 +102,7 @@ $$Y_i = \beta_0 + \beta_1 X_{i, 1} + \beta_2 X_{i, 2} + \cdots + \beta_k X_{i, k
 .question[
 How do we fit this linear regression model? That is, how do we estimate $$\beta = \begin{bmatrix} \beta_0 \\ \beta_1 \\ \vdots \\ \beta_k \end{bmatrix}$$
 
-Go to [https://pollev.com/ciaranevans637](https://pollev.com/ciaranevans637) to respond.
+Discuss with your neighbor for 2--3 minutes.
 ]
 ]
 
@@ -157,3 +169,27 @@ $L(\beta) =$
 I want to choose $\beta$ to maximize $L(\beta)$. What are the usual steps to take?
 ]
 ]
+
+---
+
+### Initial attempt at maximizing likelihood
+
+.large[
+$L(\beta) = \prod \limits_{i=1}^n p_i^{Y_i} (1 - p_i)^{1 - Y_i}$
+
+$\ell(\beta) =$
+]
+
+---
+
+### Iterative methods for maximizing likelihood
+
+
+---
+
+### Fisher scoring
+
+---
+
+### Fisher scoring for logistic regression
+

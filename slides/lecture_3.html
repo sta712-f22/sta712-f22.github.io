@@ -17,181 +17,155 @@ class: center, middle, inverse, title-slide
 ---
 
 
-
-
-### Motivating example: Dengue data
-
-.large[
-**Data:** Data on 5720 Vietnamese children, admitted to the hospital with possible dengue fever. Variables include:
-
-* *Sex*: patient's sex (female or male)
-* *Age*: patient's age (in years)
-* *WBC*: white blood cell count
-* *PLT*: platelet count
-* other diagnostic variables...
-* *Dengue*: whether the patient has dengue (0 = no, 1 = yes)
-]
-
----
-
-### Last time: Logistic regression model
-
-.large[
-`$$Y_i = \text{dengue status (0 = negative, 1 = positive)}$$`
-
-`$$Y_i \sim Bernoulli(p_i)$$`
-
-`$$\log \left( \dfrac{p_i}{1 - p_i} \right) = \beta_0 + \beta_1 WBC_i$$`
-
-We get `\(n\)` observations `\((WBC_1, Y_1), ..., (WBC_n, Y_n)\)`. Want estimates `\(\widehat{\beta}_0\)`, `\(\widehat{\beta}_1\)`
-]
-
----
-
-### Last time: Logistic regression model
-
-.large[
-`$$Y_i = \text{dengue status (0 = no, 1 = yes)} \hspace{1cm} Y_i \sim Bernoulli(p_i)$$`
-
-`$$\log \left(\dfrac{\widehat{p}_i}{1 - \widehat{p}_i}\right) = 1.737 - 0.361 \ WBC_i$$`
-
-How should we interpret the slope -0.361?
-]
-
----
-
-### Fitting logistic regression in R
-
-.large[
-
-```r
-m1 &lt;- glm(Dengue ~ WBC, data = dengue, 
-          family = binomial)
-summary(m1)
-```
-
-```
-...
-##             Estimate Std. Error z value Pr(&gt;|z|)    
-## (Intercept)  1.73743    0.08499   20.44   &lt;2e-16 ***
-## WBC         -0.36085    0.01243  -29.03   &lt;2e-16 ***
-## ---
-## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-## 
-## (Dispersion parameter for binomial family taken to be 1)
-## 
-##     Null deviance: 6955.8  on 5719  degrees of freedom
-## Residual deviance: 5529.8  on 5718  degrees of freedom
-## AIC: 5533.8
-## 
-## Number of Fisher Scoring iterations: 5
-...
-```
-]
-
----
-
-### Recap: ways of fitting a *linear* regression model
-
-.large[
-`$$Y_i = \beta_0 + \beta_1 X_{i, 1} + \beta_2 X_{i, 2} + \cdots + \beta_k X_{i, k} + \varepsilon_i \hspace{1.5cm} \varepsilon_i \overset{iid}{\sim} N(0, \sigma_\varepsilon^2)$$`
-]
-
-.large[
-.question[
-How do we fit this linear regression model? That is, how do we estimate `$$\beta = \begin{bmatrix} \beta_0 \\ \beta_1 \\ \vdots \\ \beta_k \end{bmatrix}$$`
-
-Discuss with your neighbor for 2--3 minutes.
-]
-]
-
----
-
-### Method 1: Minimize SSE
-
----
-
-### Method 2: Projection argument
-
----
-
-### Method 3: Maximizing likelihood
-
----
-
-### Summary: three ways of fitting linear regression models
-
-.large[
-* Minimize SSE, via derivatives of `\(\sum \limits_{i=1}^n (Y_i - \beta_0 - \beta_1 X_{i,1} - \cdots - \beta_k X_{i,k})^2\)`
-* Minimize `\(||\widehat{Y}||\)` (equivalent to minimizing SSE)
-* Maximize likelihood (for *normal* data, equivalent to minimizing SSE)
-]
-
-.large[
-.question[
-Which of these three methods, if any, is appropriate for fitting a logistic regression model? Do any changes need to be made for the logistic regression setting?
-
-Discuss with your neighbor for 2--3 minutes.
-]
-]
-
----
-
-### Maximum likelihood for logistic regression
+### Recap: Fisher scoring
 
 .large[
 `$$Y_i \sim Bernoulli(p_i)$$`
 
 `$$\log \left( \dfrac{p_i}{1 - p_i} \right) = \beta_0 + \beta_1 X_{i,1} + \cdots + \beta_k X_{i,k}$$`
 
-.question[
-Suppose we observe independent samples `\((X_1, Y_1),...,(X_n, Y_n)\)`. Write down the likelihood function
+Choose `\(\beta = (\beta_0, ..., \beta_k)^T\)` to maximize `\(L(\beta) = \prod \limits_{i=1}^n p_i^{Y_i} (1 - p_i)^{1 - Y_i}\)`.
 
-`$$L(\beta) = \prod \limits_{i=1}^n f(Y_i; \beta)$$`
-
-for the logistic regression problem. Take 2--3 minutes, then we will discuss as a class.
-]
+How? **Fisher scoring:**
 ]
 
 ---
 
-### Maximum likelihood for logistic regression
+### Practice question: Fisher scoring
 
 .large[
-`\(L(\beta) =\)`
+Suppose that `\(\log \left( \dfrac{p_i}{1 - p_i} \right) = \beta_0 + \beta_1 X_{i}\)`, and we have
 
-&lt;br/&gt;
-
-&lt;br/&gt;
+`$$\beta^{(r)} = \begin{bmatrix} -3.1 \\ 0.9 \end{bmatrix}, \hspace{1cm} U(\beta^{(r)}) = \begin{bmatrix} 9.16 \\ 31.91 \end{bmatrix},$$`
+`$$\mathcal{I}(\beta^{(r)}) = \begin{bmatrix} 17.834 &amp; 53.218 \\ 53.218 &amp; 180.718 \end{bmatrix}$$`
 
 .question[
-I want to choose `\(\beta\)` to maximize `\(L(\beta)\)`. What are the usual steps to take?
+Use the Fisher scoring algorithm to calculate `\(\beta^{(r + 1)}\)` (you may use R or a calculator, you do not need to do the matrix arithmetic by hand). Take `\(\sim 5\)` minutes, then we will discuss.
 ]
 ]
 
 ---
 
-### Initial attempt at maximizing likelihood
+### Alternative to Fisher scoring: gradient ascent
 
 .large[
-`\(L(\beta) = \prod \limits_{i=1}^n p_i^{Y_i} (1 - p_i)^{1 - Y_i}\)`
+`$$Y_i \sim Bernoulli(p_i)$$`
 
-`\(\ell(\beta) =\)`
+`$$\log \left( \dfrac{p_i}{1 - p_i} \right) = \beta_0 + \beta_1 X_{i,1} + \cdots + \beta_k X_{i,k}$$`
+
+Choose `\(\beta = (\beta_0, ..., \beta_k)^T\)` to maximize `\(L(\beta)\)`.
+
+**Gradient ascent:**
 ]
 
 ---
 
-### Iterative methods for maximizing likelihood
-
-
----
-
-### Fisher scoring
+### Motivation for gradient ascent: walking uphill
 
 ---
 
-### Fisher scoring for logistic regression
+### Practice question: gradient ascent
 
+.large[
+Suppose that `\(\log \left( \dfrac{p_i}{1 - p_i} \right) = \beta_0 + \beta_1 X_{i}\)`, and we have
+
+`$$\beta^{(r)} = \begin{bmatrix} -3.1 \\ 0.9 \end{bmatrix}, \hspace{1cm} U(\beta^{(r)}) = \begin{bmatrix} 9.16 \\ 31.91 \end{bmatrix}$$`
+.question[
+* Use gradient ascent with a learning rate (aka step size) of `\(\gamma = 0.01\)` to calculate `\(\beta^{(r+1)}\)`. 
+* The actual maximum likelihood estimate is `\(\widehat{\beta} = (-3.360, 1.174)\)`. Does one iteration of gradient ascent or Fisher scoring get us closer to the optimal `\(\widehat{\beta}\)`?
+* Discuss in pairs for 2--3 minutes.
+]
+
+]
+
+---
+
+### Gradient ascent vs. Fisher scoring
+
+---
+
+### Special topic: Feedforward neural networks
+
+---
+
+### Fitting neural networks: stochastic gradient descent
+
+---
+
+### Next steps
+
+.large[
+* Homework 1 released on course website
+* Challenge assignments 1 and 2 released on course website
+* Next week: logistic regression diagnostics
+]
+
+---
+
+### Course components
+
+.large[
+* Regular homework assignments
+  * Practice material from class
+* Challenge assignments
+  * Learn additional material related to course
+* 2 take-home exams
+  * Demonstrate knowledge of theory and methodology
+  * No final exam!
+* 2 projects
+  * Apply material to real data and real research questions
+]
+
+---
+
+### Grading philosophy
+
+.large[
+* Focusing on grades can detract from the learning process
+* Homework should be an opportunity to *practice* the material. It is ok to make mistakes when practicing, as long as you make an honest effort
+* Errors are a good opportunity to learn and revise your work
+* Partial credit and weighted averages of scores make the meaning of a grade confusing. Does an 85 in the course mean you know 85% of everything, or everything about 85% of the material?
+]
+
+---
+
+### Grading in this course
+
+.large[
+* I will give you feedback on every assignment
+* Homework is graded on completeness and effort, not correctness
+* All other assignments (challenge, exams, projects) are graded as Mastered / Not yet mastered
+* If you haven't yet mastered something, you get to try again!
+]
+
+---
+
+### Assigning grades: specifications grading
+
+.large[
+To get a **B** in the course:
+
+* Receive credit for at least 5 homework assignments
+* Master one project
+* Master at least 80% of the questions on both exams
+
+To get an **A** in the course:
+
+* Receive credit for at least 5 homework assignments
+* Master both projects
+* Master at least 80% of the questions on both exams
+* Master at least 2 challenge assignments
+]
+
+---
+
+### Late work and resubmissions
+
+.large[
+* You get a bank of **5** extension days. You can use 1--2 days on any assignment, exam, or project.
+* No other late work will be accepted (except in extenuating circumstances!)
+* "Not yet mastered" challenge questions, exams, and projects may be resubmitted once
+]
     </textarea>
 <style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
 <script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
