@@ -75,7 +75,7 @@ On Thursday, I will have drop-in office hours (no appointments) for anyone who w
 Times: 
 
 * Monday 3:00pm -- 4:00pm
-* Wednesday 11:00am -- 12:00pm
+* Wednesday 11:00am -- 12:45pm
 * Thursday 1:00pm -- 2:00pm
 
 
