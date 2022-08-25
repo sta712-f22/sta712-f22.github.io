@@ -68,9 +68,9 @@ If you have any questions about the course (or statistics in general!), please d
 
 Keep in mind that debugging software issues can take time, so make sure to start the assignments early in case you run into problems.
 
-**Office hours:** On Monday and Wednesday, I will have office hours in 15-minute appointment slots. You may sign up (one person per slot) [here](https://calendar.google.com/calendar/u/0/selfsched?sstoken=UU5FbWRMeTJRWGxafGRlZmF1bHR8YzljNjUzMDk5MzRhMTA0ZGJmY2NhZDcxNmViOGVlNGY). Please sign up for only one slot at a time. You may attend these appointments either in-person or virtually. If you plan to attend virtually, please let me know beforehand.
+**Office hours:** On Monday 3-4 and Wednesday 11-12, I will have office hours in 15-minute appointment slots. You may sign up (one person per slot) [here](https://calendar.google.com/calendar/u/0/selfsched?sstoken=UU5FbWRMeTJRWGxafGRlZmF1bHR8YzljNjUzMDk5MzRhMTA0ZGJmY2NhZDcxNmViOGVlNGY). Please sign up for only one slot at a time. You may attend these appointments either in-person or virtually. If you plan to attend virtually, please let me know beforehand.
 
-On Thursday, I will have drop-in office hours (no appointments) for anyone who wants to stop by.
+On Wednesday 12 - 12:45 and Thursday 1-2, I will have drop-in office hours (no appointment needed) for anyone who wants to stop by.
 
 Times: 
 

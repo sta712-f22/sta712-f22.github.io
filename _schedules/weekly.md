@@ -38,7 +38,7 @@ schedule:
         location: Manchester 121
       - name: Office Hours
         start: 11:00 AM
-        end: 12:00 PM
+        end: 12:45 PM
         location: Manchester 329
   - name: Thursday
     events:
