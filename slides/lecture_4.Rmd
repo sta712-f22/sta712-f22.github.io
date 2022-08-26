@@ -1,0 +1,23 @@
+---
+title: Fitting logistic regression models
+output:
+  xaringan::moon_reader:
+    css: "lab-slides.css"
+    lib_dir: libs
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+editor_options: 
+  chunk_output_type: console
+---
+
+### Gradient ascent vs. Fisher scoring
+
+---
+
+### Special topic: Feedforward neural networks
+
+---
+
+### Fitting neural networks: stochastic gradient descent
