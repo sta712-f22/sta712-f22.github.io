@@ -1,0 +1,318 @@
+---
+title: Logistic regression assumptions and diagnostics
+output:
+  xaringan::moon_reader:
+    css: "lab-slides.css"
+    lib_dir: libs
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+editor_options: 
+  chunk_output_type: console
+---
+
+### Motivating example: Dengue data
+
+.large[
+**Data:** Data on 5720 Vietnamese children, admitted to the hospital with possible dengue fever. Variables include:
+
+* *Sex*: patient's sex (female or male)
+* *Age*: patient's age (in years)
+* *WBC*: white blood cell count
+* *PLT*: platelet count
+* other diagnostic variables...
+* *Dengue*: whether the patient has dengue (0 = no, 1 = yes)
+]
+
+---
+
+### Previously: Logistic regression model
+
+.large[
+$$Y_i = \text{dengue status (0 = negative, 1 = positive)}$$
+
+$$Y_i \sim Bernoulli(p_i)$$
+
+$$\log \left( \dfrac{p_i}{1 - p_i} \right) = \beta_0 + \beta_1 WBC_i$$
+
+.question[
+What assumptions does this logistic regression model make? How should we assess these assumptions? Discuss with your neighbor for 2--3 minutes, then we will discuss as a group.
+]
+]
+
+---
+
+### Don't use usual residuals for logistic regression
+
+.large[
+Fitted model: $\log \left(\dfrac{\widehat{p}_i}{1 - \widehat{p}_i}\right) = 1.737 - 0.361 \ WBC_i$
+]
+
+.large[
+Residuals $Y_i - \widehat{p}_i$:
+]
+
+```{r echo=F, message=F, fig.width=7, fig.height = 5, fig.align='center'}
+library(tidyverse)
+dengue <- read.csv("https://sta279-s22.github.io/labs/dengue.csv")
+
+m1 <- glm(Dengue ~ WBC, data = dengue, family = binomial)
+data.frame(WBC = dengue$WBC,
+           Residual = dengue$Dengue - m1$fitted.values) %>%
+  ggplot(aes(x = WBC, y = Residual)) +
+  geom_point(size=1.5) +
+  geom_abline(slope = 0, intercept = 0, color="blue", lwd=1.2) +
+  theme_bw() +
+  theme(text = element_text(size = 20))
+```
+
+---
+
+### Assessing shape with empirical logit plots
+
+.large[
+**Example:** Putting data. Interested in the relationship between the length of a putt, and whether it was made:
+
+$$Y_i \sim Bernoulli(p_i)$$
+
+$$\log \left( \dfrac{p_i}{1 - p_i} \right) = \beta_0 + \beta_1 \ Length_i$$
+
+| Length | 3 | 4 | 5 | 6 | 7 |
+| --- | --- | --- | --- | --- | --- |
+| Number of successes | 84 | 88 | 61 | 61 | 44 |
+| Number of failures | 17 | 31 | 47 | 64 | 90 |
+| Total | 101 | 119 | 108 | 125 | 134 |
+]
+
+---
+
+### Empirical logits
+
+.large[
+**Step 1:** estimate the probability of success for each length of putt
+
+| Length | 3 | 4 | 5 | 6 | 7 |
+| --- | --- | --- | --- | --- | --- |
+| Number of successes | 84 | 88 | 61 | 61 | 44 |
+| Number of failures | 17 | 31 | 47 | 64 | 90 |
+| Total | 101 | 119 | 108 | 125 | 134 |
+| Probability of success $\widehat{p}$ | 0.832 | 0.739 | 0.565 | 0.488 | 0.328 |
+]
+
+---
+
+### Empirical logits
+
+.large[
+**Step 2:** convert empirical probabilities to empirical log odds
+
+| Length | 3 | 4 | 5 | 6 | 7 |
+| --- | --- | --- | --- | --- | --- |
+| Number of successes | 84 | 88 | 61 | 61 | 44 |
+| Number of failures | 17 | 31 | 47 | 64 | 90 |
+| Total | 101 | 119 | 108 | 125 | 134 |
+| Probability of success $\widehat{p}$ | 0.832 | 0.739 | 0.565 | 0.488 | 0.328 |
+| Odds $\dfrac{\widehat{p}}{1 - \widehat{p}}$ | 4.941 | 2.839 | 1.298 | 0.953 | 0.489 |
+| Log-odds $\log \left( \dfrac{\widehat{p}}{1 - \widehat{p}} \right)$ | 1.60 | 1.04 | 0.26 | -0.05 | -0.72 |
+]
+
+---
+
+### Empirical logits
+
+.large[
+**Step 3:** plot empirical log-odds against predictor, and add a least-squares line
+
+```{r echo=F, message=F, fig.width=7, fig.height=4.5, fig.align='center'}
+data.frame(length = c(3, 4, 5, 6, 7),
+  log_odds = c(1.6, 1.04, 0.26, -0.05, -0.72)) %>% 
+  ggplot(aes(x = length, y = log_odds)) + 
+  geom_point(size=3) + 
+  geom_smooth(se=F, method="lm") +
+  labs(x = "Length (feet)",
+       y = "Empirical log-odds") +
+  theme_bw() +
+  theme(text = element_text(size = 25))
+```
+
+.question[
+Does it seem reasonable that the log-odds are a linear function of length?
+]
+]
+
+---
+
+### Back to the dengue data...
+
+.large[
+
+| WBC | 0.90 | 1.15 | 1.23 | 1.25 | 1.54 | 1.58 | ... |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| Dengue = 0 | 0 | 0 | 0 | 0 | 0 | 0 | ... |
+| Dengue = 1 | 1 | 2 | 1 | 1 | 3 | 1 | ... |
+
+.question[
+What problem do I run into?
+]
+]
+
+---
+
+### Binned empirical logit plots
+
+```{r echo=F, message=F, fig.align='center', fig.width=7, fig.height=5}
+logodds_plot <- function(data, num_bins, bin_method,
+                         x_name, y_name, grouping = NULL, reg_formula = y ~ x){
+  
+  if(is.null(grouping)){
+    dat <- data.frame(x = data %>% pull(x_name), 
+                      y = data %>% pull(y_name),
+                      group = 1)
+  } else {
+    dat <- data.frame(x = data %>% pull(x_name), 
+                      y = data %>% pull(y_name),
+                      group = data %>% pull(grouping))
+  }
+  
+  if(bin_method == "equal_size"){
+    logodds_table <- dat %>%
+      drop_na() %>%
+      arrange(group, x) %>%
+      group_by(group) %>%
+      mutate(obs = y,
+             bin = rep(1:num_bins,
+                       each=ceiling(n()/num_bins))[1:n()]) %>%
+      group_by(bin, group) %>%
+      summarize(mean_x = mean(x),
+                prop = mean(c(obs, 0.5)),
+                num_obs = n()) %>%
+      ungroup() %>%
+      mutate(logodds = log(prop/(1 - prop)))
+  } else {
+    logodds_table <- dat %>%
+      drop_na() %>%
+      group_by(group) %>%
+      mutate(obs = y,
+             bin = cut(x, 
+                       breaks = num_bins,
+                       labels = F)) %>%
+      group_by(bin, group) %>%
+      summarize(mean_x = mean(x),
+                prop = mean(c(obs, 0.5)),
+                num_obs = n()) %>%
+      ungroup() %>%
+      mutate(logodds = log(prop/(1 - prop)))
+  }
+  
+  if(is.null(grouping)){
+    logodds_table %>%
+      ggplot(aes(x = mean_x,
+                 y = logodds)) +
+      geom_point(size=2) +
+      geom_smooth(se=F, method="lm", formula = reg_formula) +
+      theme_bw() +
+      labs(x = x_name,
+           y = "Empirical log odds") +
+      theme(text = element_text(size=25))
+  } else {
+    logodds_table %>%
+      ggplot(aes(x = mean_x,
+                 y = logodds,
+                 color = group,
+                 shape = group)) +
+      geom_point(size=2) +
+      geom_smooth(se=F, method="lm", formula = reg_formula) +
+      theme_bw() +
+      labs(x = x_name,
+           y = "Empirical log odds",
+           color = grouping,
+           shape = grouping) +
+      theme(text = element_text(size=25))
+  }
+  
+}
+
+dengue %>%
+  logodds_plot(num_bins = 15, bin_method = "equal_size", 
+               x_name = "WBC", y_name = "Dengue",
+               reg_formula = y ~ x)
+```
+
+---
+
+### Binned empirical logit plots
+
+```{r echo=F, message=F, fig.align='center', fig.width=7, fig.height=5}
+dengue %>%
+  logodds_plot(num_bins = 15, bin_method = "equal_size", 
+               x_name = "WBC", y_name = "Dengue",
+               reg_formula = y ~ x)
+```
+
+.large[
+.question[
+Does it seem reasonable that the log-odds are a linear function of WBC?
+]
+]
+
+---
+
+### Trying some transformations
+
+```{r echo=F, message=F, fig.align='center', fig.width=10, fig.height=7}
+library(gridExtra)
+p1 <- dengue %>% 
+  logodds_plot(num_bins = 15, bin_method = "equal_size", 
+               x_name = "WBC", y_name = "Dengue",
+               reg_formula = y ~ x) +
+  labs(title = "Untransformed")
+
+p2 <- dengue %>% 
+  logodds_plot(num_bins = 15, bin_method = "equal_size", 
+               x_name = "WBC", y_name = "Dengue",
+               reg_formula = y ~ log(x)) +
+  labs(title = "Log transformation")
+
+p3 <- dengue %>% 
+  logodds_plot(num_bins = 15, bin_method = "equal_size", 
+               x_name = "WBC", y_name = "Dengue",
+               reg_formula = y ~ sqrt(x)) +
+  labs(title = "Square root")
+
+p4 <- dengue %>% 
+  logodds_plot(num_bins = 15, bin_method = "equal_size", 
+               x_name = "WBC", y_name = "Dengue",
+               reg_formula = y ~ I(1/x)) +
+  labs(title = "Reciprocal ")
+
+grid.arrange(p1, p2, p3, p4, ncol=2)
+```
+
+---
+
+### Why residuals in linear regression are nice
+
+---
+
+### Quantile residuals for logistic regression
+
+---
+
+### Quantile residuals example (in R)
+
+---
+
+### Class activity, Part I
+
+.large[
+[https://sta712-f22.github.io/class_activities/ca_lecture_5.html](https://sta712-f22.github.io/class_activities/ca_lecture_5.html)
+]
+
+---
+
+### Class activity, Part II
+
+.large[
+[https://sta712-f22.github.io/class_activities/ca_lecture_5.html](https://sta712-f22.github.io/class_activities/ca_lecture_5.html)
+]

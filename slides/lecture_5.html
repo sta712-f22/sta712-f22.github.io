@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Logistic regression assumptions and diagnostics</title>
+    <meta charset="utf-8" />
+    <script src="libs/header-attrs-2.14/header-attrs.js"></script>
+    <link rel="stylesheet" href="lab-slides.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+.title[
+# Logistic regression assumptions and diagnostics
+]
+
+---
+
+
+### Motivating example: Dengue data
+
+.large[
+**Data:** Data on 5720 Vietnamese children, admitted to the hospital with possible dengue fever. Variables include:
+
+* *Sex*: patient's sex (female or male)
+* *Age*: patient's age (in years)
+* *WBC*: white blood cell count
+* *PLT*: platelet count
+* other diagnostic variables...
+* *Dengue*: whether the patient has dengue (0 = no, 1 = yes)
+]
+
+---
+
+### Previously: Logistic regression model
+
+.large[
+`$$Y_i = \text{dengue status (0 = negative, 1 = positive)}$$`
+
+`$$Y_i \sim Bernoulli(p_i)$$`
+
+`$$\log \left( \dfrac{p_i}{1 - p_i} \right) = \beta_0 + \beta_1 WBC_i$$`
+
+.question[
+What assumptions does this logistic regression model make? How should we assess these assumptions? Discuss with your neighbor for 2--3 minutes, then we will discuss as a group.
+]
+]
+
+---
+
+### Don't use usual residuals for logistic regression
+
+.large[
+Fitted model: `\(\log \left(\dfrac{\widehat{p}_i}{1 - \widehat{p}_i}\right) = 1.737 - 0.361 \ WBC_i\)`
+]
+
+.large[
+Residuals `\(Y_i - \widehat{p}_i\)`:
+]
+
+&lt;img src="lecture_5_files/figure-html/unnamed-chunk-1-1.png" style="display: block; margin: auto;" /&gt;
+
+---
+
+### Assessing shape with empirical logit plots
+
+.large[
+**Example:** Putting data. Interested in the relationship between the length of a putt, and whether it was made:
+
+`$$Y_i \sim Bernoulli(p_i)$$`
+
+`$$\log \left( \dfrac{p_i}{1 - p_i} \right) = \beta_0 + \beta_1 \ Length_i$$`
+
+| Length | 3 | 4 | 5 | 6 | 7 |
+| --- | --- | --- | --- | --- | --- |
+| Number of successes | 84 | 88 | 61 | 61 | 44 |
+| Number of failures | 17 | 31 | 47 | 64 | 90 |
+| Total | 101 | 119 | 108 | 125 | 134 |
+]
+
+---
+
+### Empirical logits
+
+.large[
+**Step 1:** estimate the probability of success for each length of putt
+
+| Length | 3 | 4 | 5 | 6 | 7 |
+| --- | --- | --- | --- | --- | --- |
+| Number of successes | 84 | 88 | 61 | 61 | 44 |
+| Number of failures | 17 | 31 | 47 | 64 | 90 |
+| Total | 101 | 119 | 108 | 125 | 134 |
+| Probability of success `\(\widehat{p}\)` | 0.832 | 0.739 | 0.565 | 0.488 | 0.328 |
+]
+
+---
+
+### Empirical logits
+
+.large[
+**Step 2:** convert empirical probabilities to empirical log odds
+
+| Length | 3 | 4 | 5 | 6 | 7 |
+| --- | --- | --- | --- | --- | --- |
+| Number of successes | 84 | 88 | 61 | 61 | 44 |
+| Number of failures | 17 | 31 | 47 | 64 | 90 |
+| Total | 101 | 119 | 108 | 125 | 134 |
+| Probability of success `\(\widehat{p}\)` | 0.832 | 0.739 | 0.565 | 0.488 | 0.328 |
+| Odds `\(\dfrac{\widehat{p}}{1 - \widehat{p}}\)` | 4.941 | 2.839 | 1.298 | 0.953 | 0.489 |
+| Log-odds `\(\log \left( \dfrac{\widehat{p}}{1 - \widehat{p}} \right)\)` | 1.60 | 1.04 | 0.26 | -0.05 | -0.72 |
+]
+
+---
+
+### Empirical logits
+
+.large[
+**Step 3:** plot empirical log-odds against predictor, and add a least-squares line
+
+&lt;img src="lecture_5_files/figure-html/unnamed-chunk-2-1.png" style="display: block; margin: auto;" /&gt;
+
+.question[
+Does it seem reasonable that the log-odds are a linear function of length?
+]
+]
+
+---
+
+### Back to the dengue data...
+
+.large[
+
+| WBC | 0.90 | 1.15 | 1.23 | 1.25 | 1.54 | 1.58 | ... |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| Dengue = 0 | 0 | 0 | 0 | 0 | 0 | 0 | ... |
+| Dengue = 1 | 1 | 2 | 1 | 1 | 3 | 1 | ... |
+
+.question[
+What problem do I run into?
+]
+]
+
+---
+
+### Binned empirical logit plots
+
+&lt;img src="lecture_5_files/figure-html/unnamed-chunk-3-1.png" style="display: block; margin: auto;" /&gt;
+
+---
+
+### Binned empirical logit plots
+
+&lt;img src="lecture_5_files/figure-html/unnamed-chunk-4-1.png" style="display: block; margin: auto;" /&gt;
+
+.large[
+.question[
+Does it seem reasonable that the log-odds are a linear function of WBC?
+]
+]
+
+---
+
+### Trying some transformations
+
+&lt;img src="lecture_5_files/figure-html/unnamed-chunk-5-1.png" style="display: block; margin: auto;" /&gt;
+
+---
+
+### Why residuals in linear regression are nice
+
+---
+
+### Quantile residuals for logistic regression
+
+---
+
+### Quantile residuals example (in R)
+
+---
+
+### Class activity, Part I
+
+.large[
+[https://sta712-f22.github.io/class_activities/ca_lecture_5.html](https://sta712-f22.github.io/class_activities/ca_lecture_5.html)
+]
+
+---
+
+### Class activity, Part II
+
+.large[
+[https://sta712-f22.github.io/class_activities/ca_lecture_5.html](https://sta712-f22.github.io/class_activities/ca_lecture_5.html)
+]
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+// add `data-at-shortcutkeys` attribute to <body> to resolve conflicts with JAWS
+// screen reader (see PR #262)
+(function(d) {
+  let res = {};
+  d.querySelectorAll('.remark-help-content table tr').forEach(tr => {
+    const t = tr.querySelector('td:nth-child(2)').innerText;
+    tr.querySelectorAll('td:first-child .key').forEach(key => {
+      const k = key.innerText;
+      if (/^[a-z]$/.test(k)) res[k] = t;  // must be a single letter (key)
+    });
+  });
+  d.body.setAttribute('data-at-shortcutkeys', JSON.stringify(res));
+})(document);
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

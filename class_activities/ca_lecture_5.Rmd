@@ -1,0 +1,163 @@
+---
+title: "Class Activity, August 31"
+output: 
+  rmdformats::robobook:
+    css: "homework.css"
+    highlight: pygments
+link-citations: yes
+---
+
+# Part I
+
+In the first part of this class activity, we will explore quantile residuals as a diagnostic tool for logistic regression. Quantile residuals can be calculated for a fitted GLM in R using the `qresid()` function in the `statmod` package (you may need to install this package).
+
+In class, we used the following code to simulate data for which the logistic regression model assumptions hold:
+
+```r
+# simulate a single explanatory variable from a Normal distribution
+x <- rnorm(1000)
+
+# create P(Y = 1 | X) for each entry in x
+# Here log odds = -1 + 2x
+p <- exp(-1 + 2*x)/(1 + exp(-1 + 2*x))
+
+# Finally, simulate a binary response at each x
+y <- rbinom(1000, 1, p)
+
+# fit the model and plot the quantile residuals against x
+# add a smooth fit to see if there is a relationship
+m1 <- glm(y ~ x, family = binomial)
+data.frame(x = x, residuals = qresid(m1)) %>%
+  ggplot(aes(x = x, y = residuals)) +
+  geom_point() +
+  geom_smooth() +
+  theme_bw()
+```
+
+Now, let's see what happens when we break a logistic regression assumption!
+
+## Questions
+
+1. Modify the simulation code above so that the log odds are *not* a linear function of $X$. Fit the same logistic regression model as above (`y ~ x`, which is now wrong) and make a quantile residual plot. Does the plot show that the assumptions are violated?
+
+# Part II
+
+In the second part of this class activity, we will use diagnostic tools to help fit a logistic regression model on real data. Here we work with data from a website called ScienceForums.Net (SFN), which has been open since 2002 and hosts conversations on a range of topics from biological and physical science to religion and philosophy. Each row in the data represents one ‘thread’, which is comprised of a series of posts stemming from an initial post. For each thread, we have some information that SFN collects such as the number of views and the number of authors. The threads present in the data are a random sample of threads from 2002-2014, with the data collected in 2014. SFN moderators are interested in using this data to determine which threads warrant the most attention.
+
+You can load the SFN data into R by
+
+```r
+sfn <- read.csv("https://sta712-f22.github.io/class_activities/sfn.csv")
+```
+
+The `sfn` dataset contains the following columns:
+
+* `Age`: the age of the thread (in days) when the data was collected in 2014, measured from the first post in the thread
+* `State`: sometimes moderators close threads if they are inappropriate. closed indicates the thread has been closed, otherwise State is open
+* `Posts`: the number of posts in the thread
+* `Views`: the total number of views of the thread
+* `Duration`: 	the number of days between the first and last posts in the thread
+* `Authors`: the number of distinct authors posting in the thread
+* `AuthorExperience`: the number of days the author of the first post in the thread had been registered on SFN when the thread began (0 indicates they registered that day)
+* `DeletedPosts`: the number of posts in the thread that have been deleted by a moderator
+* `Forum`: the forum in which the thread was posted (e.g., Science)
+* `AuthorBanned`: whether the original author of the thread is currently banned from posting on SFN (at the time of data collection, not when the thread was first posted)
+
+## Questions
+
+Moderators are interested in predicting whether a thread will have any posts which need to be deleted.
+
+1. Create a new variable, `HasDeleted`, which is = 1 when the number of deleted posts is > 0, and 0 otherwise.
+
+2. Fit a logistic regression model to predict whether any posts have been deleted, using explanatory variables like the number of views, the number of posts, and the number of authors.
+
+3. Create empirical logit and quantile residual plots for your fitted model. Does it look like any transformations are needed on your explanatory variables?
+
+The below function, `logodds_plot`, can be used to create an empirical logit plot. To use the function, you will need to specify the following arguments
+
+* `data`: the dataset of interest (e.g., `sfn`)
+* `num_bins`: the number of bins to use
+  * The number of bins should be chosen based on the size of the data. For example, with `bin_method = "equal_size"`, we probably want at least 15 observations per bin, so `num_bins` < (number of observations)/15
+* `bin_method`: whether to choose bins with the same number of observations (`"equal_size"`) or the same width (`"equal_width"`)
+* `x`: the name of the column containing the explanatory variable (e.g., `"Views"`). *The quotation marks are needed*
+* `y`: the name of the column containing the response (e.g., `"HasDeleted"`). *The quotation marks are needed*
+* `grouping`: Fit a separate line for different levels of the grouping variable
+* `reg_formula`: This is the shape of the relationship you want to plot. If you want a line, this is y ~ x (the default). Some other examples:
+  * `y ~ log(x)` : a log transformation of x
+  * `y ~ sqrt(x)` : a square root transformation of x
+  * `y ~ poly(x, 2)` : a second-order polynomial
+  * `y ~ poly(x, 3)` : a third-order polynomial
+
+```r
+logodds_plot <- function(data, num_bins, bin_method,
+                         x_name, y_name, grouping = NULL, reg_formula = y ~ x){
+  
+  if(is.null(grouping)){
+    dat <- data.frame(x = data %>% pull(x_name), 
+                      y = data %>% pull(y_name),
+                      group = 1)
+  } else {
+    dat <- data.frame(x = data %>% pull(x_name), 
+                      y = data %>% pull(y_name),
+                      group = data %>% pull(grouping))
+  }
+  
+  if(bin_method == "equal_size"){
+    logodds_table <- dat %>%
+      drop_na() %>%
+      arrange(group, x) %>%
+      group_by(group) %>%
+      mutate(obs = y,
+             bin = rep(1:num_bins,
+                       each=ceiling(n()/num_bins))[1:n()]) %>%
+      group_by(bin, group) %>%
+      summarize(mean_x = mean(x),
+                prop = mean(c(obs, 0.5)),
+                num_obs = n()) %>%
+      ungroup() %>%
+      mutate(logodds = log(prop/(1 - prop)))
+  } else {
+    logodds_table <- dat %>%
+      drop_na() %>%
+      group_by(group) %>%
+      mutate(obs = y,
+             bin = cut(x, 
+                       breaks = num_bins,
+                       labels = F)) %>%
+      group_by(bin, group) %>%
+      summarize(mean_x = mean(x),
+                prop = mean(c(obs, 0.5)),
+                num_obs = n()) %>%
+      ungroup() %>%
+      mutate(logodds = log(prop/(1 - prop)))
+  }
+  
+  if(is.null(grouping)){
+    logodds_table %>%
+      ggplot(aes(x = mean_x,
+                 y = logodds)) +
+      geom_point(size=2) +
+      geom_smooth(se=F, method="lm", formula = reg_formula) +
+      theme_bw() +
+      labs(x = x_name,
+           y = "Empirical log odds") +
+      theme(text = element_text(size=25))
+  } else {
+    logodds_table %>%
+      ggplot(aes(x = mean_x,
+                 y = logodds,
+                 color = group,
+                 shape = group)) +
+      geom_point(size=2) +
+      geom_smooth(se=F, method="lm", formula = reg_formula) +
+      theme_bw() +
+      labs(x = x_name,
+           y = "Empirical log odds",
+           color = grouping,
+           shape = grouping) +
+      theme(text = element_text(size=25))
+  }
+  
+}
+```
+
