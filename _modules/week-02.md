@@ -10,6 +10,9 @@ August 29
 
 August 31
 : Logistic regression assumptions and diagnostics
+  : [Slides](https://sta712-f22.github.io/slides/lecture_5.pdf), [Class activity](https://sta712-f22.github.io/class_activities/ca_lecture_5.html)
+
+: Textbook 8.3, 8.6, 8.7, 9.11
 
 September 2
 : Logistic regression diagnostics
