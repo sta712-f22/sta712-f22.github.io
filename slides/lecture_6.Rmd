@@ -1,0 +1,81 @@
+---
+title: Logistic regression assumptions and diagnostics
+output:
+  xaringan::moon_reader:
+    css: "lab-slides.css"
+    lib_dir: libs
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+editor_options: 
+  chunk_output_type: console
+---
+
+### Last time: quantile residuals to assess shape
+
+```{r echo=F, message=F, warning=F, fig.align='center', fig.width=7, fig.height=5}
+library(tidyverse)
+library(statmod)
+# simulate a single explanatory variable from a Normal distribution
+x <- rnorm(1000)
+
+# create P(Y = 1 | X) for each entry in x
+# Here log odds = -1 + 2x
+p <- exp(-1 + 2*x)/(1 + exp(-1 + 2*x))
+
+# Finally, simulate a binary response at each x
+y <- rbinom(1000, 1, p)
+
+# fit the model and plot the quantile residuals against x
+# add a smooth fit to see if there is a relationship
+m1 <- glm(y ~ x, family = binomial)
+data.frame(x = x, residuals = qresid(m1)) %>%
+  ggplot(aes(x = x, y = residuals)) +
+  geom_point() +
+  geom_smooth() +
+  theme_bw() +
+  theme(text = element_text(size = 20))
+```
+
+---
+
+### Warm up: Class activity, Part I
+
+.large[
+[https://sta712-f22.github.io/class_activities/ca_lecture_6.html](https://sta712-f22.github.io/class_activities/ca_lecture_6.html)
+
+.question[
+* Generate data for which the logistic regression shape assumption doesn't hold
+* See whether the violation shows up on a quantile residual plot
+]
+]
+
+---
+
+### More logistic regression diagnostics
+
+.large[
+* Are there any outliers that could affect the fitted model?
+* Are there issues with multicollinearity?
+]
+
+---
+
+### Leverage and Cook's Distance in linear regression
+
+---
+
+### Fisher scoring as Iteratively Reweighted Least Squares
+
+---
+
+### Class Activity, Part II
+
+.large[
+[https://sta712-f22.github.io/class_activities/ca_lecture_6.html](https://sta712-f22.github.io/class_activities/ca_lecture_6.html)
+
+.question[
+Exploring leverage and Cook's distance!
+]
+]

@@ -1,0 +1,74 @@
+---
+title: "Class Activity, September 2"
+output: 
+  rmdformats::robobook:
+    css: "homework.css"
+    highlight: pygments
+link-citations: yes
+---
+
+# Part I
+
+In the first part of this class activity, we will explore quantile residuals as a diagnostic tool for logistic regression. Quantile residuals can be calculated for a fitted GLM in R using the `qresid()` function in the `statmod` package (you may need to install this package).
+
+In class, we used the following code to simulate data for which the logistic regression model assumptions hold:
+
+```r
+# simulate a single explanatory variable from a Normal distribution
+x <- rnorm(1000)
+
+# create P(Y = 1 | X) for each entry in x
+# Here log odds = -1 + 2x
+p <- exp(-1 + 2*x)/(1 + exp(-1 + 2*x))
+
+# Finally, simulate a binary response at each x
+y <- rbinom(1000, 1, p)
+
+# fit the model and plot the quantile residuals against x
+# add a smooth fit to see if there is a relationship
+m1 <- glm(y ~ x, family = binomial)
+data.frame(x = x, residuals = qresid(m1)) %>%
+  ggplot(aes(x = x, y = residuals)) +
+  geom_point() +
+  geom_smooth() +
+  theme_bw()
+```
+
+Now, let's see what happens when we break a logistic regression assumption!
+
+## Questions
+
+1. Modify the simulation code above so that the log odds are *not* a linear function of $X$. Fit the same logistic regression model as above (`y ~ x`, which is now wrong) and make a quantile residual plot. Does the plot show that the assumptions are violated?
+
+# Part II
+
+In the second part of the class activity, we will explore leverage and Cook's distance for identifying influential points (i.e., observations which can substantially change our fitted regression model).
+
+The following code generates data with a potential outlier at $x = -2$:
+
+```r
+# simulate a single explanatory variable from a Normal distribution
+x <- rnorm(100)
+
+# create P(Y = 1 | X) for each entry in x
+# Here log odds = -1 + 2x
+p <- exp(-1 + 2*x)/(1 + exp(-1 + 2*x))
+
+# Finally, simulate a binary response at each x
+y <- rbinom(100, 1, p)
+
+x1 <- c(x, -2)
+y1 <- c(y, 1)
+```
+
+## Questions
+
+Run the code above, then answer the following questions:
+
+2. The leverage values for a fitted model can be computed in R with the `hatvalues(...)` function. Plot leverage against the predictor `x`; does leverage always increase as we move away from the center of $X$?
+
+3. Cook's distance can be computed in R with the `cooks.distance(...)` function. Plot Cook's distance against `x`. Is the potential outlier identified as an influential point?
+
+4. Try changing the location of the outlier from $x = -2$ to $x =$ something else. How does Cook's distance change as we move the potential outlier?
+
+5. Now increase the sample size of the simulated data. How does sample size impact whether an outlier is influential?

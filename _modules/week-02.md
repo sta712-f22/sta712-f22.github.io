@@ -16,3 +16,9 @@ August 31
 
 September 2
 : Logistic regression diagnostics
+  : [Slides](https://sta712-f22.github.io/slides/lecture_6.pdf), [Class activity](https://sta712-f22.github.io/class_activities/ca_lecture_6.html)
+
+: Textbook 8.3, 8.4, 8.8
+
+: **Challenge Assignment 2 released**{: .label .label-yellow }
+  : [Challenge 2](https://sta712-f22.github.io/homework/challenge_2.pdf)
