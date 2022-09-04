@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.22 (TeX Live 2021) (preloaded format=pdflatex 2021.8.13)  1 SEP 2022 10:39
+This is pdfTeX, Version 3.141592653-2.6-1.40.22 (TeX Live 2021) (preloaded format=pdflatex 2021.8.13)  4 SEP 2022 08:03
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -113,7 +113,7 @@ File: l3backend-pdftex.def 2021-03-18 L3 backend support: PDF output (pdfTeX)
 \l__color_backend_stack_int=\count199
 \l__pdf_internal_box=\box49
 )
-No file challenge_3.aux.
+(./challenge_3.aux)
 \openout1 = `challenge_3.aux'.
 
 LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 14.
@@ -174,8 +174,8 @@ Underfull \hbox (badness 10000) in paragraph at lines 64--65
 
 [2] [3] (./challenge_3.aux) ) 
 Here is how much of TeX's memory you used:
- 1729 strings out of 478994
- 22248 string characters out of 5858184
+ 1731 strings out of 478994
+ 22280 string characters out of 5858184
  314136 words of memory out of 5000000
  19232 multiletter control sequences out of 15000+600000
  412913 words of font info for 61 fonts, out of 8000000 for 9000
@@ -191,7 +191,7 @@ msfonts/cm/cmr12.pfb></usr/local/texlive/2021/texmf-dist/fonts/type1/public/ams
 fonts/cm/cmti10.pfb></usr/local/texlive/2021/texmf-dist/fonts/type1/public/amsf
 onts/cm/cmtt10.pfb></usr/local/texlive/2021/texmf-dist/fonts/type1/public/cm-su
 per/sfrm1095.pfb>
-Output written on challenge_3.pdf (3 pages, 113489 bytes).
+Output written on challenge_3.pdf (3 pages, 113484 bytes).
 PDF statistics:
  47 PDF objects out of 1000 (max. 8388607)
  33 compressed objects within 1 object stream

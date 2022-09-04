@@ -1,0 +1,116 @@
+\documentclass[11pt]{article}
+\usepackage{url}
+\usepackage{alltt}
+\usepackage{bm}
+\linespread{1}
+\textwidth 6.5in
+\oddsidemargin 0.in
+\addtolength{\topmargin}{-1in}
+\addtolength{\textheight}{2in}
+
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{bm}
+
+\begin{document}
+
+
+\begin{center}
+\Large
+STA 712 Homework 2\\
+\normalsize
+\vspace{5mm}
+\end{center}
+
+\noindent \textbf{Due:} Tuesday, September 13, 12:00pm (noon) on Canvas.\\ 
+
+\noindent \textbf{Instructions:} Submit your work as a single PDF. For this assignment, you may include written work by scanning it and incorporating it into the PDF. Include all R code needed to reproduce your results in your submission.
+
+\section*{MLE review}
+
+\begin{enumerate}
+\item If $Y \sim Poisson(\lambda)$, then
+\begin{align*}
+P(Y = k) = \dfrac{e^{-\lambda} \lambda^k}{k!},
+\end{align*}
+where $\lambda > 0$ and $k = 0, 1, 2, ...$ . Suppose we observe $Y_1,...,Y_n \overset{iid}{\sim} Poisson(\lambda)$.
+
+\begin{enumerate}
+\item Derive the maximum likelihood estimate of $\lambda$.
+\item Derive the observed information $\mathcal{J}(\lambda)$ and the Fisher information $\mathcal{I}(\lambda)$.
+\item Let $\widehat{\lambda}$ be the maximum likelihood estimate of $\lambda$. Show that $Var(\widehat{\lambda}) = \lambda / n$. How does this relate to the Fisher information $\mathcal{I}(\lambda)$?
+\end{enumerate}
+\end{enumerate}
+
+\section*{Sneak peek: Poisson regression}
+
+\begin{enumerate}
+\item[2.] So far, we have worked with logistic regression models for a binary response. Later in the course, we will work with other types of response variables, like a Poisson response. This question will give you a preview of Poisson regression, while giving you practice with Fisher scoring. \\
+
+Suppose that we have the Poisson regression model
+\begin{align*}
+Y_i &\sim Poisson(\lambda_i) \\
+\log(\lambda_i) &= \beta_0 + \beta_1X_{i,1} + \cdots + \beta_k X_{i,k},
+\end{align*}
+and we observe data $(X_1, Y_1),...,(X_n, Y_n)$, where $X_i \in \mathbb{R}^{k}$. (Since $\lambda > 0$ for a Poisson variable, $\log(\lambda) \in (-\infty, \infty)$, which makes it reasonable for $\log(\lambda_i)$ to be a linear function of the $X$s).
+
+\begin{enumerate}
+\item Let $\bm{\beta} = (\beta_0,...,\beta_k)^T$, $\bm{Y} = (Y_1,...,Y_n)^T$, $\bm{\lambda} = (\exp\{ \bm{\beta}^T X_1 \}, ..., \exp\{ \bm{\beta}^T X_2 \})^T$, and $\mathbf{X} \in \mathbb{R}^{n \times (k+1)}$ the design matrix with rows $(1, X_{i,1}, X_{i,2}, ..., X_{i,k})$. Show that
+\begin{align*}
+U(\bm{\beta}) = \mathbf{X}^T(\bm{Y} - \bm{\lambda}).
+\end{align*}
+
+\item Let $\bm{W} = \text{diag}(\lambda_1,...,\lambda_n)$, where $\lambda_i = \exp\{ \bm{\beta}^T X_i \}$. Show that
+\begin{align*}
+\mathcal{I}(\bm{\beta}) = \bm{X}^T \bm{W} \bm{X}.
+\end{align*}
+
+\item In R, simulate $n = 500$ observations $(X_1, Y_1),...,(X_n, Y_n)$. Draw $X_i \overset{iid}{\sim} N(0, 1)$, and $Y_1 \sim Poisson(\lambda_i)$, where $\log(\lambda_i) = -2 + 2 X_i$. 
+
+\item Using your simulated data from part (c), fit a Poisson regression model of $Y$ on $X$, and report the fitted model coefficients. To fit a Poisson regression model in R: 
+
+\begin{verbatim}
+glm(y ~ x, family = poisson)
+\end{verbatim}
+
+\item Modify your code from HW1, Question 4 to implement Fisher scoring for Poisson regression with the simulated data. Begin with $\beta^{(0)} = (0, 0)^T$, and stop when
+$$\max \{ |\beta_0^{(r+1)} - \beta_0^{(r)}|, \ |\beta_1^{(r+1)} - \beta_1^{(r)}| \} < 0.0001$$
+Does your final estimate match the estimated coefficients in (d)? How many scoring iterations did it take to converge?
+\end{enumerate}
+
+\end{enumerate}
+
+
+\section*{(Randomized) quantile residuals}
+
+\begin{enumerate}
+\item[3.] In class, we talked about (randomized) quantile residuals as a method of assessing the shape assumption in logistic regression. To formally define quantile residuals, we will follow the textbook (Section 8.3.4.2).\\
+
+Suppose we have a logistic regression model:
+\begin{align*}
+Y_i & \sim Bernoulli(p_i) \\
+\log \left( \dfrac{p_i}{1 - p_i} \right) &= \beta_0 + \beta_1 X_{i,1} + \cdots + \beta_k X_{i,k}.
+\end{align*}
+We observe data $(X_1, Y_1), ..., (X_n, Y_n)$ and fit the model, producing coefficient estimates $\widehat{\beta}$ which give estimated probabilities $\widehat{p}_i$. The \textit{(randomized) quantile residual} $r_{Q,i}$ for the $i$th observation is defined by
+\begin{align*}
+r_{Q, i} = \Phi^{-1}(u), \hspace{1cm} u \sim \begin{cases}
+Uniform(1 - \widehat{p}_i, 1) & Y_i = 1 \\
+Uniform(0, 1 - \widehat{p}_i) & Y_i = 0,
+\end{cases}
+\end{align*}
+where $\Phi$ is the standard normal CDF.
+
+\begin{enumerate}
+\item Show that if $\widehat{p}_i = p_i$ (our estimated probability is correct), then $r_{Q,i} \sim N(0, 1)$. \textit{Hint: treat the response $Y_i$ as a random variable, and note that $Y_i \sim Bernoulli(\widehat{p}_i)$ if $p_i = \widehat{p}_i$.}
+
+\item Show that $\mathbb{E}[r_{Q,i}] > 0$ when $\widehat{p}_i < p_i$, and $\mathbb{E}[r_{Q,i}] < 0$ when $\widehat{p}_i > p_i$.
+
+\item Write your own function in R to compute randomized quantile residuals for a binary logistic regression model. (Your function may not call the \texttt{qresid} function from the \texttt{statmod} package).
+
+\item Using code from the class activity on September 2, generate data for which the logistic regression shape assumption is satisfied. Then create a quantile residual plot using your R function, and show that the residuals $r_{Q,i}$ are randomly scattered around the horizontal line at 0.
+
+\item Using code from the class activity on September 2, generate data for which the logistic regression shape assumption is \textit{not} satisfied. Then create a quantile residual plot using your R function, and show that the plot shows a violation of the shape assumption.
+\end{enumerate}
+\end{enumerate}
+
+\end{document}
