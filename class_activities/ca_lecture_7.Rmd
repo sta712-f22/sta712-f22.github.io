@@ -1,0 +1,39 @@
+---
+title: "Class Activity, September 5"
+output: 
+  rmdformats::robobook:
+    css: "homework.css"
+    highlight: pygments
+link-citations: yes
+---
+
+In this class activity, we will explore leverage and Cook's distance for identifying influential points (i.e., observations which can substantially change our fitted regression model).
+
+The following code generates data with a potential outlier at $x = -2$:
+
+```r
+# simulate a single explanatory variable from a Normal distribution
+x <- rnorm(100)
+
+# create P(Y = 1 | X) for each entry in x
+# Here log odds = -1 + 2x
+p <- exp(-1 + 2*x)/(1 + exp(-1 + 2*x))
+
+# Finally, simulate a binary response at each x
+y <- rbinom(100, 1, p)
+
+x1 <- c(x, -2)
+y1 <- c(y, 1)
+```
+
+## Questions
+
+Run the code above, then answer the following questions:
+
+1. The leverage values for a fitted model can be computed in R with the `hatvalues(...)` function. Plot leverage against the predictor `x`; does leverage always increase as we move away from the center of $X$?
+
+2. Cook's distance can be computed in R with the `cooks.distance(...)` function. Plot Cook's distance against `x`. Is the potential outlier identified as an influential point?
+
+3. Try changing the location of the outlier from $x = -2$ to $x =$ something else. How does Cook's distance change as we move the potential outlier?
+
+4. Now increase the sample size of the simulated data. How does sample size impact whether an outlier is influential?
