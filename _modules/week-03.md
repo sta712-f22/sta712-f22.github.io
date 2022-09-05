@@ -12,7 +12,7 @@ September 5
   : [HW 2](https://sta712-f22.github.io/homework/HW2.pdf)
   
 : **Challenge Assignment 3 released**{: .label .label-yellow }
-  : [Challenge 2](https://sta712-f22.github.io/homework/challenge_3.pdf)
+  : [Challenge 3](https://sta712-f22.github.io/homework/challenge_3.pdf)
 
 : **HW 1 due Tuesday**{: .label .label-red }
 
