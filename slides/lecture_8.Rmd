@@ -1,0 +1,61 @@
+---
+title: Logistic regression assumptions and diagnostics
+output:
+  xaringan::moon_reader:
+    css: "lab-slides.css"
+    lib_dir: libs
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+editor_options: 
+  chunk_output_type: console
+---
+
+
+### Multicollinearity
+
+---
+
+### Class activity
+
+.large[
+[https://sta712-f22.github.io/class_activities/ca_lecture_8.html](https://sta712-f22.github.io/class_activities/ca_lecture_8.html)
+
+.question[
+* Simulate correlated data
+* Assess the impact on estimated coefficients
+]
+]
+
+---
+
+### The impact of multicollinearity
+
+---
+
+### Variance inflation factors
+
+---
+
+### Addressing model issues
+
+.large[
+.question[
+How should we handle each of the following issues in a fitted model?
+
+* Violations of the shape assumption
+* An influential point with high Cook's distance
+* High multicollinearity in the explanatory variables
+
+Discuss with your neighbor for 3--5 minutes, then we will discuss as a group.
+]
+]
+
+---
+
+### Asymptotic distribution of the MLE
+
+.large[
+Multicollinearity can cause problems in the variance of the estimated coefficients $\widehat{\beta}$. But what is $Var(\widehat{\beta})$? 
+]

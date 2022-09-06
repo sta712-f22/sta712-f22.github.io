@@ -1,0 +1,56 @@
+---
+title: "Class Activity, September 7"
+output: 
+  rmdformats::robobook:
+    css: "homework.css"
+    highlight: pygments
+link-citations: yes
+---
+
+In this class activity, we will explore the effects of multicollinearity on a fitted logistic regression model.
+
+The following code generates correlated explanatory variables $X_1,...,X_n \in \mathbb{R}^3$ from a multivariate normal distribution:
+
+$$X_i \overset{iid}{\sim} N(0, \Sigma)$$
+
+where the covariance matrix $\Sigma \in \mathbb{R}^{3 \times 3}$ has diagonal entries $\Sigma_{ii} = Var(X_i) = 1$, and off-diagonal entries $\Sigma_{ij} = Cov(X_i, X_j) = \rho$. Simulating data from a multivariate normal distribution uses the `rmvnorm(...)` function of the `mvtnorm` package; you may need to install the `mvtnorm` package.
+
+We then simulate data $Y_i \sim Bernoulli(p_i)$, with $p_i = \dfrac{e^{\beta_0 + \beta_1 X_{i,1} + \beta_2 X_{i,2} + \beta_3 X_{i,3}}}{1 + e^{\beta_0 + \beta_1 X_{i,1} + \beta_2 X_{i,2} + \beta_3 X_{i,3}}}$.
+
+```r
+library(mvtnorm)
+
+n <- 1000
+rho <- 0
+beta <- c(0, 1, 1, 1)
+
+# Create the covariance matrix sigma
+sigma <- diag(rep(1 - rho, 3)) + matrix(rep(rho, 9), nrow=3)
+
+# Generate Xs from a multivariate normal distribution
+X <- rmvnorm(n, sigma = sigma)
+
+# make a design matrix X_complete which includes the initial column of 1s for 
+# the intercept
+X_complete <- cbind(1, X)
+
+# generate probabilities p
+p <- exp(X_complete %*% beta)/(1 + exp(X_complete %*% beta))
+
+# generate bernoulli response y
+y <- rbinom(n, 1, p)
+
+# fit a model to all the explanatory variables
+m1 <- glm(y ~ X, family = binomial)
+summary(m1)
+```
+
+## Questions
+
+1. Run the above code several times with `rho = 0` (no correlation between the explanatory variables), and note the coefficient estimates and their estimated standard errors in the summary output. Do the coefficient estimates generally appear to be close to the true values in the simulation ($\beta = (0, 1, 1, 1)^T$)?
+
+2. Fit a new logistic regression model for $Y$, this time using only the first coordinate of $X$ (i.e., the column `X[,1]` in R). Is $\widehat{\beta}_1$ similar with and without the other two explanatory variables in the model?
+
+3. Now change the correlation $\rho$ to `rho = 0.6` in the simulation, and run the code several times. How does the variability of the estimated regression coefficients $\widehat{\beta}$ change?
+
+4. Keeping `rho = 0.6`, fit a logistic regression model for $Y$ using only the first coordinate of $X$. How does $\widehat{\beta}_1$ change with vs. without the other two explanatory variables in the model?

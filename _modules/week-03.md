@@ -3,7 +3,7 @@ title: Logistic regression inference
 ---
 
 September 5
-: Logistic regression diagnostics
+: Leverage and Cook's distance
   : [Slides](https://sta712-f22.github.io/slides/lecture_7.pdf), [Class activity](https://sta712-f22.github.io/class_activities/ca_lecture_7.html)
   
 : Textbook 8.3, 8.4, 8.8
@@ -17,7 +17,8 @@ September 5
 : **HW 1 due Tuesday**{: .label .label-red }
 
 September 7
-: Wald tests and confidence intervals
+: Multicollinearity and variance inflation factors
+  : [Slides](https://sta712-f22.github.io/slides/lecture_8.pdf), [Class activity](https://sta712-f22.github.io/class_activities/ca_lecture_8.html)
 
 September 9
-: Likelihood ratio tests
+: Wald tests and confidence intervals

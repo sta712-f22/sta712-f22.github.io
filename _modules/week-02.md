@@ -15,7 +15,7 @@ August 31
 : Textbook 8.3, 8.6, 8.7, 9.11
 
 September 2
-: Logistic regression diagnostics
+: IRLS and influential points
   : [Slides](https://sta712-f22.github.io/slides/lecture_6.pdf), [Class activity](https://sta712-f22.github.io/class_activities/ca_lecture_6.html)
 
 : Textbook 8.3, 8.4, 8.8
