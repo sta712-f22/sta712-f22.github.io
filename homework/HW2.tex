@@ -52,7 +52,7 @@ Suppose that we have the Poisson regression model
 Y_i &\sim Poisson(\lambda_i) \\
 \log(\lambda_i) &= \beta_0 + \beta_1X_{i,1} + \cdots + \beta_k X_{i,k},
 \end{align*}
-and we observe data $(X_1, Y_1),...,(X_n, Y_n)$, where $X_i \in \mathbb{R}^{k+1}$. (Since $\lambda > 0$ for a Poisson variable, $\log(\lambda) \in (-\infty, \infty)$, which makes it reasonable for $\log(\lambda_i)$ to be a linear function of the $X$s).
+and we observe data $(X_1, Y_1),...,(X_n, Y_n)$, where $X_i = (1, X_{i,1},...,X_{i,k})^T \in \mathbb{R}^{k+1}$. (Since $\lambda > 0$ for a Poisson variable, $\log(\lambda) \in (-\infty, \infty)$, which makes it reasonable for $\log(\lambda_i)$ to be a linear function of the $X$s).
 
 \begin{enumerate}
 \item Let $\bm{\beta} = (\beta_0,...,\beta_k)^T$, $\bm{Y} = (Y_1,...,Y_n)^T$, $\bm{\lambda} = (\exp\{ \bm{\beta}^T X_1 \}, ..., \exp\{ \bm{\beta}^T X_n \})^T$, and $\mathbf{X} \in \mathbb{R}^{n \times (k+1)}$ the design matrix with rows $X_i^T$. Show that
@@ -65,7 +65,7 @@ U(\bm{\beta}) = \mathbf{X}^T(\bm{Y} - \bm{\lambda}).
 \mathcal{I}(\bm{\beta}) = \bm{X}^T \bm{W} \bm{X}.
 \end{align*}
 
-\item In R, simulate $n = 500$ observations $(X_1, Y_1),...,(X_n, Y_n)$. Draw $X_i \overset{iid}{\sim} N(0, 1)$, and $Y_1 \sim Poisson(\lambda_i)$, where $\log(\lambda_i) = -2 + 2 X_i$. 
+\item In R, simulate $n = 500$ observations $(X_1, Y_1),...,(X_n, Y_n)$. Draw $X_{i,1} \overset{iid}{\sim} N(0, 1)$, and $Y_i \sim Poisson(\lambda_i)$, where $\log(\lambda_i) = -2 + 2 X_{i,1}$. 
 
 \item Using your simulated data from part (c), fit a Poisson regression model of $Y$ on $X$, and report the fitted model coefficients. To fit a Poisson regression model in R: 
 
