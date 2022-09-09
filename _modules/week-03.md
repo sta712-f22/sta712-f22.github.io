@@ -21,4 +21,7 @@ September 7
   : [Slides](https://sta712-f22.github.io/slides/lecture_8.pdf), [Class activity](https://sta712-f22.github.io/class_activities/ca_lecture_8.html)
 
 September 9
-: Wald tests and confidence intervals
+: Properties of the MLE
+  : [Slides](https://sta712-f22.github.io/slides/lecture_9.pdf)
+  
+: Textbook 4.9

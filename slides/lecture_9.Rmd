@@ -1,0 +1,34 @@
+---
+title: Asymptotic distribution of the MLE
+output:
+  xaringan::moon_reader:
+    css: "lab-slides.css"
+    lib_dir: libs
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+editor_options: 
+  chunk_output_type: console
+---
+
+### Warm-up
+
+.center[
+<img src="https://imgs.xkcd.com/comics/error_bars.png" width="400">
+]
+
+.large[
+.question[
+Why don't we estimate the standard error of our standard error?
+]
+]
+
+---
+
+### Preliminaries
+
+---
+
+### Asymptotic distribution of the MLE
+
