@@ -1,0 +1,129 @@
+\documentclass[11pt]{article}
+\usepackage{url}
+\usepackage{alltt}
+\usepackage{bm}
+\linespread{1}
+\textwidth 6.5in
+\oddsidemargin 0.in
+\addtolength{\topmargin}{-1in}
+\addtolength{\textheight}{2in}
+
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{bm}
+
+\begin{document}
+
+
+\begin{center}
+\Large
+STA 712 Homework 3\\
+\normalsize
+\vspace{5mm}
+\end{center}
+
+\noindent \textbf{Due:} Friday, September 23, 12:00pm (noon) on Canvas.\\ 
+
+\noindent \textbf{Instructions:} Submit your work as a single PDF. For this assignment, you may include written work by scanning it and incorporating it into the PDF. Include all R code needed to reproduce your results in your submission.
+
+\section*{Variance Inflation Factors}
+
+In class, we introduced \textit{variance inflation factors} as a method for diagnosing multicollinearity. In class, we said that the variance inflation factor $VIF_j$ for the coefficient $\widehat{\beta}_j$ is given by
+$$VIF_j = \dfrac{1}{1 - R^2_j},$$
+where $R^2_j$ is the coefficient of determination for the linear regression of the $j$th explanatory variable on the other explanatory variables. The goal of the problems in this section is to derive this variance inflation factor.
+
+\begin{enumerate}
+\item Before we can derive the variance inflation factor, we need to derive some properties of the coefficient of determination $R^2$.\\
+
+Ignore logistic regression for now, and suppose we have the \textit{linear} regression model
+$$Y = \bm{X} \bm{\beta} + \varepsilon,$$
+where $\bm{X} \in \mathbb{R}^{n \times (k+1)}$ is the design matrix and $\varepsilon \sim N(0, \sigma^2 I).$ The coefficient of determination $R^2$ for the regression of $Y$ on $\bm{X}$ is given by
+$$R^2 = 1 - \dfrac{SSE}{SSTotal} = 1 - \dfrac{\sum_i (Y_i - \widehat{Y}_i)^2}{\sum_i (Y_i - \overline{Y})^2}.$$
+
+\textit{For the purposes of this question}, assume that $\overline{Y} = 0$ (this will make our math easier).
+
+\begin{enumerate}
+\item Let $H = \bm{X}(\bm{X}^T \bm{X})^{-1} \bm{X}^T$ be the hat matrix for this linear regression. Show that 
+$$SSE = Y^T(I - H)Y.$$
+
+\item Let $H_0 = \bm{1} (\bm{1}^T \bm{1})^T \bm{1}^T$, where $\bm{1} \in \mathbb{R}^n$ is the vector of all 1s. Show that
+$$SSTotal = Y^T(1 - H_0)Y.$$
+(That is, the total sum of squares is just the residual sum of squares when we regress on a constant).
+
+\item Using (a) and (b), and the assumption that $\overline{Y} = 0$, show that 
+$$R^2 = \dfrac{Y^T \bm{X} \widehat{\bm{\beta}}}{Y^T Y}.$$
+
+\end{enumerate}
+
+
+\item In this question, we will derive variance inflation factors for logistic regression.\\
+
+We will work with the logistic regression model
+\begin{align*}
+Y_i &\sim Bernoulli(p_i) \\
+\log \left( \dfrac{p_i}{1 - p_i} \right) &= \beta_0 + \beta_1 X_{i,1} + \cdots + \beta_k X_{i,k}.
+\end{align*}
+Let ${\bf x}_i = (X_{1,i}, X_{2,i},...,X_{n,i})^T \in \mathbb{R}^n$ denote the vector of observed responses for the $i$th explanatory variable. Then, the design matrix for our logistic regression model can be written
+$$\bm{X} = [\bm{1} \ {\bf x}_1 \ {\bf x}_2 \ \cdots \ {\bf x}_k] \in \mathbb{R}^{n \times (k + 1)},$$
+where $\bm{1} \in \mathbb{R}^n$ is the vector of all 1s. 
+
+Letting $\bm{\beta} = (\beta_0, \beta_1,...,\beta_k)^T \in \mathbb{R}^{k + 1}$, recall from class that
+$$Var(\widehat{\bm{\beta}}) = (\bm{X}^T \bm{W} \bm{X})^{-1},$$
+where $\bm{W}$ is the diagonal weight matrix from the last iteration of Fisher scoring, with diagonal entries $w_i = \widehat{p}_i (1 - \widehat{p}_i)$.
+
+\textit{For the purposes of this problem}, assume that the columns ${\bf x}_i$ have been standardized so that $\sum \limits_{j=1}^n w_j X_{j,i} = 0$. This standardization does not impact the correlation between the columns, and therefore does not impact the variance inflation factors, but it makes our math easier.\\
+
+At several points in this problem, it will be helpful to use the following fact about inverting block matrices. Let 
+$$M = \begin{bmatrix}
+A & B \\
+C & D\\
+\end{bmatrix}$$
+be a block matrix with $A \in \mathbb{R}^{p \times p}$, $B \in \mathbb{R}^{p \times q}$, $C \in \mathbb{R}^{q \times p}$, and $D \in \mathbb{R}^{q \times q}$. Assuming that $A$ and $D$ are invertible, then
+$$M^{-1} = \begin{bmatrix}
+(A - BD^{-1}C)^{-1} & -(A - BD^{-1}C)^{-1}BD^{-1} \\
+-D^{-1}C(A - BD^{-1}C)^{-1} & D^{-1} + D^{-1}C(A - BD^{-1}C)^{-1}BD^{-1}\\
+\end{bmatrix}.$$
+
+\newpage
+
+\begin{enumerate}
+\item Show that
+$$\bm{X}^T \bm{W} \bm{X} = \begin{bmatrix}
+\sum \limits_{i=1}^n w_i & \bm{0}^T \\
+\bm{0} & (\bm{X}^*)^T \bm{W} \bm{X}^*
+\end{bmatrix},$$
+where $\bm{X}^* = [{\bf x}_1 \ {\bf x}_2 \ \cdots \ {\bf x}_k] \in \mathbb{R}^{n \times k}$ and $\bm{0} \in \mathbb{R}^k$. Conclude that 
+$$Var(\widehat{\bm{\beta}}) = \begin{bmatrix}
+\dfrac{1}{\sum \limits_{i=1}^n w_i} & \bm{0}^T \\
+\bm{0} & ((\bm{X}^*)^T \bm{W} \bm{X}^*)^{-1}
+\end{bmatrix}.$$
+
+\item Using (a), show that if our only explanatory variable is ${\bf x}_1$, that is, $\log \left( \dfrac{p_i}{1 - p_i} \right) = \beta_0 + \beta_1 X_{i,1}$, then $Var(\widehat{\beta}_1) = ({\bf x}_1^T \bm{W} {\bf x}_1)^{-1}$.
+
+\item Now we want to calculate $Var(\widehat{\beta}_1)$ when other explanatory variables are included in the model. Write 
+$$\bm{X}^* = [{\bf x}_1 \ \bm{X}^*_{(1)}],$$ 
+where $\bm{X}^*_{(1)} = [{\bf x}_2 \ \cdots \ {\bf x}_k]$. Show that 
+$$(\bm{X}^*)^T \bm{W} \bm{X}^* =
+\begin{bmatrix}
+{\bf x}_1^T \bm{W} {\bf x}_1 & {\bf x}_1^T \bm{W} \bm{X}^*_{(1)} \\
+(\bm{X}^*_{(1)})^T \bm{W} {\bf x}_1 & (\bm{X}^*_{(1)})^T \bm{W} \bm{X}^*_{(1)}.
+\end{bmatrix}
+$$
+Conclude that when other explanatory variables are included in the model,
+$$Var(\widehat{\beta}_1) = ({\bf x}_1^T \bm{W} {\bf x}_1 - {\bf x}_1^T \bm{W} \bm{X}^*_{(1)} ((\bm{X}^*_{(1)})^T \bm{W} \bm{X}^*_{(1)})^{-1} (\bm{X}^*_{(1)})^T \bm{W} {\bf x}_1)^{-1}.$$
+
+\item Now consider a weighted least squares regression of ${\bf x}_1$ on the other $k-1$ explanatory variables ${\bf x}_2,...,{\bf x}_k$, with weights $\bm{W}$. That is, we model
+\begin{align*}
+{\bf x}_1 &= \bm{X}^*_{(1)} \bm{\gamma} + \varepsilon \\ 
+&= \gamma_1 {\bf x}_2 + \gamma_2 {\bf x}_3 + \cdots + \gamma_{k-1} {\bf x}_k + \varepsilon,
+\end{align*}
+with $\varepsilon \sim N(\bm{0}, \bm{W}^{-1})$. Use the derivation of the weighted least squares coefficient estimates from class to show that
+$$\widehat{\bm{\gamma}} = ((\bm{X}^*_{(1)})^T \bm{W} \bm{X}^*_{(1)})^{-1} (\bm{X}^*_{(1)})^T \bm{W} {\bf x}_1,$$
+and therefore
+$$Var(\widehat{\beta}_1) = ({\bf x}_1^T \bm{W} {\bf x}_1 - {\bf x}_1^T \bm{W} \bm{X}^*_{(1)} \widehat{\bm{\gamma}})^{-1}.$$
+
+\item Now we want to simplify this variance somewhat.
+\end{enumerate}
+\end{enumerate}
+
+\end{document}
