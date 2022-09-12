@@ -1,0 +1,124 @@
+---
+title: Wald tests
+output:
+  xaringan::moon_reader:
+    css: "lab-slides.css"
+    lib_dir: libs
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+editor_options: 
+  chunk_output_type: console
+---
+
+### Proof: asymptotic distribution of the MLE
+
+---
+
+### Wald tests for single parameters
+
+.large[
+Logistic regression model for the dengue data:
+
+$$Y_i \sim Bernoulli(p_i)$$
+]
+
+.large[
+$$\log \left( \dfrac{p_i}{1 - p_i} \right) = \beta_0 + \beta_1 WBC_i + \beta_2 PLT_i$$
+
+.question[
+Researchers want to know if there is a relationship between white blood cell count and the probability a patient has dengue, after accounting for platelet count. What hypotheses should the researchers test?
+]
+]
+
+---
+
+### Wald tests for single parameters
+
+```{r include=F}
+library(knitr)
+hook_output <- knit_hooks$get("output")
+knit_hooks$set(output = function(x, options) {
+   lines <- options$output.lines
+   if (is.null(lines)) {
+     return(hook_output(x, options))  # pass to default hook
+   }
+   x <- unlist(strsplit(x, "\n"))
+   more <- "..."
+   if (length(lines)==1) {        # first n lines
+     if (length(x) > lines) {
+       # truncate the output, but add ....
+       x <- c(head(x, lines), more)
+     }
+   } else {
+     x <- c(more, x[lines], more)
+   }
+   # paste these lines together
+   x <- paste(c(x, ""), collapse = "\n")
+   hook_output(x, options)
+ })
+
+dengue <- read.csv("https://sta712-f22.github.io/homework/dengue.csv")
+```
+
+.large[
+```{r, output.lines = 10:14}
+m1 <- glm(Dengue ~ WBC + PLT, data = dengue, 
+          family = binomial)
+summary(m1)
+```
+]
+
+---
+
+### Wald tests for multiple parameters
+
+.large[
+Logistic regression model for the dengue data:
+
+$$Y_i \sim Bernoulli(p_i)$$
+]
+
+.large[
+$$\log \left( \dfrac{p_i}{1 - p_i} \right) = \beta_0 + \beta_1 WBC_i + \beta_2 PLT_i$$
+
+.question[
+Researchers want to know if there is any relationship between white blood cell count or platelet count, and the probability a patient has dengue. What hypotheses should they test?
+]
+]
+
+---
+
+### Wald tests for multiple parameters
+
+.large[
+```{r, output.lines = 10:14}
+m1 <- glm(Dengue ~ WBC + PLT, data = dengue, 
+          family = binomial)
+summary(m1)
+```
+]
+
+.large[
+.question[
+Can the researchers test their hypotheses using this output?
+]
+]
+
+---
+
+### Wald tests for multiple parameters
+
+---
+
+### Class activity
+
+.large[
+[https://sta712-f22.github.io/class_activities/ca_lecture_10.html](https://sta712-f22.github.io/class_activities/ca_lecture_10.html)
+
+.question[
+* Wald tests for the dengue data
+]
+]
+
