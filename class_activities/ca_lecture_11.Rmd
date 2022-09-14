@@ -1,0 +1,28 @@
+---
+title: "Class Activity, September 14"
+output: 
+  rmdformats::robobook:
+    css: "homework.css"
+    highlight: pygments
+link-citations: yes
+---
+
+In this class activity, we will explore Wald tests with the dengue data. You can load the dengue data into R with the following code:
+
+```r
+dengue <- read.csv("https://sta712-f22.github.io/homework/dengue.csv")
+```
+
+## Questions
+
+1. Fit the following logistic regression model in R:
+
+$$Y_i \sim Bernoulli(p_i)$$
+
+$$\log \left( \dfrac{p_i}{1 - p_i} \right) = \beta_0 + \beta_1 WBC_i + \beta_2 PLT_i$$
+
+2. Calculate the estimated Fisher information matrix $\mathcal{I}(\widehat{\beta}) = X^TWX$, where $X$ is the design matrix for the model in question 1, and $W$ is a diagonal matrix with diagonal entries $w_i = \widehat{p}_i(1 - \widehat{p}_i)$. (Note that if `m1` is a fitted logistic regression model, then `m1$weights` gives you a vector of the $w_i$ in R).
+
+3. Confirm that the diagonal entries of $\mathcal{I}(\widehat{\beta})^{-1} = (X^TWX)^{-1}$ agree with the estimated coefficient variances in the summary output from your fitted logistic regression model in question 1.
+
+4. Use a Wald test for multiple parameters to test the hypotheses $H_0: \beta_1 = \beta_2 = 0$ vs. $H_A: \text{at least one of } \beta_1, \beta_2 \neq 0$.

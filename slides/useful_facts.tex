@@ -1,0 +1,84 @@
+\documentclass[11pt]{article}
+\usepackage{url}
+\usepackage{alltt}
+\usepackage{bm}
+\linespread{1}
+\textwidth 6.5in
+\oddsidemargin 0.in
+\addtolength{\topmargin}{-1in}
+\addtolength{\textheight}{2in}
+
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{bm}
+
+\begin{document}
+
+
+\begin{center}
+\Large
+Useful facts and definitions\\
+\normalsize
+\vspace{5mm}
+\end{center}
+
+\section*{Probability}
+
+\begin{itemize}
+\item \textit{Law of total probability}: Let $A$ be an event and $B_1,...,B_k$ be disjoint event which partition the space (i.e, $P(B_i \cap B_j) = 0$ if $i \neq j$, and $\sum_i P(B_i) = 1$). Then,
+$$P(A) = \sum \limits_{i=1}^k P(A | B_i) P(B_i)$$
+
+\item \textit{Law of total expectation} (aka law of iterated expectation):
+$$\mathbb{E}[X] = \mathbb{E}[\mathbb{E}[X|Y]]$$
+(Note here that $\mathbb{E}[X|Y]$ is a random variable which is a function of $Y$). We can apply this rule to conditional expectations, too:
+$$\mathbb{E}[X | Y_1] = \mathbb{E}[\mathbb{E}[X | Y_1, Y_2] | Y_1]$$
+
+\item \textit{Law of total variance} (aka law of iterated variance):
+$$Var(X) = \mathbb{E}[Var(X|Y)] + Var(\mathbb{E}[X|Y])$$
+
+\item \textit{Law of the unconscious statistician}: Let $X$ be a random variable with pdf or pmf $f(x)$ (depending on whether $X$ is continuous or discrete). Let $g(X)$ be a function of $X$. Then
+$$\mathbb{E}[g(X)] = \sum_x g(x) f(x) \hspace{1cm} X \ \text{is discrete}$$
+$$\mathbb{E}[g(X)] = \int \limits_{-\infty}^{\infty} g(x) f(x) dx \hspace{1cm} X \ \text{is continuous}$$
+
+\end{itemize}
+
+\section*{Statistics with matrix algebra}
+
+\begin{itemize}
+\item \textit{Definition of expectation and variance}: Let $X = (X_1,...,X_k)^T \in \mathbb{R}^k$ be a random vector. Then 
+$$\mathbb{E}[X] = (\mathbb{E}[X_1],...,\mathbb{E}[X_k])^T,$$
+and
+$$Var(X) = \Sigma$$
+where $\Sigma \in \mathbb{R}^{k \times k}$ is the covariance matrix for $X$, with entries $\Sigma_{ij} = Cov(X_i, X_j)$. (This implies that the diagonal entries are $\Sigma_{ii} = Var(X_i)$).
+
+\item \textit{Expectation and variance of linear combinations}: Let $X \in \mathbb{R}^k$ be a random vector, and let ${\bf a} \in \mathbb{R}^k$ and ${\bf B} \in \mathbb{R}^{m \times k}$. Then
+$$\mathbb{E}[{\bf a} + {\bf B} X] = {\bf a} + {\bf B} \mathbb{E}[X]$$
+$$Var({\bf a} + {\bf B} X) = {\bf B} Var(X) {\bf B}^T$$
+
+\item \textit{Matrix square roots}: If $M$ is a positive semi-definite matrix, then $M^{\frac{1}{2}}$ is the unique positive semi-definite matrix such that $M = M^{\frac{1}{2}} M^{\frac{1}{2}}$. If $M = \text{diag}(m_1,...,m_k)$, then $M^{\frac{1}{2}} = \text{diag}(\sqrt{m_1},...,\sqrt{m_k})$.
+
+\item \textit{Block matrix inverses}: Let 
+$$M = \begin{bmatrix}
+A & B \\
+C & D\\
+\end{bmatrix}$$
+be a block matrix with $A \in \mathbb{R}^{p \times p}$, $B \in \mathbb{R}^{p \times q}$, $C \in \mathbb{R}^{q \times p}$, and $D \in \mathbb{R}^{q \times q}$. Assuming that $A$ and $D$ are invertible, then
+$$M^{-1} = \begin{bmatrix}
+(A - BD^{-1}C)^{-1} & -(A - BD^{-1}C)^{-1}BD^{-1} \\
+-D^{-1}C(A - BD^{-1}C)^{-1} & D^{-1} + D^{-1}C(A - BD^{-1}C)^{-1}BD^{-1}\\
+\end{bmatrix}$$
+\end{itemize}
+
+\section*{Normal distributions}
+
+\begin{itemize}
+\item \textit{Sum of independent squared standard normals}: If $Z_1,...,Z_k \overset{iid}{\sim} N(0, 1)$, then 
+$$\sum \limits_{i=1}^k Z_i^k \sim \chi^2_k$$
+
+\item \textit{Independence for joint normal variables}: Let $X = (X_1,...,X_k) \in \mathbb{R}^k$, with $X \sim N(\mu, \Sigma)$. Then $X_i$ and $X_j$ are independent if and only if $Cov(X_i, X_j) = \Sigma_{ij} = 0$.
+
+\item \textit{Affine transformations of multivariate normals}: Let $X \sim N(\mu, \Sigma), X \in \mathbb{R}^k$, and let ${\bf a} \in \mathbb{R}^k$ and ${\bf B} \in \mathbb{R}^{m \times k}$. Then
+$${\bf a} + {\bf B}X \sim N({\bf a} + {\bf B}\mu, {\bf B} \Sigma {\bf B}^T)$$
+\end{itemize}
+
+\end{document}

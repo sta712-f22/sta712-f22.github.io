@@ -1,0 +1,130 @@
+---
+title: Wald tests and likelihood ratio tests
+output:
+  xaringan::moon_reader:
+    css: "lab-slides.css"
+    lib_dir: libs
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+editor_options: 
+  chunk_output_type: console
+---
+
+
+### Wald tests for multiple parameters
+
+---
+
+### Class activity
+
+.large[
+[https://sta712-f22.github.io/class_activities/ca_lecture_11.html](https://sta712-f22.github.io/class_activities/ca_lecture_11.html)
+
+.question[
+* Wald tests for the dengue data
+]
+]
+
+---
+
+### Likelihood ratio tests
+
+```{r include=F}
+library(knitr)
+hook_output <- knit_hooks$get("output")
+knit_hooks$set(output = function(x, options) {
+   lines <- options$output.lines
+   if (is.null(lines)) {
+     return(hook_output(x, options))  # pass to default hook
+   }
+   x <- unlist(strsplit(x, "\n"))
+   more <- "..."
+   if (length(lines)==1) {        # first n lines
+     if (length(x) > lines) {
+       # truncate the output, but add ....
+       x <- c(head(x, lines), more)
+     }
+   } else {
+     x <- c(more, x[lines], more)
+   }
+   # paste these lines together
+   x <- paste(c(x, ""), collapse = "\n")
+   hook_output(x, options)
+ })
+
+dengue <- read.csv("https://sta712-f22.github.io/homework/dengue.csv")
+```
+
+.large[
+```{r, output.lines = c(10:14, 19:21)}
+m1 <- glm(Dengue ~ WBC + PLT, data = dengue, 
+          family = binomial)
+summary(m1)
+```
+]
+
+.large[
+.question[
+What information replaces $R^2$ and $R^2_{adj}$ in the GLM output?
+]
+]
+
+---
+
+### Deviance
+
+.large[
+**Definition:** The *deviance* of a fitted model with parameter estimates $\widehat{\beta}$ is given by
+$$2 \log \ell(\text{saturated model}) - 2 \log \ell(\widehat{\beta})$$
+]
+
+---
+
+### Comparing deviances
+
+.large[
+```{r, output.lines = c(19:21)}
+m1 <- glm(Dengue ~ WBC + PLT, data = dengue, 
+          family = binomial)
+summary(m1)
+```
+]
+
+---
+
+### Comparing deviances
+
+.large[
+**Full model:** $\log \left( \dfrac{p_i}{1 - p_i} \right) = \beta_0 + \beta_1 WBC_i + \beta_2 PLT_i$
+
+**Reduced model:** $\log \left( \dfrac{p_i}{1 - p_i} \right) = \beta_0$
+
+$$G = 2 \log \ell(\widehat{\beta}) - 2 \log \ell(\widehat{\beta}^0)$$
+
+.question[
+Why is $G$ always $\geq 0$?
+]
+]
+
+---
+
+### Comparing deviances
+
+.large[
+**Full model:** $\log \left( \dfrac{p_i}{1 - p_i} \right) = \beta_0 + \beta_1 WBC_i + \beta_2 PLT_i$
+
+**Reduced model:** $\log \left( \dfrac{p_i}{1 - p_i} \right) = \beta_0$
+
+$$G = 2 \log \ell(\widehat{\beta}) - 2 \log \ell(\widehat{\beta}^0) = 1556.1$$
+
+.question[
+If the reduced model is correct, how unusual is $G = 1556.1$?
+]
+]
+
+---
+
+### Likelihood ratio test
+
