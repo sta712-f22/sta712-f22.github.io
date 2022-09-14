@@ -1,0 +1,234 @@
+---
+title: "Empirical logit plots"
+output: 
+  rmdformats::robobook:
+    css: "homework.css"
+    highlight: pygments
+link-citations: yes
+---
+
+## Function
+
+The following R function can be used to create empirical logit plots:
+
+```{r, eval=F}
+logodds_plot <- function(data, num_bins, bin_method,
+                         x_name, y_name, grouping = NULL, 
+                         reg_formula = y ~ x){
+  
+  if(is.null(grouping)){
+    dat <- data.frame(x = data %>% pull(x_name), 
+                      y = data %>% pull(y_name),
+                      group = 1)
+  } else {
+    dat <- data.frame(x = data %>% pull(x_name), 
+                      y = data %>% pull(y_name),
+                      group = as.factor(data %>% pull(grouping)))
+  }
+  
+  if(bin_method == "equal_size"){
+    logodds_table <- dat %>%
+      drop_na() %>%
+      arrange(group, x) %>%
+      group_by(group) %>%
+      mutate(obs = y,
+             bin = rep(1:num_bins,
+                       each=ceiling(n()/num_bins))[1:n()]) %>%
+      group_by(bin, group) %>%
+      summarize(mean_x = mean(x),
+                prop = mean(c(obs, 0.5)),
+                num_obs = n()) %>%
+      ungroup() %>%
+      mutate(logodds = log(prop/(1 - prop)))
+  } else {
+    logodds_table <- dat %>%
+      drop_na() %>%
+      group_by(group) %>%
+      mutate(obs = y,
+             bin = cut(x, 
+                       breaks = num_bins,
+                       labels = F)) %>%
+      group_by(bin, group) %>%
+      summarize(mean_x = mean(x),
+                prop = mean(c(obs, 0.5)),
+                num_obs = n()) %>%
+      ungroup() %>%
+      mutate(logodds = log(prop/(1 - prop)))
+  }
+  
+  if(is.null(grouping)){
+    logodds_table %>%
+      ggplot(aes(x = mean_x,
+                 y = logodds)) +
+      geom_point(size=2) +
+      geom_smooth(se=F, method="lm", formula = reg_formula) +
+      theme_bw() +
+      labs(x = x_name,
+           y = "Empirical log odds") +
+      theme(text = element_text(size=15))
+  } else {
+    logodds_table %>%
+      ggplot(aes(x = mean_x,
+                 y = logodds,
+                 color = group,
+                 shape = group)) +
+      geom_point(size=2) +
+      geom_smooth(se=F, method="lm", formula = reg_formula) +
+      theme_bw() +
+      labs(x = x_name,
+           y = "Empirical log odds",
+           color = grouping,
+           shape = grouping) +
+      theme(text = element_text(size=15))
+  }
+  
+}
+```
+
+## Arguments
+
+* `data`: the dataset of interest (e.g., `titanic`)
+* `num_bins`: the number of bins to use
+  * The number of bins should be chosen based on the size of the data. For example, with `bin_method = "equal_size"`, we probably want at least 15 observations per bin, so `num_bins` < (number of observations)/15
+* `bin_method`: whether to choose bins with the same number of observations (`"equal_size"`) or the same width (`"equal_width"`)
+* `x_name`: the name of the column containing the explanatory variable (e.g., `"Fare"`). The quotation marks are needed
+* `y_name`: the name of the column containing the response (e.g., `"Survived"`). The quotation marks are needed
+* `grouping`: the name of a categorical variable in the data; fit a separate line for each level of the categorical variable
+* `reg_formula`: This is the shape of the relationship you want to plot. If you want a line, this is y ~ x (the default). Some other examples:
+  * `y ~ log(x)` : a log transformation of x
+  * `y ~ sqrt(x)` : a square root transformation of x
+  * `y ~ poly(x, 2)` : a second-order polynomial
+  * `y ~ poly(x, 3)` : a third-order polynomial
+
+## Examples
+
+The `titanic` dataset contains a number of variables recorded for passengers on the *Titanic* when it sunk on its first voyage. The `titanic` dataset can be loaded into R with 
+
+```r
+titanic <- read.csv("https://sta214-f22.github.io/labs/Titanic.csv")
+```
+
+Now let's see how to make empirical logit plots.
+
+### Looking at Fare
+
+The response variable we care about with the `titanic` data is `Survived`: whether a passenger survived the disaster or not. Let's first look at `Fare` as an explanatory variable. We will make an empirical logit plot with 30 equally sized bins:
+
+```{r, include = F}
+library(tidyverse)
+titanic <- read.csv("https://sta214-f22.github.io/labs/Titanic.csv")
+logodds_plot <- function(data, num_bins, bin_method,
+                         x_name, y_name, grouping = NULL, reg_formula = y ~ x){
+  
+  if(is.null(grouping)){
+    dat <- data.frame(x = data %>% pull(x_name), 
+                      y = data %>% pull(y_name),
+                      group = 1)
+  } else {
+    dat <- data.frame(x = data %>% pull(x_name), 
+                      y = data %>% pull(y_name),
+                      group = as.factor(data %>% pull(grouping)))
+  }
+  
+  if(bin_method == "equal_size"){
+    logodds_table <- dat %>%
+      drop_na() %>%
+      arrange(group, x) %>%
+      group_by(group) %>%
+      mutate(obs = y,
+             bin = rep(1:num_bins,
+                       each=ceiling(n()/num_bins))[1:n()]) %>%
+      group_by(bin, group) %>%
+      summarize(mean_x = mean(x),
+                prop = mean(c(obs, 0.5)),
+                num_obs = n()) %>%
+      ungroup() %>%
+      mutate(logodds = log(prop/(1 - prop)))
+  } else {
+    logodds_table <- dat %>%
+      drop_na() %>%
+      group_by(group) %>%
+      mutate(obs = y,
+             bin = cut(x, 
+                       breaks = num_bins,
+                       labels = F)) %>%
+      group_by(bin, group) %>%
+      summarize(mean_x = mean(x),
+                prop = mean(c(obs, 0.5)),
+                num_obs = n()) %>%
+      ungroup() %>%
+      mutate(logodds = log(prop/(1 - prop)))
+  }
+  
+  if(is.null(grouping)){
+    logodds_table %>%
+      ggplot(aes(x = mean_x,
+                 y = logodds)) +
+      geom_point(size=2) +
+      geom_smooth(se=F, method="lm", formula = reg_formula) +
+      theme_bw() +
+      labs(x = x_name,
+           y = "Empirical log odds") +
+      theme(text = element_text(size=15))
+  } else {
+    logodds_table %>%
+      ggplot(aes(x = mean_x,
+                 y = logodds,
+                 color = group,
+                 shape = group)) +
+      geom_point(size=2) +
+      geom_smooth(se=F, method="lm", formula = reg_formula) +
+      theme_bw() +
+      labs(x = x_name,
+           y = "Empirical log odds",
+           color = grouping,
+           shape = grouping) +
+      theme(text = element_text(size=15))
+  }
+  
+}
+```
+
+```{r, message=F}
+library(tidyverse)
+logodds_plot(titanic, 30, "equal_size", "Fare", "Survived",
+             reg_formula = y ~ x)
+```
+
+### Trying a different shape
+
+That linear fit doesn't look very good! Maybe we should try a different shape. Let's try a quadratic fit instead:
+
+```{r, message=F}
+logodds_plot(titanic, 30, "equal_size", "Fare", "Survived",
+             reg_formula = y ~ poly(x, 2))
+```
+
+And maybe a log transformation too: 
+
+```{r, message=F}
+logodds_plot(titanic, 30, "equal_size", "Fare", "Survived",
+             reg_formula = y ~ log(x))
+```
+
+### Potential interactions
+
+Does the relationship between Fare and Survival depend on passenger class (`Pclass`)? We can add `Pclass` as a grouping variable to the empirical logit plot, and fit a different line for each passenger class.
+
+```{r, message=F}
+logodds_plot(titanic, 30, "equal_size", "Fare", "Survived", 
+             grouping = "Pclass",
+             reg_formula = y ~ log(x))
+```
+
+Now, this doesn't let us see the relationship very well. Let's transform Fare first, then make the empirical logit plot with the transformed variable:
+
+```{r, message=F}
+titanic %>%
+  mutate(logFare = log(Fare + 1)) %>%
+  logodds_plot(30, "equal_size", "logFare", "Survived", 
+             grouping = "Pclass",
+             reg_formula = y ~ x)
+```
+
+If we think these lines have different slopes, we might consider adding an interaction between Fare and passenger class.

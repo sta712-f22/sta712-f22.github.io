@@ -26,9 +26,11 @@ STA 712 Homework 3\\
 
 \noindent \textbf{Instructions:} Submit your work as a single PDF. For this assignment, you may include written work by scanning it and incorporating it into the PDF. Include all R code needed to reproduce your results in your submission.
 
-\section*{Multivariate normal distributions}
+\section*{Optional: Multivariate normal distributions}
 
-The multivariate normal distribution appears frequently in 712, for example as the asymptotic distribution of our coefficient estimates $\widehat{\beta}$. The purpose of this section is to derive a basic property of the multivariate normal distribution that we use regularly, for example in constructing our Wald test statistic.\\
+\textit{Note: This question is optional! I have included it here in case you are interested in proving properties of multivariate normal distributions, but it is slightly tangential to the course material and can be safely ignored if you choose).}\\
+
+\noindent The multivariate normal distribution appears frequently in 712, for example as the asymptotic distribution of our coefficient estimates $\widehat{\beta}$. The purpose of this section is to derive a basic property of the multivariate normal distribution that we use regularly, for example in constructing our Wald test statistic.\\
 
 
 \noindent One way to define a multivariate normal distribution is with its \textit{moment generating function} (MGF).  Let $X \in \mathbb{R}^k$ be a random vector. The (multivariate) moment generating function $M_X(t)$ of $X$ is defined by
@@ -121,9 +123,9 @@ sfn <- read.csv("https://sta712-f22.github.io/class_activities/sfn.csv")
 \end{itemize}
 \item Perform multivariate EDA for your selected variables in (a):
 \begin{itemize}
-\item Create empirical logit plots to summarize the relationship between quantitative predictors and your binary response. An empirical logit function is provided at the end of this assignment.
+\item Create empirical logit plots to summarize the relationship between quantitative predictors and your binary response. Details on creating empirical logit plots, with examples, can be found at\\ \url{https://sta712-f22.github.io/homework/empirical_logits.html}
 \item Using the empirical logit plots, discuss whether any transformations are needed on the explanatory variables.
-\item Use empirical logit plots to investigate potential interactions between variables (see the function below for more details)
+\item Use empirical logit plots to investigate potential interactions between variables
 \item Use a correlation matrix to summarize pairwise relationships between the quantitative explanatory variables. Should we be concerned with potential multicollinearity?
 \end{itemize}
 \item Based on your exploratory data analysis, write down a logistic regression model that will allow you to answer the moderators' questions. Describe how you will use the model to answer their questions.
