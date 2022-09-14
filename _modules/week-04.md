@@ -15,8 +15,7 @@ September 14
 : Textbook 4.10, 7.2.4
 
 : **Homework 3 released**{: .label .label-yellow }
-  : [HW 3](https://sta712-f22.github.io/homework/HW3.pdf)
-  : [Empirical logit plots](https://sta712-f22.github.io/homework/empirical_logits.html)
+  : [HW 3](https://sta712-f22.github.io/homework/HW3.pdf), [Empirical logit plots](https://sta712-f22.github.io/homework/empirical_logits.html)
   
 : **Challenge Assignment 4 released**{: .label .label-yellow }
   : [Challenge 4](https://sta712-f22.github.io/homework/challenge_4.pdf)
