@@ -53,13 +53,95 @@ $$M_Y(t) = e^{t^T \bm{a}} M_X(\bm{B}^T t).$$
 
 \section*{Likelihood ratio tests}
 
-Suppose that 
+In class, we learned likelihood ratio tests as an alternative to Wald tests, for testing hypotheses about coefficients in a logistic regression model. We used a $\chi^2$ distribution to calculate a p-value for this test. In this problem, we will derive the $\chi^2$ distribution for the likelihood ratio test; for simplicity, we will work with a scalar parameter $\theta \in \mathbb{R}$.
 
+\begin{enumerate}
+\item[2.] Suppose that $Y_1,...,Y_n$ are iid with probability function $f(Y_i; \theta)$, where $\theta \in \mathbb{R}$. We want to test the following hypotheses:
+\begin{align*}
+H_0: \ &\theta = \theta_0 \\
+H_A: \ &\theta \neq \theta_0,
+\end{align*}
+where $\theta_0$ is some hypothesized value for the parameter. Let $\widehat{\theta}$ be the maximum likelihood estimate of $\theta$. Then our likelihood ratio test statistic is
+$$L = 2 \ell(\widehat{\theta}) - 2 \ell(\theta_0).$$
 
-\section*{Multicollinearity and power}
+Prove that, under $H_0$, $L \overset{d}{\to} \chi^2_1$ as $n \to \infty$.\\
 
-One of the potential issues with multicollinearity is that it 
+\textit{Hints}:
+\begin{itemize}
+\item Begin with a second-order Taylor expansion for $\ell(\theta_0)$ around $\widehat{\theta}$
+\item Use the fact that $-\frac{1}{n} \ell''(\widehat{\theta}) \overset{p}{\to} \mathcal{I}_1(\theta)$ (from class)
+\item Use the fact that $\sqrt{n \mathcal{I}_1(\theta)}(\widehat{\theta} - \theta) \overset{d}{\to} Z \sim N(0, 1)$ (from class)
+\item Apply the continuous mapping theorem: if $X_n \overset{d}{\to} X$, then $g(X_n) \overset{d}{\to} g(X)$ for any continuous function $g$
+\item Apply Slutsky's theorem
+\end{itemize}
+\end{enumerate}
+
 
 \section*{Data analysis}
+
+Here we work with data from a website called ScienceForums.Net (SFN), which has been open since 2002 and hosts conversations on a range of topics from biological and physical science to religion and philosophy. Each row in the data represents one ‘thread’, which is comprised of a series of posts stemming from an initial post. For each thread, we have some information that SFN collects such as the number of views and the number of authors. The threads present in the data are a random sample of threads from 2002-2014, with the data collected in 2014. SFN moderators are interested in using this data to determine which threads warrant the most attention.\\
+
+\noindent You can load the SFN data into R by
+
+\begin{verbatim}
+sfn <- read.csv("https://sta712-f22.github.io/class_activities/sfn.csv")
+\end{verbatim}
+
+\noindent The sfn dataset contains the following columns:
+
+\begin{itemize}
+\item Age: the age of the thread (in days) when the data was collected in 2014, measured from the first post in the thread
+\item State: sometimes moderators close threads if they are inappropriate. closed indicates the thread has been closed, otherwise State is open
+\item Posts: the number of posts in the thread
+\item Views: the total number of views of the thread
+\item Duration: the number of days between the first and last posts in the thread
+\item Authors: the number of distinct authors posting in the thread
+\item AuthorExperience: the number of days the author of the first post in the thread had been registered on SFN when the thread began (0 indicates they registered that day)
+\item DeletedPosts: the number of posts in the thread that have been deleted by a moderator
+\item Forum: the forum in which the thread was posted (e.g., Science)
+\item AuthorBanned: whether the original author of the thread is currently banned from posting on SFN (at the time of data collection, not when the thread was first posted)
+\end{itemize}
+
+\noindent \textbf{Research questions:} Suppose you have been approached by moderators at SFN. They give you the data, and ask the following questions:
+\begin{itemize}
+\item Is there a relationship between the number of Posts in a thread and whether a thread will have \textit{at least one} deleted post, after accounting for the number of Views, the number of Authors, and the Forum?
+\item Does this relationship differ between Forums?
+\end{itemize}
+
+\begin{enumerate}
+\item[3.] Here you will use logistic regression to answer the moderators' questions.
+
+\begin{enumerate}
+\item Which variables should we focus on to answer the moderators' questions? Which of these is our response variable, and which will be our explanatory variables, for logistic regression?
+\item Perform univariate exploratory data analysis (EDA) for your selected variables in (a): 
+\begin{itemize}
+\item For categorical variables, present a table showing the number of observations in each category
+\item For quantitative variables, present a histogram and summarize the distribution of the variable (give summary statistics and describe center, shape, spread, and any potential outliers)
+\item Discuss whether there are any missing or erroneous values in the data, and if so how you will handle them
+\end{itemize}
+\item Perform multivariate EDA for your selected variables in (a):
+\begin{itemize}
+\item Create empirical logit plots to summarize the relationship between quantitative predictors and your binary response. An empirical logit function is provided at the end of this assignment.
+\item Using the empirical logit plots, discuss whether any transformations are needed on the explanatory variables.
+\item Use empirical logit plots to investigate potential interactions between variables (see the function below for more details)
+\item Use a correlation matrix to summarize pairwise relationships between the quantitative explanatory variables. Should we be concerned with potential multicollinearity?
+\end{itemize}
+\item Based on your exploratory data analysis, write down a logistic regression model that will allow you to answer the moderators' questions. Describe how you will use the model to answer their questions.
+\item Fit your model from (d), and report the equation of the fitted model. Interpret any estimated coefficients which address the moderators' questions.
+\item Assess your model assumptions:
+\begin{itemize}
+\item Create quantile residual plots to check the shape assumption for quantitative variables (you may use the \texttt{qresid} function in the \texttt{statmod} package)
+\item Calculate Cook's distance to check for any influential points (use a threshold of 0.5 or 1 to identify influential points)
+\item Calculate variance inflation factors to check for multicollinearity (see the \texttt{vif} function in the \texttt{car} package, and use a threshold of 5 or 10 to identify high multicollinearity). Note that if you have interaction terms in your model, you will see high VIFs for any variable involved in an interaction -- this isn't a problem.
+\end{itemize}
+\item Address any violations to the model assumptions (transformations for shape violations; report results with and without influential points; and combine or remove columns for high multicollinearity). If you made any changes to your model from (e), report and interpret your new fitted model here.
+\item Carry out one or more hypothesis tests to investigate the moderators' questions. You should:
+\begin{itemize}
+\item State the null and alternative hypotheses in terms of one or more $\beta$s
+\item Calculate a test statistic and p-value
+\item Make a conclusion in the context of the original question
+\end{itemize}
+\end{enumerate} 
+\end{enumerate}
 
 \end{document}
