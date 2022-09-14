@@ -77,7 +77,7 @@ What information replaces $R^2$ and $R^2_{adj}$ in the GLM output?
 
 .large[
 **Definition:** The *deviance* of a fitted model with parameter estimates $\widehat{\beta}$ is given by
-$$2 \log \ell(\text{saturated model}) - 2 \log \ell(\widehat{\beta})$$
+$$2 \ell(\text{saturated model}) - 2 \ell(\widehat{\beta})$$
 ]
 
 ---
@@ -101,7 +101,7 @@ summary(m1)
 
 **Reduced model:** $\log \left( \dfrac{p_i}{1 - p_i} \right) = \beta_0$
 
-$$G = 2 \log \ell(\widehat{\beta}) - 2 \log \ell(\widehat{\beta}^0)$$
+$$G = 2  \ell(\widehat{\beta}) - 2 \ell(\widehat{\beta}^0)$$
 
 .question[
 Why is $G$ always $\geq 0$?
@@ -117,7 +117,7 @@ Why is $G$ always $\geq 0$?
 
 **Reduced model:** $\log \left( \dfrac{p_i}{1 - p_i} \right) = \beta_0$
 
-$$G = 2 \log \ell(\widehat{\beta}) - 2 \log \ell(\widehat{\beta}^0) = 1556.1$$
+$$G = 2 \ell(\widehat{\beta}) - 2 \ell(\widehat{\beta}^0) = 1556.1$$
 
 .question[
 If the reduced model is correct, how unusual is $G = 1556.1$?
