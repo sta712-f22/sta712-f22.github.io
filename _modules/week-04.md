@@ -9,10 +9,10 @@ September 12
 : Textbook 4.10, 7.2.1, 9.9
 
 September 14
-: Wald tests, Likelihood ratio tests
+: Wald tests
   : [Slides](https://sta712-f22.github.io/slides/lecture_11.pdf), [Class activity](https://sta712-f22.github.io/class_activities/ca_lecture_11.html)
 
-: Textbook 4.10, 7.2.4
+: Textbook 4.10, 7.2
 
 : **Homework 3 released**{: .label .label-yellow }
   : [HW 3](https://sta712-f22.github.io/homework/HW3.pdf), [Empirical logit plots](https://sta712-f22.github.io/homework/empirical_logits.html)
@@ -23,4 +23,5 @@ September 14
 : **HW 2 due Thursday**{: .label .label-red }
 
 September 16
-: Assessing predictions
+: Putting it all together
+  : [Slides](https://sta712-f22.github.io/slides/lecture_12.pdf), [Class activity](https://sta712-f22.github.io/class_activities/ca_lecture_12.html)

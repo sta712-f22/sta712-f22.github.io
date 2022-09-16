@@ -1,0 +1,187 @@
+---
+title: Exploring the Titanic data
+output:
+  xaringan::moon_reader:
+    css: "lab-slides.css"
+    lib_dir: libs
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+editor_options: 
+  chunk_output_type: console
+---
+
+### What we've covered so far...
+
+.large[
+* Interpretation and model fitting (MLE, Fisher scoring, gradient ascent)
+* Visualizations and diagnostics (empirical logit plots, quantile residual plots, VIFs, Cook's distance)
+* Hypothesis testing (Wald tests)
+]
+
+---
+
+### Data
+
+.large[
+Data on the RMS *Titanic* disaster. We have data on 891 passengers on the ship, with the following variables:
+
+* `Passenger`: A unique ID number for each passenger.
+* `Survived`: An indicator for whether the passenger survived (1) or perished (0) during the disaster.
+* `Pclass`: Indicator for the class of the ticket held by this passengers; 1 = 1st class, 2 = 2nd class, 3 = 3rd class.
+* `Sex`: Binary Indicator for the biological sex of the passenger.
+* `Age`: Age of the passenger in years; Age is fractional if the passenger was less than 1 year old.
+* `Fare`: How much the ticket cost in US dollars.
+* `+` others
+]
+
+---
+
+### Research question
+
+.large[
+*Is there a relationship between passenger age and their probability of survival, after accounting for sex, passenger class, and the cost of their ticket?*
+]
+
+.large[
+.question[
+What steps should I take to investigate this question with logistic regression?
+]
+]
+
+---
+
+### Class activity, Part I (EDA)
+
+.large[
+[https://sta712-f22.github.io/class_activities/ca_lecture_12.html](https://sta712-f22.github.io/class_activities/ca_lecture_12.html)
+
+]
+
+---
+
+### Class activity
+
+```{r include=F}
+library(tidyverse)
+titanic <- read.csv("https://sta214-f22.github.io/labs/Titanic.csv")
+
+logodds_plot <- function(data, num_bins, bin_method,
+                         x_name, y_name, grouping = NULL, 
+                         reg_formula = y ~ x){
+  
+  if(is.null(grouping)){
+    dat <- data.frame(x = data %>% pull(x_name), 
+                      y = data %>% pull(y_name),
+                      group = 1)
+  } else {
+    dat <- data.frame(x = data %>% pull(x_name), 
+                      y = data %>% pull(y_name),
+                      group = as.factor(data %>% pull(grouping)))
+  }
+  
+  if(bin_method == "equal_size"){
+    logodds_table <- dat %>%
+      drop_na() %>%
+      arrange(group, x) %>%
+      group_by(group) %>%
+      mutate(obs = y,
+             bin = rep(1:num_bins,
+                       each=ceiling(n()/num_bins))[1:n()]) %>%
+      group_by(bin, group) %>%
+      summarize(mean_x = mean(x),
+                prop = mean(c(obs, 0.5)),
+                num_obs = n()) %>%
+      ungroup() %>%
+      mutate(logodds = log(prop/(1 - prop)))
+  } else {
+    logodds_table <- dat %>%
+      drop_na() %>%
+      group_by(group) %>%
+      mutate(obs = y,
+             bin = cut(x, 
+                       breaks = num_bins,
+                       labels = F)) %>%
+      group_by(bin, group) %>%
+      summarize(mean_x = mean(x),
+                prop = mean(c(obs, 0.5)),
+                num_obs = n()) %>%
+      ungroup() %>%
+      mutate(logodds = log(prop/(1 - prop)))
+  }
+  
+  if(is.null(grouping)){
+    logodds_table %>%
+      ggplot(aes(x = mean_x,
+                 y = logodds)) +
+      geom_point(size=2) +
+      geom_smooth(se=F, method="lm", formula = reg_formula) +
+      theme_bw() +
+      labs(x = x_name,
+           y = "Empirical log odds") +
+      theme(text = element_text(size=15))
+  } else {
+    logodds_table %>%
+      ggplot(aes(x = mean_x,
+                 y = logodds,
+                 color = group,
+                 shape = group)) +
+      geom_point(size=2) +
+      geom_smooth(se=F, method="lm", formula = reg_formula) +
+      theme_bw() +
+      labs(x = x_name,
+           y = "Empirical log odds",
+           color = grouping,
+           shape = grouping) +
+      theme(text = element_text(size=15))
+  }
+  
+}
+```
+
+```{r, echo=F, message=F, warning=F, fig.align='center', fig.width=10, fig.height=7}
+p1 <- logodds_plot(titanic, 30, "equal_size", "Age", "Survived", 
+             grouping = "Sex",
+             reg_formula = y ~ x)
+
+p2 <- logodds_plot(titanic, 30, "equal_size", "Fare", "Survived",
+             reg_formula = y ~ x)
+
+p3 <- logodds_plot(titanic, 30, "equal_size", "Fare", "Survived",
+             reg_formula = y ~ log(x))
+
+p4 <- logodds_plot(titanic, 30, "equal_size", "Fare", "Survived",
+                   grouping = "Sex",
+             reg_formula = y ~ log(x))
+
+gridExtra::grid.arrange(p1, p2, p3, p4, ncol=2)
+```
+
+---
+
+### Class activity
+
+.large[
+.question[
+Based on your EDA, what model would you fit to address the research question?
+]
+]
+
+---
+
+### Class activity, Part II (Diagnostics)
+
+.large[
+[https://sta712-f22.github.io/class_activities/ca_lecture_12.html](https://sta712-f22.github.io/class_activities/ca_lecture_12.html)
+
+]
+
+---
+
+### Class activity, Part III (Hypothesis testing)
+
+.large[
+[https://sta712-f22.github.io/class_activities/ca_lecture_12.html](https://sta712-f22.github.io/class_activities/ca_lecture_12.html)
+
+]

@@ -1,0 +1,151 @@
+---
+title: "Class Activity, September 16"
+output: 
+  rmdformats::robobook:
+    css: "homework.css"
+    highlight: pygments
+link-citations: yes
+---
+
+# Data
+
+The RMS Titanic was a huge, luxury passenger liner designed and built in the early 20th century. Despite the fact that the ship was believed to be unsinkable, during her maiden voyage on April 15, 1912, the Titanic collided with an iceberg and sank. Of all the passengers and crew, less than half survived. Part of the reason why so few people survived has been attributed to the fact that the Titanic did not carry enough lifeboats for its passengers and crew. This meant that there was competition for space in the boats, and not everyone was able to make it aboard. Communication errors, stress and shock...there were a great many factors that contributed to this tragedy.
+
+The loss of life during the Titanic tragedy was enormous, but there were survivors. Was it random chance that these particular people survived? Or were there some specific characteristics of these people that led to their positions in the life boats? Let's investigate.
+
+We have observations on 12 different variables, some categorical and some numeric:
+
+* `Passenger`: A unique ID number for each passenger.
+* `Survived`: An indicator for whether the passenger survived (1) or perished (0) during the disaster.
+* `Pclass`: Indicator for the class of the ticket held by this passengers; 1 = 1st class, 2 = 2nd class, 3 = 3rd class.
+* `Name`: The name of the passenger.
+* `Sex`: Binary Indicator for the biological sex of the passenger.
+* `Age`: Age of the passenger in years; Age is fractional if the passenger was less than 1 year old.
+* `SibSp`: number of siblings/spouses the passenger had aboard the Titanic. Here, siblings are defined as brother, sister, stepbrother, and stepsister. Spouses are defined as husband and wife.
+* `Parch`: number of parents/children the passenger had aboard the Titanic. Here, parent is defined as mother/father and child is defined as daughter,son, stepdaughter or stepson. NOTE: Some children traveled only with a nanny, therefore parch=0 for them. There were no parents aboard for these children.
+* `Ticket`: The unique ticket number for each passenger.
+* `Fare`: How much the ticket cost in US dollars.
+* `Cabin`: The cabin number assigned to each passenger. Some cabins hold more than one passenger.
+* `Embarked`: Port where the passenger boarded the ship; C = Cherbourg, Q = Queenstown, S = Southampton
+
+Recall that our goal is to build a model to help explore what characteristics were related to whether or not a passenger survived the disaster.
+
+## Loading the data
+
+The `titanic` data can be loaded into R with the following command:
+
+```r
+titanic <- read.csv("https://sta214-f22.github.io/labs/Titanic.csv")
+```
+
+## Research question
+
+We want to investigate the following question:
+
+*Is there a relationship between passenger age and their probability of survival, after accounting for sex, passenger class, and the cost of their ticket?*
+
+# Part I: Exploratory data analysis (EDA)
+
+To begin, we will explore relationships between survival and the different explanatory variables, using empirical logit plots. Code and examples for creating empirical logit plots can be found at
+
+[https://sta712-f22.github.io/homework/empirical_logits.html](https://sta712-f22.github.io/homework/empirical_logits.html)
+
+Our research question is focused on age as an explanatory variable, so let us begin by exploring age and survival.
+
+:::{.question}
+#### Question 1
+
+Use the following code to create an empirical logit plot to examine the relationship between age and survival:
+
+```r
+library(tidyverse)
+logodds_plot(titanic, 30, "equal_size", "Age", "Survived",
+             reg_formula = y ~ x)
+```
+
+:::
+
+The research question asks us to account for other variables, like sex, in the model. So, let us see how the relationship between age and survival changes when we add sex. To investigate this question, we can fit separate lines on the empirical logit plot for male and female passengers.
+
+:::{.question}
+#### Question 2
+
+Use the following code to create an empirical logit plot for the relationship between age and survival, broken down by sex. Does the assumption that the log odds are a linear function of Age seem appropriate?
+
+```r
+logodds_plot(titanic, 30, "equal_size", "Age", "Survived", 
+             grouping = "Sex",
+             reg_formula = y ~ x)
+```
+
+:::
+
+We also care about including Fare in the model, so let's explore the relationship between Fare and survival.
+
+:::{.question}
+#### Question 3
+
+Use the following code to create an empirical logit plot for the relationship between fare and survival. Does the shape/linearity assumption seem reasonable here?
+
+```r
+logodds_plot(titanic, 30, "equal_size", "Fare", "Survived",
+             reg_formula = y ~ x)
+```
+
+:::
+
+When the shape assumption does not seem reasonable, we can try different transformations. This is done in the `logodds_plot` function by changing the regression formula (`reg_formula`). For example, to try a log transformation on Fare: 
+
+```r
+logodds_plot(titanic, 30, "equal_size", "Fare", "Survived",
+             reg_formula = y ~ log(x))
+```
+
+:::{.question}
+#### Question 4
+
+Experiment with different transformations for Fare. Which transformation seems most appropriate?
+
+:::
+
+:::{.question}
+#### Question 5
+
+Explore any other variables you need in the model to address the research question. Based on your exploratory data analysis, propose a model that allows you to address the research question.
+
+:::
+
+
+# Part II: Diagnostics
+
+Now let's fit the model, and assess whether the model assumptions are met.
+
+:::{.question}
+#### Question 6
+
+Fit the model you proposed in Question 5. *Note: you may need to remove missing values from the `titanic` data first!*
+
+:::
+
+:::{.question}
+#### Question 7
+
+Use the `cooks.distance(...)` function to check for any influential points. Recall that we typically use a threshold of 0.5 or 1 to identify influential points.
+
+:::
+
+:::{.question}
+#### Question 8
+
+Use the `qresid(...)` function from the `statmod` package to calculate quantile residuals for your fitted model. Make two quantile residual plots: one for Fare, and one for Age. Does the shape assumption seem reasonable?
+
+:::
+
+# Part III: Hypothesis testing
+
+:::{.question}
+#### Question 9
+
+Use a Wald test to address the original research question. Give your null and alternative hypotheses, test statistic, and p-value.
+
+:::
