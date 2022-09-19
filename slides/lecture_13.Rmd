@@ -50,6 +50,7 @@ What hypotheses should we test to investigate this research question?
 
 ```{r include=F}
 library(knitr)
+library(tidyverse)
 hook_output <- knit_hooks$get("output")
 knit_hooks$set(output = function(x, options) {
    lines <- options$output.lines
@@ -71,7 +72,8 @@ knit_hooks$set(output = function(x, options) {
    hook_output(x, options)
  })
 
-titanic <- read.csv("https://sta214-f22.github.io/labs/Titanic.csv")
+titanic <- read.csv("https://sta214-f22.github.io/labs/Titanic.csv") %>%
+  drop_na()
 ```
 
 .large[
@@ -95,6 +97,18 @@ What information replaces $R^2$ and $R^2_{adj}$ in the GLM output?
 .large[
 **Definition:** The *deviance* of a fitted model with parameter estimates $\widehat{\beta}$ is given by
 $$2 \ell(\text{saturated model}) - 2 \ell(\widehat{\beta})$$
+]
+
+---
+
+### Residual and null deviance
+
+.large[
+```{r, output.lines = c(22:23)}
+m1 <- glm(Survived ~ Age*Sex + log(Fare + 1), 
+          data = titanic, family = binomial)
+summary(m1)
+```
 ]
 
 ---
@@ -143,7 +157,7 @@ summary(m2)
 ### Comparing deviances
 
 .large[
-**Full model:** $\log \left( \dfrac{p_i}{1 - p_i} \right) = \beta_0 + \beta_1 Age_i + \beta_2 Sex_i + \\ \hspace{2cm} \beta_3 Age_i \cdot Sex_i + \beta_4 \log(Fare_i + 1)$
+**Full model:** $\log \left( \dfrac{p_i}{1 - p_i} \right) = \beta_0 + \beta_1 Sex_i + \beta_2 \log(Fare_i + 1) + \\ \hspace{3cm} \beta_3 Age_i + \beta_4 Age_i \cdot Sex_i$
 
 **Reduced model:** $\log \left( \dfrac{p_i}{1 - p_i} \right) = \beta_0 + \beta_1 Sex_i + \beta_2 \log(Fare_i + 1)$
 
@@ -159,14 +173,14 @@ Why is $G$ always $\geq 0$?
 ### Comparing deviances
 
 .large[
-**Full model:** $\log \left( \dfrac{p_i}{1 - p_i} \right) = \beta_0 + \beta_1 Age_i + \beta_2 Sex_i + \\ \hspace{2cm} \beta_3 Age_i \cdot Sex_i + \beta_4 \log(Fare_i + 1)$
+**Full model:** $\log \left( \dfrac{p_i}{1 - p_i} \right) = \beta_0 + \beta_1 Sex_i + \beta_2 \log(Fare_i + 1) + \\ \hspace{3cm} \beta_3 Age_i + \beta_4 Age_i \cdot Sex_i$
 
 **Reduced model:** $\log \left( \dfrac{p_i}{1 - p_i} \right) = \beta_0 + \beta_1 Sex_i + \beta_2 \log(Fare_i + 1)$
 
-$$G = 2 \ell(\widehat{\beta}) - 2 \ell(\widehat{\beta}^0) = 171.76$$
+$$G = 2 \ell(\widehat{\beta}) - 2 \ell(\widehat{\beta}^0) = 10.83$$
 
 .question[
-If the reduced model is correct, how unusual is $G = 171.76$?
+If the reduced model is correct, how unusual is $G = 10.83$?
 ]
 ]
 

@@ -90,6 +90,26 @@ What information replaces `\(R^2\)` and `\(R^2_{adj}\)` in the GLM output?
 
 ---
 
+### Residual and null deviance
+
+.large[
+
+```r
+m1 &lt;- glm(Survived ~ Age*Sex + log(Fare + 1), 
+          data = titanic, family = binomial)
+summary(m1)
+```
+
+```
+...
+##     Null deviance: 964.52  on 713  degrees of freedom
+## Residual deviance: 697.21  on 709  degrees of freedom
+...
+```
+]
+
+---
+
 ### Comparing deviances
 
 .large[
@@ -118,8 +138,8 @@ summary(m2)
 
 ```
 ...
-##     Null deviance: 1186.66  on 890  degrees of freedom
-## Residual deviance:  868.97  on 888  degrees of freedom
+##     Null deviance: 964.52  on 713  degrees of freedom
+## Residual deviance: 708.04  on 711  degrees of freedom
 ...
 ```
 ]
@@ -150,7 +170,7 @@ summary(m2)
 ### Comparing deviances
 
 .large[
-**Full model:** `\(\log \left( \dfrac{p_i}{1 - p_i} \right) = \beta_0 + \beta_1 Age_i + \beta_2 Sex_i + \\ \hspace{2cm} \beta_3 Age_i \cdot Sex_i + \beta_4 \log(Fare_i + 1)\)`
+**Full model:** `\(\log \left( \dfrac{p_i}{1 - p_i} \right) = \beta_0 + \beta_1 Sex_i + \beta_2 \log(Fare_i + 1) + \\ \hspace{3cm} \beta_3 Age_i + \beta_4 Age_i \cdot Sex_i\)`
 
 **Reduced model:** `\(\log \left( \dfrac{p_i}{1 - p_i} \right) = \beta_0 + \beta_1 Sex_i + \beta_2 \log(Fare_i + 1)\)`
 
@@ -166,14 +186,14 @@ Why is `\(G\)` always `\(\geq 0\)`?
 ### Comparing deviances
 
 .large[
-**Full model:** `\(\log \left( \dfrac{p_i}{1 - p_i} \right) = \beta_0 + \beta_1 Age_i + \beta_2 Sex_i + \\ \hspace{2cm} \beta_3 Age_i \cdot Sex_i + \beta_4 \log(Fare_i + 1)\)`
+**Full model:** `\(\log \left( \dfrac{p_i}{1 - p_i} \right) = \beta_0 + \beta_1 Sex_i + \beta_2 \log(Fare_i + 1) + \\ \hspace{3cm} \beta_3 Age_i + \beta_4 Age_i \cdot Sex_i\)`
 
 **Reduced model:** `\(\log \left( \dfrac{p_i}{1 - p_i} \right) = \beta_0 + \beta_1 Sex_i + \beta_2 \log(Fare_i + 1)\)`
 
-`$$G = 2 \ell(\widehat{\beta}) - 2 \ell(\widehat{\beta}^0) = 171.76$$`
+`$$G = 2 \ell(\widehat{\beta}) - 2 \ell(\widehat{\beta}^0) = 10.83$$`
 
 .question[
-If the reduced model is correct, how unusual is `\(G = 171.76\)`?
+If the reduced model is correct, how unusual is `\(G = 10.83\)`?
 ]
 ]
 
