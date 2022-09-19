@@ -1,0 +1,192 @@
+---
+title: "Class activity solutions, September 16"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+logodds_plot <- function(data, num_bins, bin_method,
+                         x_name, y_name, grouping = NULL, 
+                         reg_formula = y ~ x){
+  
+  if(is.null(grouping)){
+    dat <- data.frame(x = data %>% pull(x_name), 
+                      y = data %>% pull(y_name),
+                      group = 1)
+  } else {
+    dat <- data.frame(x = data %>% pull(x_name), 
+                      y = data %>% pull(y_name),
+                      group = as.factor(data %>% pull(grouping)))
+  }
+  
+  if(bin_method == "equal_size"){
+    logodds_table <- dat %>%
+      drop_na() %>%
+      arrange(group, x) %>%
+      group_by(group) %>%
+      mutate(obs = y,
+             bin = rep(1:num_bins,
+                       each=ceiling(n()/num_bins))[1:n()]) %>%
+      group_by(bin, group) %>%
+      summarize(mean_x = mean(x),
+                prop = mean(c(obs, 0.5)),
+                num_obs = n()) %>%
+      ungroup() %>%
+      mutate(logodds = log(prop/(1 - prop)))
+  } else {
+    logodds_table <- dat %>%
+      drop_na() %>%
+      group_by(group) %>%
+      mutate(obs = y,
+             bin = cut(x, 
+                       breaks = num_bins,
+                       labels = F)) %>%
+      group_by(bin, group) %>%
+      summarize(mean_x = mean(x),
+                prop = mean(c(obs, 0.5)),
+                num_obs = n()) %>%
+      ungroup() %>%
+      mutate(logodds = log(prop/(1 - prop)))
+  }
+  
+  if(is.null(grouping)){
+    logodds_table %>%
+      ggplot(aes(x = mean_x,
+                 y = logodds)) +
+      geom_point(size=2) +
+      geom_smooth(se=F, method="lm", formula = reg_formula) +
+      theme_bw() +
+      labs(x = x_name,
+           y = "Empirical log odds") +
+      theme(text = element_text(size=15))
+  } else {
+    logodds_table %>%
+      ggplot(aes(x = mean_x,
+                 y = logodds,
+                 color = group,
+                 shape = group)) +
+      geom_point(size=2) +
+      geom_smooth(se=F, method="lm", formula = reg_formula) +
+      theme_bw() +
+      labs(x = x_name,
+           y = "Empirical log odds",
+           color = grouping,
+           shape = grouping) +
+      theme(text = element_text(size=15))
+  }
+  
+}
+```
+
+### Data import and cleaning
+
+```{r, message = F, warning=F}
+library(tidyverse)
+titanic <- read.csv("https://sta214-f22.github.io/labs/Titanic.csv")
+titanic <- titanic %>%
+  drop_na()
+```
+
+### Question 1
+
+```{r, message=F, warning=F}
+logodds_plot(titanic, 30, "equal_size", "Age", "Survived",
+             reg_formula = y ~ x)
+```
+
+There may be a negative relationship between Age and the probability of survival. The logistic regression assumption that the log odds are linear in Age seems reasonable here.
+
+### Question 2
+
+```{r message=F, warning=F}
+logodds_plot(titanic, 30, "equal_size", "Age", "Survived", 
+             grouping = "Sex",
+             reg_formula = y ~ x)
+```
+
+The assumption that the log odds are linear in Age seems reasonable for both the male and female passengers. We can see that female passengers generally have a higher chance of survival than male passengers, and that the relationship between age and survival appears positive for female passengers but negative for male passengers.
+
+### Question 3
+
+```{r message=F, warning=F}
+logodds_plot(titanic, 30, "equal_size", "Fare", "Survived",
+             reg_formula = y ~ x)
+```
+
+The shape assumption does not seem reasonable for Fare; the log odds appear to be a non-linear function of Fare. We should try some transformations.
+
+### Question 4
+
+```{r message=F, warning=F}
+logodds_plot(titanic, 30, "equal_size", "Fare", "Survived",
+             reg_formula = y ~ log(x))
+```
+
+A log transformation appears to be a good way of capturing the relationship between Fare and survival.
+
+### Question 6
+
+We will fit the model
+
+$$Y_i \sim Bernoulli(p_i)$$
+
+$$\log \left( \dfrac{p_i}{1 - p_i} \right) = \beta_0 + \beta_1 Sex_i + \beta_2 \log(Fare_i + 1) + \beta_3 Age_i + \beta_4 Age_i \cdot Sex_i$$
+
+(We add 1 to Fare before taking the log to deal with 0s)
+
+```{r}
+m1 <- glm(Survived ~ log(Fare + 1) + Sex*Age, 
+          data = titanic, family = binomial)
+summary(m1)
+```
+
+### Question 7
+
+Now let's check for any influential points using Cook's distance:
+
+```{r}
+hist(cooks.distance(m1))
+max(cooks.distance(m1))
+```
+
+The largest observed Cook's distance is around 0.035, which is well below both of the common thresholds for influential points (0.5 and 1). So, we are not concerned about influential points here.
+
+### Question 8
+
+We also want to assess the shape assumption for our fitting model, using quantile residual plots (this is a bit different than the empirical logit plots from the earlier questions, because we can use predictions from the full model when calculating our quantile residuals). We plot the quantile residuals against our quantitative predictors, Age and $\log(Fare + 1)$:
+
+```{r message=F, warning=F}
+titanic %>%
+  mutate(resids = statmod::qresid(m1)) %>%
+  ggplot(aes(x = Age, y = resids)) +
+  geom_point() +
+  geom_smooth() +
+  theme_bw()
+```
+
+```{r message=F, warning=F}
+titanic %>%
+  mutate(resids = statmod::qresid(m1)) %>%
+  ggplot(aes(x = log(Fare + 1), y = resids)) +
+  geom_point() +
+  geom_smooth() +
+  theme_bw()
+```
+
+Both plots look good (there is a random scatter of residuals around 0, with no clear pattern), so the shape assumption seems reasonable.
+
+### Question 9
+
+Our null hypothesis is $\beta_3 = \beta_4 = 0$. Letting $\beta_{(2)} = (\beta_3, \beta_4)^T$, then our hypotheses are 
+
+$H_0: \beta_{(2)} = \beta_{(2)}^0 = (0, 0)^T$
+
+$H_A: \beta_{(2)} \neq \beta_{(2)}^0$
+
+Calculating the test statistic and p-value:
+
+```{r message=F, warning=F}
+I22 <- vcov(m1)[4:5, 4:5]
+W <- t(coefficients(m1)[4:5]) %*% solve(I22) %*% coefficients(m1)[4:5]
+pchisq(W, df = 2, lower.tail = F) #p-value
+```

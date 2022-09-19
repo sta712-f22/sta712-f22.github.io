@@ -24,4 +24,4 @@ September 14
 
 September 16
 : Putting it all together
-  : [Slides](https://sta712-f22.github.io/slides/lecture_12.pdf), [Class activity](https://sta712-f22.github.io/class_activities/ca_lecture_12.html)
+  : [Slides](https://sta712-f22.github.io/slides/lecture_12.pdf), [Class activity](https://sta712-f22.github.io/class_activities/ca_lecture_12.html), [Solutions](https://sta712-f22.github.io/class_activities/ca_lecture_12_solutions.html)
