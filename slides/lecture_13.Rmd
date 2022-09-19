@@ -1,0 +1,176 @@
+---
+title: Likelihood ratio tests
+output:
+  xaringan::moon_reader:
+    css: "lab-slides.css"
+    lib_dir: libs
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+editor_options: 
+  chunk_output_type: console
+---
+
+### Last time
+
+.large[
+Data on the RMS *Titanic* disaster. We have data on 891 passengers on the ship, with the following variables:
+
+* `Passenger`: A unique ID number for each passenger.
+* `Survived`: An indicator for whether the passenger survived (1) or perished (0) during the disaster.
+* `Pclass`: Indicator for the class of the ticket held by this passengers; 1 = 1st class, 2 = 2nd class, 3 = 3rd class.
+* `Sex`: Binary Indicator for the biological sex of the passenger.
+* `Age`: Age of the passenger in years; Age is fractional if the passenger was less than 1 year old.
+* `Fare`: How much the ticket cost in US dollars.
+* `+` others
+]
+
+---
+
+### Last time
+
+.large[
+*Is there a relationship between passenger age and their probability of survival, after accounting for sex, passenger class, and the cost of their ticket?*
+]
+
+.large[
+$$\log \left( \dfrac{p_i}{1 - p_i} \right) = \beta_0 + \beta_1 Age_i + \beta_2 Sex_i + \\ \hspace{2cm} \beta_3 Age_i \cdot Sex_i + \beta_4 \log(Fare_i + 1)$$
+]
+
+.large[
+.question[
+What hypotheses should we test to investigate this research question?
+]
+]
+
+---
+
+### Likelihood ratio tests
+
+```{r include=F}
+library(knitr)
+hook_output <- knit_hooks$get("output")
+knit_hooks$set(output = function(x, options) {
+   lines <- options$output.lines
+   if (is.null(lines)) {
+     return(hook_output(x, options))  # pass to default hook
+   }
+   x <- unlist(strsplit(x, "\n"))
+   more <- "..."
+   if (length(lines)==1) {        # first n lines
+     if (length(x) > lines) {
+       # truncate the output, but add ....
+       x <- c(head(x, lines), more)
+     }
+   } else {
+     x <- c(more, x[lines], more)
+   }
+   # paste these lines together
+   x <- paste(c(x, ""), collapse = "\n")
+   hook_output(x, options)
+ })
+
+titanic <- read.csv("https://sta214-f22.github.io/labs/Titanic.csv")
+```
+
+.large[
+```{r, echo=F, output.lines = c(10:16, 21:23)}
+m1 <- glm(Survived ~ Age*Sex + log(Fare + 1), data = titanic, 
+          family = binomial)
+summary(m1)
+```
+]
+
+.large[
+.question[
+What information replaces $R^2$ and $R^2_{adj}$ in the GLM output?
+]
+]
+
+---
+
+### Deviance
+
+.large[
+**Definition:** The *deviance* of a fitted model with parameter estimates $\widehat{\beta}$ is given by
+$$2 \ell(\text{saturated model}) - 2 \ell(\widehat{\beta})$$
+]
+
+---
+
+### Comparing deviances
+
+.large[
+```{r, output.lines = c(22:23)}
+m1 <- glm(Survived ~ Age*Sex + log(Fare + 1), 
+          data = titanic, family = binomial)
+summary(m1)
+```
+]
+
+.large[
+```{r, output.lines = c(20:21)}
+m2 <- glm(Survived ~ Sex + log(Fare + 1), 
+          data = titanic, family = binomial)
+summary(m2)
+```
+]
+
+---
+
+### Comparing deviances
+
+.large[
+**Full model:** 
+
+</br>
+
+**Hypotheses:** 
+
+</br>
+
+**Reduced model:**
+
+</br>
+
+**Test statistic:**
+
+]
+
+---
+
+### Comparing deviances
+
+.large[
+**Full model:** $\log \left( \dfrac{p_i}{1 - p_i} \right) = \beta_0 + \beta_1 Age_i + \beta_2 Sex_i + \\ \hspace{2cm} \beta_3 Age_i \cdot Sex_i + \beta_4 \log(Fare_i + 1)$
+
+**Reduced model:** $\log \left( \dfrac{p_i}{1 - p_i} \right) = \beta_0 + \beta_1 Sex_i + \beta_2 \log(Fare_i + 1)$
+
+$$G = 2  \ell(\widehat{\beta}) - 2 \ell(\widehat{\beta}^0)$$
+
+.question[
+Why is $G$ always $\geq 0$?
+]
+]
+
+---
+
+### Comparing deviances
+
+.large[
+**Full model:** $\log \left( \dfrac{p_i}{1 - p_i} \right) = \beta_0 + \beta_1 Age_i + \beta_2 Sex_i + \\ \hspace{2cm} \beta_3 Age_i \cdot Sex_i + \beta_4 \log(Fare_i + 1)$
+
+**Reduced model:** $\log \left( \dfrac{p_i}{1 - p_i} \right) = \beta_0 + \beta_1 Sex_i + \beta_2 \log(Fare_i + 1)$
+
+$$G = 2 \ell(\widehat{\beta}) - 2 \ell(\widehat{\beta}^0) = 171.76$$
+
+.question[
+If the reduced model is correct, how unusual is $G = 171.76$?
+]
+]
+
+---
+
+### Likelihood ratio test
+
