@@ -9,9 +9,12 @@ September 19
 : Textbook 4.10, 7.2
 
 September 21
-: Assessing predictions
+: Likelihood ratio tests, Contrasts
+  : [Slides](https://sta712-f22.github.io/slides/lecture_14.pdf)
+    
+: Textbook 4.10, 7.2
 
 September 23
-: Assessing predictions
+: Model selection
 
 : **HW 3 due**{: .label .label-red }
