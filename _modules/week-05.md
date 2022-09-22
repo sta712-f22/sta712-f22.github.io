@@ -15,6 +15,6 @@ September 21
 : Textbook 4.10, 7.2
 
 September 23
-: Model selection
+: Confidence intervals
 
 : **HW 3 due**{: .label .label-red }
