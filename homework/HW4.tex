@@ -1,0 +1,222 @@
+\documentclass[11pt]{article}
+\usepackage{url}
+\usepackage{alltt}
+\usepackage{bm}
+\linespread{1}
+\textwidth 6.5in
+\oddsidemargin 0.in
+\addtolength{\topmargin}{-1in}
+\addtolength{\textheight}{2in}
+
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{bm}
+
+\begin{document}
+
+
+\begin{center}
+\Large
+STA 712 Homework 4\\
+\normalsize
+\vspace{5mm}
+\end{center}
+
+\noindent \textbf{Due:} Friday, September 30, 12:00pm (noon) on Canvas.\\ 
+
+\noindent \textbf{Instructions:} Submit your work as a single PDF. For this assignment, you may include written work by scanning it and incorporating it into the PDF. Include all R code needed to reproduce your results in your submission.
+
+\section*{Optional: Delta method}
+
+\textit{Note: This question is optional! I have included it here in case you are interested in convergence of random variables, but it is slightly tangential to the course material and can be safely ignored if you choose.}\\
+
+\noindent Let $\theta \in \mathbb{R}^d$ be a parameter of interest, and $\widehat{\theta}$ be an estimate (e.g., the MLE). Our Wald tests and intervals depend on convergence in distribution to a normal:
+$$\sqrt{n}(\widehat{\theta} - \theta) \overset{d}{\to} N(0, \Sigma),$$
+where $\Sigma = Var(\widehat{\theta})$. We also know that if $\bm{a} \in \mathbb{R}^d$, then $\bm{a}^T \widehat{\theta} \approx N(\bm{a}^T \theta, \bm{a}^T \Sigma \bm{a})$.\\
+
+\noindent But what if we are interested in a \textit{nonlinear} function $g(\theta)$, for some $g: \mathbb{R}^d \to \mathbb{R}$? It turns out that, under certain conditions, $g(\widehat{\theta})$ is actually (approximately) normal too! Formally, if $g$ is a continuously differentiable function, then
+$$\sqrt{n}(g(\widehat{\theta}) - g(\theta)) \overset{d}{\to} N\left(0, \left( \frac{\partial g}{\partial \theta} \right)^T \Sigma \left( \frac{\partial g}{\partial \theta} \right) \right),$$
+where $\frac{\partial g}{\partial \theta}$ is the gradient of $g$ evaluated at $\theta$. This is called the \textit{(multivariate) delta method}.\\
+
+\noindent The purpose of this problem is to derive the delta method in the univariate case (the same intuition applies to the multivariate case). In the univariate case, $d = 1$ and $\theta \in \mathbb{R}$. To prove the univariate delta method, we will use the following results:
+\begin{itemize}
+\item Taylor's theorem: If $g: \mathbb{R} \to \mathbb{R}$ is continuously differentiable, then there exists a continuous function $h$ such that
+$$g(x) = g(a) + g'(a)(x - a) + h(x)(x - a),$$
+where $h(x) \to 0$ as $x \to a$.
+
+\item Slutsky's theorem: Suppose that $X_n$ and $Y_n$ are sequences of random variables with $X_n \overset{d}{\to} X$ and $Y_n \overset{p}{\to} c \in \mathbb{R}$. Then
+$$X_n Y_n \overset{d}{\to} cX$$
+$$X_n + Y_n \overset{d}{\to} X + c$$
+
+\item If $Y_n \overset{d}{\to} c \in \mathbb{R}$, then $Y_n \overset{p}{\to} c$.
+
+\item Continuous mapping theorem: If $g$ is a continuous function, and $X_n \overset{d}{\to} X$, then $g(X_n) \overset{d}{\to} g(X)$.
+\end{itemize}
+
+\begin{enumerate}
+\item Now let us prove the univariate delta method: if $\sqrt{n}(\widehat{\theta} - \theta) \overset{d}{\to} N(0, \sigma^2)$, and $g$ is a continuously differentiable function with $g'(\theta) \neq 0$, then
+$$\sqrt{n}(g(\widehat{\theta}) - g(\theta)) \overset{d}{\to} N(0, \sigma^2 [g'(\theta)]^2).$$
+
+\begin{enumerate}
+\item Using Taylor's theorem, show that
+$$\sqrt{n}(g(\widehat{\theta}) - g(\theta)) = \sqrt{n}g'(\theta)(\widehat{\theta} - \theta) + \sqrt{n}(\widehat{\theta} - \theta) h(\widehat{\theta}),$$
+for some continuous $h$ such that $\lim \limits_{\widehat{\theta} \to \theta} h(\widehat{\theta}) = 0$.
+
+\item Using Slutsky's theorem, argue that $\sqrt{n} g'(\theta)(\widehat{\theta} - \theta) \overset{d}{\to} N(0, \sigma^2 [g'(\theta)]^2)$.
+
+\item Using Slutsky's theorem and the continuous mapping theorem, argue that $$\sqrt{n}(\widehat{\theta} - \theta) h(\widehat{\theta}) \overset{p}{\to} 0.$$
+
+\item Using Slutsky's theorem, conclude that $\sqrt{n}(g(\widehat{\theta}) - g(\theta)) \overset{d}{\to} N(0, \sigma^2 [g'(\theta)]^2)$.
+
+\item Finally, let's apply the univariate delta method to logistic regression! Suppose that 
+$$Y_i \sim Bernoulli(p_i)$$
+$$\log \left( \dfrac{p_i}{1 - p_i} \right) = \beta^T X_i$$
+and we want to construct a confidence interval for $p_i$, the probability for the $i$th observation. In class, we constructed a confidence interval for $\beta^T X_i$, and transformed the endpoints. Another method would be to recognize that $\widehat{\beta}^T X_i$ is approximately normal, so by the delta method $\widehat{p}_i$ is approximately normal too.\\
+
+\noindent Using the univariate delta method, show that
+$$\widehat{p}_i \approx N(p_i, (X_i^T \mathcal{I}^{-1}(\beta) X_i) (1 - p_i)^2).$$
+
+\textit{Note: Simply transforming the endpoints is a much more common technique to create a confidence interval for $\widehat{p}_i$. In practice it is very rare to actually use the delta method for this problem.}
+\end{enumerate}
+\end{enumerate}
+
+\section*{Deviance and likelihood ratio tests for linear regression}
+
+In class, we defined the \textit{deviance} for a fitted model with estimated coefficients $\widehat{\beta}$ as 
+$$2 \ell(\text{saturated model}) - 2 \ell (\widehat{\beta}).$$
+In a generalized linear model, deviance plays the same role as the residual sum of squares (SSE) in a linear regression model. The purpose of this question is to make that connection explicit, and to connect the likelihood ratio test with the nested F-test from linear regression.
+
+\begin{enumerate}
+\item[2.] Consider the linear regression model
+$$Y_i \sim N(\mu_i, \sigma^2)$$
+$$\mu_i = \beta^T X_i.$$
+We observe data $(X_1, Y_1),...,(X_n, Y_n)$, and calculate estimated coefficients $\widehat{\beta} \in \mathbb{R}^{k+1}$. In the fitted model, $\widehat{\mu}_i = \widehat{\beta}^T X_i$. In the saturated model, $\widehat{\mu}_i = Y_i$.
+
+\begin{enumerate}
+\item Show that for this linear regression model, if $\sigma^2$ is known then the deviance is $\dfrac{SSE}{\sigma^2}$, where $SSE = \sum \limits_{i=1}^n (Y_i - \widehat{Y}_i)^2$. 
+
+(Technically, this is the \textit{scaled} deviance; there is also an \textit{unscaled} deviance, which we will talk about later. For linear regression, the unscaled deviance is just SSE. For binary logistic regression, the scaled and unscaled deviances are the same).
+
+\item Suppose we want to test the hypotheses $H_0: \beta = \beta^0$ vs. $H_A: \beta \neq \beta^0$, using a likelihood ratio test. Let $\widehat{\beta}$ be the estimated coefficients from the \textit{full} model, and $\widehat{\beta}^0$ the estimated coefficients from the \textit{reduced} model. Show that if $\sigma^2$ is known, then the likelihood ratio test statistic is
+$$G = \dfrac{SSE_{reduced} - SSE_{full}}{\sigma^2} \sim \chi^2_q,$$
+where $q$ is the number of parameters tested.
+
+\item Using the previous questions, explain why
+$$\dfrac{SSE_{full}}{\sigma^2} \sim \chi^2_{n - (k + 1)}.$$
+
+\item Ok, but what happens if we \textit{don't} know $\sigma^2$? The natural step is to estimate $\sigma^2$. Recall that in linear regression, 
+$$\widehat{\sigma}^2 = \dfrac{SSE_{full}}{n - (k + 1)}.$$
+
+Unfortunately, the statistic
+$$\dfrac{SSE_{reduced} - SSE_{full}}{\widehat{\sigma}^2}$$
+does not have a nice distribution. \textit{Fortunately}, we can modify this statistic slightly so that everything works out! Recall the nested F statistic from linear regression:
+$$F = \dfrac{(SSE_{reduced} - SSE_{full})/q}{\widehat{\sigma}^2} \sim F_{q, n - (k + 1)},$$
+where $q$ is the number of parameters tested (the difference in the number of parameters between the full and reduced models). Also recall that an $F_{\nu_1, \nu_2}$ distribution can be written as $\dfrac{S_1 / \nu_1}{S_2 / \nu_2}$, where $S_1 \sim \chi^2_{\nu_1}$ and $S_2 \sim \chi^2_{\nu_2}$ are independent.\\
+
+Using the results from the previous questions, show that $F = \dfrac{(SSE_{reduced} - SSE_{full})/q}{\widehat{\sigma}^2}$ can indeed be written as $\dfrac{S_1 / \nu_1}{S_2 / \nu_2}$, where $S_1 \sim \chi^2_{\nu_1}$ and $S_2 \sim \chi^2_{\nu_2}$. (Proving independence is annoying, so we won't do that part here).
+
+\end{enumerate}
+\end{enumerate}
+
+\newpage
+
+
+\section*{Data analysis}
+
+You are contacted by the US Small Business Administration (SBA), a government agency dedicated to helping support small businesses. The SBA provides loans to small businesses, but some businesses \textit{default} on their loan (i.e., fail to pay it back). Researchers at the SBA are interested in predicting whether a business will default on the loan, and they have collected a random sample of 5000 different loans.\\
+
+\noindent You can load the SBA data into R by
+
+\begin{verbatim}
+sba <- read.csv("https://sta712-f22.github.io/homework/sba_small.csv")
+\end{verbatim}
+
+
+\noindent For each loan, we have the following variables:
+
+\begin{itemize}
+\item LoanNr\_ChkDgt:	Loan ID number that uniquely identifies each loan
+\item Name: 	Name of business receiving the loan
+\item City: 	City the business is based in
+\item State: 	State the business is based in (two-letter abbreviation)
+\item Zip: 	ZIP code the business is based in
+\item Bank: 	Name of bank making the loan
+\item BankState: 	State of the bank making the loan (two-letter abbreviation)
+\item NAICS: 	North American Industry Classification System code identifying the industry of the business receiving the loan
+\item ApprovalDate: 	Date of approval (YYYY-MM-DD) of the loan
+\item ApprovalFY: 	Fiscal year of approval of the loan
+\item Term: 	Length of the loan term (months)
+\item NoEmp: 	Number of employees of the business before receiving the loan
+\item NewExist: 	1 if business already existed, 2 if business is new
+\item CreateJob: 	Number of jobs the business expects to create using the loan money
+\item RetainedJob: 	Number of jobs the business expects to retain because they received the loan
+\item FranchiseCode: 	For businesses that are franchises, a unique five-digit code identifying which brand they are a franchise of. 0 or 1 if the business is not a franchise.
+\item UrbanRural: 	1 if business is in urban area, 2 if business is in rural area, 0 if unknown
+\item RevLineCr: 	Y if this is a revolving line of credit, N if not
+\item LowDoc: 	Y if loan was issued under the `LowDoc Loan' program, which allows loans under \$150,000 to be processed with a short one-page application. N if loan is issued with a standard application, which is much longer
+\item ChgOffDate: 	The date (YYYY-MM-DD) the loan was declared to be in default, if the borrower stopped paying it back
+\item DisbursementDate: 	Date (YYYY-MM-DD) the loan money was disbursed to the business
+\item DisbursementGross:	The amount of money disbursed (loaned), in dollars
+\item BalanceGross: 	The amount of money remaining to be paid back, in dollars
+\item MIS\_Status: 	Current loan status. CHGOFF = charged off, P I F = paid in full.
+\item ChgOffPrinGr: 	Amount of money charged off, if the borrower defaulted, in dollars
+\item GrAppv: 	Gross amount of loan approved by the bank, in dollars
+\item SBA\_Appv: 	Amount of the loan guaranteed by the SBA, in dollars 
+\end{itemize}
+
+\noindent \textbf{Research questions:} Researchers at the SBA are interested in the relationship between loan amount and whether the business defaults on the loan. They believe that whether the business is new vs. an existing business, and whether it is in an urban vs. rural environment, may also be related to the chance of defaulting. The SBA gives you the data, and asks the following questions:
+\begin{itemize}
+\item Is there a relationship between loan amount and the probability the business defaults on the loan, after accounting for whether or not the business is new, and whether it is in an urban or rural environment?
+\item Is there a difference in default rates between urban and rural businesses, after accounting for loan amount and urban vs. rural environment?
+\item The SBA is concerned when a loan has more than a 30\% chance of default. What range of loan amounts should the SBA be concerned about for a new, urban business?
+\end{itemize}
+
+\begin{enumerate}
+\item[3.] Here you will use logistic regression to answer the SBA's questions.
+
+\begin{enumerate}
+\item Which variables should we focus on to answer the SBA's questions? Which of these is our response variable, and which will be our explanatory variables, for logistic regression?
+
+\item Perform univariate exploratory data analysis (EDA) for your selected variables in (a): 
+\begin{itemize}
+\item For categorical variables, present a table showing the number of observations in each category. \textit{Note: check carefully how your explanatory variables are coded in the data! If a categorical variable is coded numerically, you may need to convert it to a \emph{\texttt{factor}} in R before proceeding.}
+\item For quantitative variables, present a histogram and summarize the distribution of the variable (give summary statistics and describe center, shape, spread, and any potential outliers)
+\item Discuss whether there are any missing or erroneous values in the data, and if so how you will handle them. \textit{Note: if we remove missing data, we should only remove rows with missing data in the columns we care about. Be careful with functions like \emph{\texttt{drop\_na}}, which will remove rows with missing values in ANY column.} 
+\end{itemize}
+\item Perform multivariate EDA for your selected variables in (a):
+\begin{itemize}
+\item Create empirical logit plots to summarize the relationship between quantitative predictors and your binary response. Details on creating empirical logit plots, with examples, can be found at\\ \url{https://sta712-f22.github.io/homework/empirical_logits.html}
+\item Using the empirical logit plots, discuss whether any transformations are needed on the explanatory variables.
+\item Use empirical logit plots to investigate potential interactions between variables
+\item Use a correlation matrix to summarize pairwise relationships between the quantitative explanatory variables. Should we be concerned with potential multicollinearity? (Ignore this if you have $< 2$ quantitative explanatory variables).
+\end{itemize}
+\item Based on your exploratory data analysis, write down a logistic regression model that will allow you to answer the SBA's questions. Describe how you will use the model to answer their questions.
+\item Fit your model from (d), and report the equation of the fitted model. Interpret any estimated coefficients which address the research questions.
+\item Assess your model assumptions:
+\begin{itemize}
+\item Create quantile residual plots to check the shape assumption for any quantitative variables (you may use the \texttt{qresid} function in the \texttt{statmod} package)
+\item Calculate Cook's distance to check for any influential points (use a threshold of 0.5 or 1 to identify influential points)
+\item Calculate variance inflation factors to check for multicollinearity (see the \texttt{vif} function in the \texttt{car} package, and use a threshold of 5 or 10 to identify high multicollinearity). Note that if you have interaction terms in your model, you will see high VIFs for any variable involved in an interaction -- this isn't a problem.
+\end{itemize}
+\item Address any violations to the model assumptions (transformations for shape violations; report results with and without influential points; and combine or remove columns for high multicollinearity). If you made any changes to your model from (e), report and interpret your new fitted model here.
+
+\item Now let's address the first research question. Test whether there is a relationship between loan amount and the probability of default. (It is typical to use a Wald test when testing a single parameter, and a likelihood ratio test when testing multiple parameters). You should:
+\begin{itemize}
+\item State the null and alternative hypotheses in terms of one or more $\beta$s
+\item Calculate a test statistic and p-value
+\item Make a conclusion in the context of the original question
+\end{itemize}
+
+\item Next, we will address the second research question. Test whether there is a difference in default rates between urban and rural businesses. If possible, also report and interpret a confidence interval for the difference between urban and rural businesses.
+
+
+\item Finally, we will address the third research question. 
+\begin{enumerate}
+\item For what range of loan amounts is the estimated probability of default at least 0.3 for a new, urban business?
+\item \textbf{Optional:} The range in (i) involves an upper bound on the loan amount. Using the multivariate delta method (see Q1), create a 95\% confidence interval for this upper bound.
+\end{enumerate}
+
+\end{enumerate} 
+\end{enumerate}
+
+\end{document}
