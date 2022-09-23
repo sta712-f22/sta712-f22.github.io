@@ -177,28 +177,10 @@ sba <- read.csv("https://sta712-f22.github.io/homework/sba_small.csv")
 \begin{enumerate}
 \item Which variables should we focus on to answer the SBA's questions? Which of these is our response variable, and which will be our explanatory variables, for logistic regression?
 
-\item Perform univariate exploratory data analysis (EDA) for your selected variables in (a): 
-\begin{itemize}
-\item For categorical variables, present a table showing the number of observations in each category. \textit{Note: check carefully how your explanatory variables are coded in the data! If a categorical variable is coded numerically, you may need to convert it to a \emph{\texttt{factor}} in R before proceeding.}
-\item For quantitative variables, present a histogram and summarize the distribution of the variable (give summary statistics and describe center, shape, spread, and any potential outliers)
-\item Discuss whether there are any missing or erroneous values in the data, and if so how you will handle them. \textit{Note: if we remove missing data, we should only remove rows with missing data in the columns we care about. Be careful with functions like \emph{\texttt{drop\_na}}, which will remove rows with missing values in ANY column.} 
-\end{itemize}
-\item Perform multivariate EDA for your selected variables in (a):
-\begin{itemize}
-\item Create empirical logit plots to summarize the relationship between quantitative predictors and your binary response. Details on creating empirical logit plots, with examples, can be found at\\ \url{https://sta712-f22.github.io/homework/empirical_logits.html}
-\item Using the empirical logit plots, discuss whether any transformations are needed on the explanatory variables.
-\item Use empirical logit plots to investigate potential interactions between variables
-\item Use a correlation matrix to summarize pairwise relationships between the quantitative explanatory variables. Should we be concerned with potential multicollinearity? (Ignore this if you have $< 2$ quantitative explanatory variables).
-\end{itemize}
-\item Based on your exploratory data analysis, write down a logistic regression model that will allow you to answer the SBA's questions. Describe how you will use the model to answer their questions.
-\item Fit your model from (d), and report the equation of the fitted model. Interpret any estimated coefficients which address the research questions.
-\item Assess your model assumptions:
-\begin{itemize}
-\item Create quantile residual plots to check the shape assumption for any quantitative variables (you may use the \texttt{qresid} function in the \texttt{statmod} package)
-\item Calculate Cook's distance to check for any influential points (use a threshold of 0.5 or 1 to identify influential points)
-\item Calculate variance inflation factors to check for multicollinearity (see the \texttt{vif} function in the \texttt{car} package, and use a threshold of 5 or 10 to identify high multicollinearity). Note that if you have interaction terms in your model, you will see high VIFs for any variable involved in an interaction -- this isn't a problem.
-\end{itemize}
-\item Address any violations to the model assumptions (transformations for shape violations; report results with and without influential points; and combine or remove columns for high multicollinearity). If you made any changes to your model from (e), report and interpret your new fitted model here.
+
+\item Write down a logistic regression model that will allow you to answer the SBA's questions. Describe how you will use the model to answer their questions. \textit{Note: I recommend doing some exploratory data analysis and model diagnostics when creating your model (for example, you may need to transform a variable), but you do not need to include any of that work in the assignment.}
+
+\item Fit your model from (b), and report the equation of the fitted model. Interpret any estimated coefficients which address the research questions.
 
 \item Now let's address the first research question. Test whether there is a relationship between loan amount and the probability of default. (It is typical to use a Wald test when testing a single parameter, and a likelihood ratio test when testing multiple parameters). You should:
 \begin{itemize}
