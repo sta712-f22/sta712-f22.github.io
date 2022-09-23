@@ -31,8 +31,8 @@ STA 712 Homework 4\\
 \textit{Note: This question is optional! I have included it here in case you are interested in convergence of random variables, but it is slightly tangential to the course material and can be safely ignored if you choose.}\\
 
 \noindent Let $\theta \in \mathbb{R}^d$ be a parameter of interest, and $\widehat{\theta}$ be an estimate (e.g., the MLE). Our Wald tests and intervals depend on convergence in distribution to a normal:
-$$\sqrt{n}(\widehat{\theta} - \theta) \overset{d}{\to} N(0, \Sigma),$$
-where $\Sigma = Var(\widehat{\theta})$. We also know that if $\bm{a} \in \mathbb{R}^d$, then $\bm{a}^T \widehat{\theta} \approx N(\bm{a}^T \theta, \bm{a}^T \Sigma \bm{a})$.\\
+$$\sqrt{n}(\widehat{\theta} - \theta) \overset{d}{\to} N(0, \Sigma).$$
+We also know that if $\bm{a} \in \mathbb{R}^d$, then $\bm{a}^T \widehat{\theta} \approx N(\bm{a}^T \theta, \frac{1}{n} \bm{a}^T \Sigma \bm{a})$.\\
 
 \noindent But what if we are interested in a \textit{nonlinear} function $g(\theta)$, for some $g: \mathbb{R}^d \to \mathbb{R}$? It turns out that, under certain conditions, $g(\widehat{\theta})$ is actually (approximately) normal too! Formally, if $g$ is a continuously differentiable function, then
 $$\sqrt{n}(g(\widehat{\theta}) - g(\theta)) \overset{d}{\to} N\left(0, \left( \frac{\partial g}{\partial \theta} \right)^T \Sigma \left( \frac{\partial g}{\partial \theta} \right) \right),$$
