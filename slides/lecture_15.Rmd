@@ -1,0 +1,95 @@
+---
+title: Confidence intervals
+output:
+  xaringan::moon_reader:
+    css: "lab-slides.css"
+    lib_dir: libs
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r include=F}
+library(knitr)
+library(tidyverse)
+hook_output <- knit_hooks$get("output")
+knit_hooks$set(output = function(x, options) {
+   lines <- options$output.lines
+   if (is.null(lines)) {
+     return(hook_output(x, options))  # pass to default hook
+   }
+   x <- unlist(strsplit(x, "\n"))
+   more <- "..."
+   if (length(lines)==1) {        # first n lines
+     if (length(x) > lines) {
+       # truncate the output, but add ....
+       x <- c(head(x, lines), more)
+     }
+   } else {
+     x <- c(more, x[lines], more)
+   }
+   # paste these lines together
+   x <- paste(c(x, ""), collapse = "\n")
+   hook_output(x, options)
+ })
+
+titanic <- read.csv("https://sta214-f22.github.io/labs/Titanic.csv")
+
+titanic <- titanic %>%
+  drop_na() %>%
+  mutate(Pclass = factor(Pclass, levels = c(3, 2, 1))) 
+```
+
+### Announcements
+
+.large[
+* HW 4 released, due next Friday
+* Exam 1 released next Friday
+  * Take home, 1 week to complete
+  * Open note (anything from this course)
+  * Closed internet
+  * Closed other people
+* Reminder: department seminar on Monday, 12pm - 1pm (Dr. Mine Cetinkaya-Rundel)
+  * Can sign up to meet with the speaker 11 - 11:30
+]
+
+---
+
+### Wald vs. likelihood ratio tests
+
+---
+
+### Confidence intervals
+
+.large[
+$$\log \left( \dfrac{p_i}{1 - p_i} \right) = \beta_0 + \beta_1 Sex_i + \beta_2 Age_i + \beta_3 SecondClass_i + \\ \hspace{3cm} \beta_4 FirstClass_i + \beta_5 Sex_i \cdot Age_i$$
+
+```{r echo=F, output.lines = 10:17}
+m1 <- glm(Survived ~ Sex*Age + Pclass, data = titanic, family = binomial)
+summary(m1)
+```
+
+.question[
+How do I create a 95% confidence interval for $\beta_3$?
+]
+]
+
+---
+
+### Wald confidence intervals
+
+---
+
+### Confidence intervals for linear combinations
+
+---
+
+### Class activity
+
+.large[
+[https://sta712-f22.github.io/class_activities/ca_lecture_15.html](https://sta712-f22.github.io/class_activities/ca_lecture_15.html)
+]
+

@@ -1,0 +1,45 @@
+---
+title: "Class Activity, September 23"
+output: 
+  rmdformats::robobook:
+    css: "homework.css"
+    highlight: pygments
+link-citations: yes
+---
+
+# Confidence intervals with the Titanic data
+
+In this class activity, we will construct confidence intervals for quantities of interest in the titanic data. Let $Y_i$ denote whether passenger $i$ survived. We fit the model
+
+$$Y_i \sim Bernoulli(p_i)$$
+
+$$\log \left( \dfrac{p_i}{1 - p_i} \right) = \beta_0 + \beta_1 Sex_i + \beta_2 Age_i + \beta_3 SecondClass_i + \\ \hspace{3cm} \beta_4 FirstClass_i + \beta_5 Sex_i \cdot Age_i$$
+
+## Questions
+
+1. Run the code below to construct a 95% confidence interval for $\beta_4 - \beta_3$, the difference in log odds between first and second class passengers with the same sex and age.
+
+```{r eval=F}
+# read in the data, and convert passenger class with a factor
+# specify that the order is third, second, first
+titanic <- read.csv("https://sta214-f22.github.io/labs/Titanic.csv")
+titanic <- titanic %>%
+  drop_na() %>%
+  mutate(Pclass = factor(Pclass, levels = c(3, 2, 1))) 
+
+# fit a logistic regression model
+m1 <- glm(Survived ~ Sex*Age + Pclass, data = titanic, family = binomial)
+
+# now we want to construct a confidence interval for beta_4 - beta_3
+# first, create a vector to specify the linear combination of coefficients
+# (note that by default, R puts interaction coefficients at the end)
+a <- c(0, 0, 0, -1, 1, 0)
+
+# calculate lower and upper bounds
+t(a) %*% coef(m1) - qnorm(0.975) * sqrt(t(a) %*% vcov(m1) %*% a)
+t(a) %*% coef(m1) + qnorm(0.975) * sqrt(t(a) %*% vcov(m1) %*% a)
+```
+
+2. Modify the code from Question 1 (you just need to change the `a` vector) to create a 95% confidence interval for the log odds of survival for a 20 year old, female passenger in second class.
+
+3. Using your confidence interval from Question 2, create a 95% confidence interval for the *probability* of survival for a 20 year old, female passenger in second class.
