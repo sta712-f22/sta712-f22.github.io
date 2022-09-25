@@ -1,5 +1,5 @@
 ---
-title: Logistic regression prediction
+title: Logistic regression inference
 ---
 
 September 19

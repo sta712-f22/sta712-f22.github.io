@@ -1,0 +1,64 @@
+---
+title: "Class activity solutions, September 26"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+```
+
+### Question 1
+
+```{r message=F, warning=F}
+# read in the data, and convert passenger class with a factor
+# specify that the order is third, second, first
+titanic <- read.csv("https://sta214-f22.github.io/labs/Titanic.csv")
+titanic <- titanic %>%
+  drop_na() %>%
+  mutate(Pclass = factor(Pclass, levels = c(3, 2, 1))) 
+
+# fit a logistic regression model
+m1 <- glm(Survived ~ Sex*Age + Pclass, data = titanic, family = binomial)
+
+# now we want to construct a confidence interval for beta_4 - beta_3
+# first, create a vector to specify the linear combination of coefficients
+# (note that by default, R puts interaction coefficients at the end)
+a <- c(0, 0, 0, -1, 1, 0)
+
+# calculate lower and upper bounds
+t(a) %*% coef(m1) - qnorm(0.975) * sqrt(t(a) %*% vcov(m1) %*% a)
+t(a) %*% coef(m1) + qnorm(0.975) * sqrt(t(a) %*% vcov(m1) %*% a)
+```
+
+We are 95% confident that the true difference in log odds of survival between first and second class passengers, holding sex and age fixed, is between 0.913 and 2.098.
+
+Since log odds are hard to interpret, we might prefer to interpret our confidence interval on the odds scale instead. Since $e^{0.913} = 2.492$ and $e^{2.098} = 8.150$, we are 95% confident that the odds of survival for a first class passenger are between 2.492 and 8.150 times higher than the odds of survival for a second class passenger of the same age and sex.
+
+
+### Question 2
+
+Here we need to modify the code to construct a confidence interval for the log odds of survival for a female passenger, aged 20, in second class. Plugging in to our model, the log odds of survival would be
+$$\beta_0 + \beta_1 (0) + \beta_2 (20) + \beta_3 (1) + \beta_4(0) + \beta_5(0)$$
+
+so our linear combination vector is $a^T = (1, 0, 20, 1, 0, 0)$.
+
+```{r message=F, warning=F}
+a <- c(1, 0, 20, 1, 0, 0)
+
+# calculate lower and upper bounds
+t(a) %*% coef(m1) - qnorm(0.975) * sqrt(t(a) %*% vcov(m1) %*% a)
+t(a) %*% coef(m1) + qnorm(0.975) * sqrt(t(a) %*% vcov(m1) %*% a)
+```
+
+We are 95% confident that the log odds of survival for a 20 year old female passenger in second class are between 0.982 and 1.931.
+
+### Question 3
+
+To calculate the a confidence interval for the *probability* of survival, we can simply convert the endpoints of our interval from Question 2 into probabilities.
+
+$\dfrac{e^{0.982}}{1 + e^{0.982}} = 0.728$
+
+$\dfrac{e^{1.931}}{1 + e^{1.931}} = 0.873$
+
+We are 95% confident that the probability of survival for a 20 year old female passenger in second class is between 0.728 and 0.873.
