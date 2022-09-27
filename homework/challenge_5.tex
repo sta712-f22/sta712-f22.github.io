@@ -1,0 +1,98 @@
+\documentclass[11pt]{article}
+\usepackage{url}
+\usepackage{alltt}
+\usepackage{bm}
+\linespread{1}
+\textwidth 6.5in
+\oddsidemargin 0.in
+\addtolength{\topmargin}{-1in}
+\addtolength{\textheight}{2in}
+
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{bm}
+
+\begin{document}
+
+
+\begin{center}
+\Large
+STA 712 Challenge Assignment 5: Logistic regression in Python\\
+\normalsize
+\vspace{5mm}
+\end{center}
+
+\noindent \textbf{Due:} Wednesday, October 26, 12:00pm (noon) on Canvas.\\ 
+
+\noindent \textbf{Instructions:} 
+\begin{itemize}
+\item Submit your work as a single typed PDF (you should not need to type much, if any, math on this assignment).
+\item You are welcome to work with others on this assignment, but you must submit your own work.
+\item You can probably find the answers to many of these questions online. It is ok to use online resources! And using online documentation and examples is a very important part of coding.
+\end{itemize}
+
+\section*{R vs. Python for statistics and data science}
+
+Our language of choice in this class has been R, which is a common and popular choice for fitting and working with statistical models. R is particularly good for many core statistical tools: there is excellent support for linear models (and variants like weighted regression and robust regression), GLMs, GAMs, mixed effects models, etc. Through \texttt{tidyverse} packages like \texttt{tidyr}, \texttt{dplyr}, and \texttt{ggplot}, R is also a good choice for data cleaning, manipulation, and visualization.\\
+
+\noindent Python is another language which is becoming increasingly popular for data science and machine learning. The \texttt{scikit-learn} module contains a wide variety of tools for fitting prediction models like regressions, support vector machines, and random forests. An advantage of \texttt{scikit-learn} is that all models have a similar structure: you can fit them using the \texttt{.fit()} function, you can get predicted probabilities with the \texttt{.predict\_proba()} function, etc.\\
+
+\noindent Whether you use R or Python (or SAS, or SPSS, or Stata, etc.) ultimately depends on a combination of personal preferences and the task at hand. The purpose of this challenge assignment is to introduce you to fitting models in Python. Do we need Python to fit logistic regression? No -- R is pretty great at this. But it is valuable to see how Python works (and how it behaves differently to R). In the process, you will also see the general procedure for fitting a model using \texttt{scikit-learn}, and you will be briefly introduced to other important Python modules like \texttt{numpy}, \texttt{pandas}, and \texttt{scipy}.
+
+\section*{Set up}
+
+To complete this challenge assignment, you will need to install Python on your computer. If you do not already have Python installed (or even if you do!) I recommend installing the Anaconda distribution (\url{https://www.anaconda.com/products/distribution}). You will also need to install the following modules:
+\begin{itemize}
+\item \texttt{pandas}
+\item \texttt{numpy}
+\item \texttt{scikit-learn}
+\item \texttt{scipy}
+\item \texttt{matplotlib}
+\item \texttt{statsmodels}
+\end{itemize}
+If you install Anaconda, all of these except \texttt{statsmodels} should already be included. To install \texttt{statsmodels}, see the instructions at \url{https://www.statsmodels.org/stable/install.html}.\\
+
+\noindent Once Python is installed, how do you use it? If you have the latest versions of R and RStudio installed, you can actually use Python in RStudio! RStudio supports Quarto documents (these are one of the options when you create a new document in RStudio), which behave similarly to RMarkdown documents. In a Quarto document you can include chunks of Python code; see \url{https://quarto.org/docs/computations/python.html} to get started.
+
+\section*{Logistic regression in Python}
+
+In the following questions, we will replicate parts of the analysis on the SBA data from HW 4, Question 3. \textit{Note: I have provided some scaffolded questions here to guide your analysis, but you may still need to research \emph{how} to actually do some of these steps. E.g., \emph{``how to create a new column in pandas''}.}
+
+\begin{enumerate}
+
+\item At the beginning of your document (e.g., in a Python chunk at the top of your Quarto file), import all the required modules.
+
+\item Load the SBA data into Python, using the \verb;pandas.read_csv; function.
+
+\item List the variables in the SBA data that you used to answer the research questions in HW 4.
+
+\item Using the \verb;MIS_Status; column, create a \textit{new} column in your SBA data called \verb;Default;, which is equal to 1 if the loan was charged off (i.e., the borrower defaulted), and 0 if the loan was paid in full (the borrower did not default).
+
+\item Create a \textit{new} column in your SBA data called \verb;Amount; which is the \textit{transformed} loan amount. Use whichever transformation (e.g., log) you used in HW 4 to fix the shape assumption.
+
+\item In R, categorical variables automatically get converted to indicator variables when we fit a logistic regression model. This is not true in Python; part of our data pre-processing is to create the indicator variables we need. This can be done with the \texttt{sklearn.preprocessing.OneHotEncoder} class. Create a new dataset called \verb;sba_encoded; which contains your \verb;Amount; column from Question 5, and one-hot encodings of \texttt{UrbanRural} and \texttt{NewExist}. (For the purposes of this activity, we will ignore any potential interactions between the explanatory variables). \textit{Hint: you will probably want to use} \verb;drop = `first'; \textit{in your one-hot encoding!}
+
+\item Using the \verb;sklearn.linear_model.LogisticRegression; class, the \verb;Default; column from Question 4, and the \verb;sba_encoded; data from Question 6, fit a logistic regression model and report the estimated coefficients. \textit{Hint: you will want to use} \verb;penalty = `none'; \textit{when creating the model.}
+
+\item Do the estimated coefficients from Question 7 agree with the estimated coefficients for the same model in R? How do your estimated coefficients change when you change the \verb;solver; in your logistic regression?
+
+\item Using the \verb;sklearn.metrics.log_loss; function, calculate the deviance for your logistic regression model in Python, and compare to the deviance reported by R.
+
+\item Using your fitted model in Python, perform a hypothesis test to address the first research question from HW 4: Is there a relationship between loan amount and the probability the business defaults on the
+loan, after accounting for whether or not the business is new, and whether it is in an urban
+or rural environment?
+
+\item As you can see from the previous questions, the \verb;scikit-learn; module is very good for building and assessing prediction models, but is less useful for doing statistical \textit{inference}. For example, we don't get a nice summary table for our model with estimated standard errors, we need to calculate deviance separately, etc.
+
+One way to get these nice summaries in Python is with the \verb;statsmodels; module. Using the \verb;statsmodels.GLM; class, fit the same logistic regression model as above. Use the \verb;.summary(); function to report a nice table with the estimated coefficients and standard errors. \textit{Hint: make sure to add an intercept column to the} \verb;sba_encoded; \textit{data. The} \verb;statsmodels; \textit{module does not include an intercept for you.}
+
+\item Explain why the standard errors for the \verb;NewExist; and \verb;Intercept; coefficients are so high. How would we fix that issue?
+
+\item Finally, let's try some regression diagnostics. Python has less support for logistic regression diagnostics than R, so we will have to write functions for these diagnostics ourselves. For simplicity, we'll just focus on making a quantile residual plot.
+
+Write a function to generate quantile residuals for your fitted model in Question 7. You should be able to adapt your code from HW 2; use \verb;numpy.random.uniform; to sample from a uniform distribution, and \verb;scipy.stats.norm.ppf; for the inverse CDF of a standard normal.
+
+\item Using your function from Question 13, create a quantile residual plot for \verb;Amount;. The \verb;matplotlib.pyplot.scatter; function will be useful for creating a scatterplot in Python.
+\end{enumerate}
+
+\end{document}

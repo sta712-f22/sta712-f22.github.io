@@ -1,0 +1,77 @@
+---
+title: "Untitled"
+format: html
+editor: visual
+editor_options: 
+  chunk_output_type: console
+jupyter: python3
+---
+
+```{python}
+import pandas as pd
+import numpy as np
+from sklearn.preprocessing import OneHotEncoder
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import log_loss
+
+sba = pd.read_csv("https://sta712-f22.github.io/homework/sba_small.csv")
+```
+
+```{python}
+sba['Amount'] = np.log(sba['GrAppv'])
+sba['Default'] = sba['MIS_Status'] == 'CHGOFF'
+
+encoder = OneHotEncoder(drop = 'first', sparse = False)
+sba_encoded = encoder.fit_transform(sba[['UrbanRural', 'NewExist']])
+
+sba_encoded = pd.DataFrame(sba_encoded, columns = encoder.get_feature_names(['UrbanRural', 'NewExist']))
+sba_encoded['Amount'] = sba['Amount']
+
+# fitted values aren't exactly the same
+# newton-cg seems to give the closest results?
+m1 = LogisticRegression(penalty = 'none')
+m1.fit(sba_encoded, sba['Default'])
+
+(m1.intercept_, m1.coef_)
+
+# get the deviance
+2*log_loss(sba['Default'], m1.predict_proba(sba_encoded),
+normalize = False)
+```
+
+Now let's see that we get similar coefficient estimates and deviance in Python using scikit-learn:
+
+```{r}
+library(reticulate)
+library(tidyverse)
+sba <- py$sba
+sba <- sba %>%
+  mutate(Default = MIS_Status == "CHGOFF",
+         Amount = log(GrAppv),
+         UrbanRural = as.factor(UrbanRural),
+         NewExist = as.factor(NewExist))
+
+m2 <- glm(Default ~ UrbanRural + NewExist + Amount,
+          data = sba, family = binomial)
+summary(m2) # look, we get the same deviance!
+```
+
+Ok, but sklearn is a module that is really more useful for prediction than for inference. Instead, we could use the statsmodels module, which can be used more similarly to R.
+
+```{python}
+import statsmodels.api as sm
+sba_encoded['Intercept'] = 1
+m3 = sm.GLM(sba['Default'], sba_encoded, family=sm.families.Binomial())
+m3_results = m3.fit()
+
+# and now let's look at the results
+m3_results.summary()
+m3_results.deviance
+
+```
+
+Think about why the coefficients for the intercept, NewExist1, and NewExist2 might have such large standard errors here (and hence why the estimates are so different between R, scikit-learn, and statsmodels). It is because there are very very few "unknown" NewExist observations. This means that we have a really big issue with multicollinearity in the data! We should probably remove those "unknown" observations, or recode.
+
+Next, try to make a quantile residual plot in python! You'll need to write your own function to create quantile residuals.
+
+numpy.random.uniform to sample from a uniform scipy.stats.norm.ppf for the inverse cdf part
