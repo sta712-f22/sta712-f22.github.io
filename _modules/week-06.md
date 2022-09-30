@@ -21,3 +21,6 @@ September 30
 
 : **Exam 1 released**{: .label .label-yellow }
   : [Exam 1](https://sta712-f22.github.io/exams/exam_1.pdf)
+  
+: **Project 1 released**{: .label .label-green }
+  : [Project 1](https://sta712-f22.github.io/projects/project_1.html)

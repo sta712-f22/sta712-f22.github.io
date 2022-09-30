@@ -1,0 +1,223 @@
+---
+title: "Project 1"
+output: 
+  rmdformats::robobook:
+    css: "homework.css"
+    highlight: pygments
+link-citations: yes
+---
+
+**Due:** Wednesday, October 12, 12:00pm (noon) on Canvas
+
+**Submission:** Submit *both* a pdf containing your report, and a file containing the R code you used in your analysis.
+
+# Data
+
+The Behavioral Risk Factor Surveillance System (BRFSS) is an annual telephone survey of 350,000 people in the United States. As its name implies, the BRFSS is designed to identify risk factors in the adult population and report emerging health trends. For example, respondents are asked about their diet and weekly physical activity, their HIV/AIDS status, possible tobacco use, and even their level of healthcare coverage. The [BRFSS Web site](https://www.cdc.gov/brfss/) contains a complete description of the survey, including the research questions that motivate the study and many interesting results derived from the data.
+
+We will focus on a random sample of 20,000 people from the BRFSS survey. While there are over 200 variables in this data set, we will work with a small subset for this project.
+
+## Variables
+
+The dataset provided for this project contains the following columns:
+
+* `genhlth`: respondents were asked to evaluate their general health, responding either excellent, very good, good, fair or poor.
+* `exerany`: indicates whether the respondent exercised in the past month (1) or did not (0).
+* `hlthplan`: indicates whether the respondent had some form of health coverage (1) or did not (0).
+* `smoke100`: indicates whether the respondent had smoked at least 100 cigarettes in their lifetime.
+* `height`: in inches
+* `weight`: in pounds
+* `wtdesire`: desired weight in pounds
+* `age`: in years
+* `gender`: biological sex, limited to male/female.
+
+## Downloading the data
+
+To load the data, use the code below. It will import a data set called `cdc` into R.
+
+```r
+source("http://www.openintro.org/stat/data/cdc.R")
+```
+
+# Research questions
+
+You are asked by a team of researchers to investigate respondents' exercise habits. In particular, they are interested in the following two questions:
+
+1. Is there a relationship between how much weight someone wants to lose, and the probability that they exercise regularly, after accounting for their age, general health, and health coverage?
+2. How well can we predict whether a patient exercises regularly, using other variables in the data?
+
+To address these research questions, you will perform exploratory data analysis, fit one or more models, and analyze the results.
+
+# What will you be turning in?
+
+You will submit two documents on Canvas for this project.
+
+* Your written report (.pdf file):
+  * This is the knitted write up that will explain your work, and the answers to the researchers' questions
+  * This report will contain very specific sections, which you must label and include in your final report. More details on the sections needed for this report are included below.
+  * In your formal report, there should be **no code** showing. This
+includes warnings and other stray code output – hide it all.
+  * You will be graded on writing as well as your statistical analysis.
+* A code file (.R or .Rmd), with all the code you used for your analysis
+  * The goal is that a person who reads your report, and wants to
+replicate your results, could look at your code file and completely reproduce the results and figures in the knitted report.
+
+# Content
+
+Your report should contain the following labeled sections.
+
+## Abstract
+
+This is the first section in your report, but it is actually the last thing you will write. Called an abstract in academia, and an executive summary in industry, this one paragraph summary of your entire paper is the first thing people will read. For example:
+
+*Estimating the number of pandas inhabiting a national panda preserve is critical to understanding the health of the panda species as a whole. In this report, we discuss the process of estimating the number of pandas in the Wolong National Nature Reserve. Data were collected from volunteers walking trails in the park, and we applied capture-recapture estimation process to then estimate the total number of pandas in the park. We detail the steps of the process, and compare our results to two other possible methods of estimating pandas. Based on our estimation, there are between 140 and 155 pandas in the surveyed area. We discuss our findings, and limitations of the study, in the following paper.*
+  
+## Section 1: Introduction
+
+Write 2-3 paragraphs in which you:
+
+* Motivate the research questions
+* Describe where the data came from
+* Provide background on the dataset
+* Finish by summarizing what you will do in the report
+
+## Section 2: Data
+
+In this section, you will summarize and explore your data. First, write 1-2 paragraphs which:
+
+* Describe details of the data. What does a row in the data represent? How many rows and columns? What information do the variables record? Are there any missing data?
+* Describe any data manipulation. Did you remove any missing values? Did you focus only on a subset of the data? Did you create any new variables?
+
+Next, perform exploratory data analysis. Your goal is to create any visualizations necessary to explore the data before fitting a model (e.g. tables, histograms, empirical log-odds plots to choose transformations, etc.). Make sure that:
+
+* You create a nicely formatted table to show the counts of your response variable
+* You have at least two graphs shown
+* Your figures have axis labels, captions, and are numbered Figure 2.1, Figure 2.2, etc., where the 2. represents the section number, and the number after the decimal represents how many plots so far in this section
+* Any plot that is shown should be discussed in writing in your report, and referenced by number (e.g., "As shown in Figure 2.1...").  What information does this graph give us, and why is that important for us to know when before we start building our model in the next section?
+
+## Section 3: Modeling
+
+In this section, you will build one or more models to answer the two research questions. For each model, make sure to include the population form of the model you are using and explain why this model is appropriate for these data.
+
+You will then fit a model and write down the equation of the fitted model using appropriate notation.
+
+### Section 3.1: Exercise and weight loss goals
+
+For the first research question, make sure all the requested variables are included in the model. Interpret the fitted coefficients in context of the research question, and perform a hypothesis test that allows you to address the question. When testing hypotheses, make sure to:
+
+* State the hypotheses in terms of one or more model parameters
+* Calculate a test statistic and p-value
+* Use the p-value to make a conclusion about the research question
+
+### Section 3.2: Predicting exercise
+
+For the second research question, we are interested in prediction. The model for research question 1 may or may not be appropriate for this prediction question, so you must explore more than one model. Choose a model for the second question based on your exploratory data analysis above, and by comparing at least two models using metrics like AIC, BIC, and area under the ROC curve.
+
+Comment any relationships you see highlighted in your model. What seems to be related to a higher probability of exercising regularly?
+
+Finally, explore the general predictive abilities of your model, using metrics like accuracy, sensitivity, and specificity. Make sure to clearly explain to your client how well this model is to be performing at the task of prediction.
+
+### Section 3.3: Model diagnostics
+
+Use model diagnostics to check the assumptions for your models in sections 3.1 and 3.2. You should use quantile residual plots to check the shape assumption, Cook's distance to identify potential influential points, and VIFs to check for multicollinearity.
+
+While this section comes after 3.1 and 3.2 in the report, you should address any assumption violations *before* creating your final models for 3.1 and 3.2.
+
+## Section 4: Discussion
+
+In this section, you are providing a conclusion. Write 1–2 paragraphs which summarize what you learned from your analysis, and how it addresses the original research questions. Also discuss any limitations to your analysis, and what you other relationships you might explore in future.
+  
+# Appearance and style
+
+### Writing
+
+The report should be written like an article or research paper: in full sentences and paragraphs, with headings for each section. You should not write your report with question numbers or as a list of bullet points. Scientific articles are generally written in third person, though "we" can also be acceptable ("we can see from Figure 2.1 ...") in some disciplines.
+
+### Code
+
+In full reports, the only output that should be visible from code chunks are figures and tables. If a code chunk does not produce a figure or table, you can hide it from the knitted document with `include=F`:
+
+````
+```{r, include=F}`r ''`
+
+```
+````
+
+If a code chunk produces a figure or table, only the figure or table should be visible in the knitted document. You can hide the chunk but display the output with `echo=F, message=F, warning=F`:
+
+````
+```{r, echo=F, message=F, warning=F}`r ''`
+
+```
+````
+
+### Figures
+
+Figures should have labeled axes, and should be clear and easy to read. Figures should also be captioned and numbered; to caption a figure, use `fig.cap = "..."` in the chunk options. For example (scroll to the right on the code to see it all),
+
+````
+```{r, echo=F, message=F, warning=F, fig.cap="Figure 2.1: Bill depth vs. bill length for penguins near Palmer Station, Antarctica."}`r ''`
+penguins %>%
+  ggplot(aes(x = bill_length_mm, 
+             y = bill_depth_mm)) +
+  geom_point() +
+  labs(x = "Bill length (mm)",
+       y = "Bill depth (mm)") +
+  theme_bw()
+```
+````
+
+is displayed as
+
+```{r include=F}
+library(tidyverse)
+library(palmerpenguins)
+```
+
+```{r, echo=F, message=F, warning=F, fig.cap="Figure 1: Bill depth vs. bill length for penguins near Palmer Station, Antarctica."}
+penguins %>%
+  ggplot(aes(x = bill_length_mm, 
+             y = bill_depth_mm)) +
+  geom_point() +
+  labs(x = "Bill length (mm)",
+       y = "Bill depth (mm)") +
+  theme_bw()
+```
+
+Captions should provide enough information to understand what is being plotted, but interpretation can be left to the main text. Refer to figures by their number in the text. Make sure that any figures you include are discussed in the text.
+
+### Tables
+
+Tables should be nicely formatted, and have a number and caption. This can be done with the `kable` function in the `knitr` package.
+
+For example,
+
+````
+```{r, echo=F, message=F}`r''`
+table(penguins$island, penguins$species) %>%
+  knitr::kable(caption = "Table 3.2: Penguins by island and species")
+```
+````
+
+is displayed as
+
+```{r, echo=F, message=F}
+table(penguins$island, penguins$species) %>%
+  knitr::kable(caption = "Table 3.2: Penguins by island and species")
+```
+
+### Writing math in R Markdown
+
+If you want to write mathematical notation, we need to tell Markdown, “Hey, we’re going to make a math symbol!” To do that, you use dollar signs. For instance, to make $\widehat{\beta}_1$, you simply put `$\widehathat{\beta}_1$` into the white space (not a chunk) in your Markdown.
+
+Here are some examples of writing math, which you can adapt:
+
+| Math | Code |
+| --- | --- |
+| $Y_i \sim Bernoulli(p_i)$ | `$Y_i \sim Bernoulli(p_i)$` |
+| $\log \left( \dfrac{p_i}{1 - p_i} \right)$ | `$\log \left( \dfrac{p_i}{1 - p_i} \right)$` |
+| $\widehat{p}_i$ | `$\widehat{p}_i$` |
+
+# Collaboration
+
+You are welcome to work with other students on this project, but everyone needs to submit their own report.
