@@ -1,0 +1,64 @@
+---
+title: "Class Activity, September 30"
+output: 
+  rmdformats::robobook:
+    css: "homework.css"
+    highlight: pygments
+link-citations: yes
+---
+
+# Model selection with the dengue data
+
+In this class activity, we will use stepwise selection to select diagnostic variables to predict whether a patient has dengue. This uses the `stepAIC` function in the `MASS` package.
+
+## Questions
+
+1. Let's begin with forward selection, using AIC as a criterion. Use the code below to run forward selection. You can see that the procedure selects WBC, Age, PLT, BMI, Temperature, Vomiting, and DiseaseDay as predictors.
+
+```{r eval=F}
+library(MASS)
+
+dengue <- read.csv("https://sta712-f22.github.io/homework/dengue.csv")
+
+# specify the starting model (intercept-only)
+m0 <- glm(Dengue ~ 1, data = dengue, family = binomial)
+
+# forward selection using AIC
+# Note we have to specify the largest model we want to consider
+forward_aic <- stepAIC(m0, scope = ~ Sex + Age + DiseaseDay + 
+                        Vomiting + Abdominal + Temperature + BMI + 
+                        WBC + HCT + PLT,
+                      direction = "forward",
+                      trace = 0)
+
+summary(forward_aic)
+```
+
+2. Now let's try forward selection with BIC instead. Do the variables selected change?
+
+```{r eval=F}
+# forward selection using BIC
+# Note we have to specify the largest model we want to consider
+# k = log(n) is used to specify the penalty for BIC instead of AIC
+forward_bic <- stepAIC(m0, scope = ~ Sex + Age + DiseaseDay + 
+                        Vomiting + Abdominal + Temperature + BMI + 
+                        WBC + HCT + PLT,
+                      direction = "forward",
+                      trace = 0, k = log(nrow(dengue)))
+
+summary(forward_bic)
+```
+
+3. In the dengue example, AIC and BIC actually gave us the same model. But often AIC and BIC give different models. Here is an example using data on risk factors associated with low infant birth weight (`bwt`), comparing backward selection with AIC and BIC; you can see that BIC selects a smaller model.
+
+```{r eval=F}
+example(birthwt) # (load the bwt data)
+birthwt_glm <- glm(low ~ ., family = binomial, data = bwt)
+
+birthwt_back_aic <- stepAIC(birthwt_glm, trace = 0)
+birthwt_back_bic <- stepAIC(birthwt_glm, trace = 0, 
+                            k = log(nrow(bwt)))
+
+summary(birthwt_back_aic)
+summary(birthwt_back_bic)
+```

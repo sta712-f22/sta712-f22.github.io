@@ -1,0 +1,141 @@
+---
+title: Model selection
+output:
+  xaringan::moon_reader:
+    css: "lab-slides.css"
+    lib_dir: libs
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r include=F}
+library(knitr)
+library(tidyverse)
+hook_output <- knit_hooks$get("output")
+knit_hooks$set(output = function(x, options) {
+   lines <- options$output.lines
+   if (is.null(lines)) {
+     return(hook_output(x, options))  # pass to default hook
+   }
+   x <- unlist(strsplit(x, "\n"))
+   more <- "..."
+   if (length(lines)==1) {        # first n lines
+     if (length(x) > lines) {
+       # truncate the output, but add ....
+       x <- c(head(x, lines), more)
+     }
+   } else {
+     x <- c(more, x[lines], more)
+   }
+   # paste these lines together
+   x <- paste(c(x, ""), collapse = "\n")
+   hook_output(x, options)
+ })
+
+titanic <- read.csv("https://sta214-f22.github.io/labs/Titanic.csv")
+
+titanic <- titanic %>%
+  drop_na() %>%
+  mutate(Pclass = factor(Pclass, levels = c(3, 2, 1)))
+
+m1 <- glm(Survived ~ Sex*Age + Pclass, data = titanic, family = binomial)
+```
+
+### Types of research questions
+
+.large[
+So far, we have learned how to answer the following questions:
+
+* What is the relationship between the explanatory variable(s) and the response?
+* What is a "reasonable range" for a parameter in this relationship?
+* Do we have strong evidence for a relationship between these variables?
+* How *well* does our model predict the response?
+
+Today we will ask:
+* How do we select a model when there are many possible explanatory variables?
+]
+
+---
+
+### Last time: ROC curve
+
+.large[
+```{r echo=F, message=F, warning=F, fig.align='center', fig.width=7, fig.height=6}
+library(ROCR)
+pred <- prediction(m1$fitted.values, titanic$Survived)
+perf <- performance(pred,"tpr","fpr")
+
+# performance(pred, "auc")@y.values # 0.858
+
+data.frame(fpr = perf@x.values[[1]],
+           tpr = perf@y.values[[1]]) %>%
+  ggplot(aes(x = fpr, y = tpr)) +
+  geom_line(lwd=1.5) +
+  geom_abline(slope = 1, intercept = 0, lty = 2,
+              lwd = 1.5) +
+  labs(x = "False positive rate (1 - Specificity)",
+       y = "True positive rate (Sensitivity)") +
+  theme_classic() +
+  theme(text = element_text(size = 20))
+```
+]
+
+---
+
+### Comparing models with ROC curves
+
+.large[
+```{r echo=F, message=F, warning=F, fig.align='center', fig.width=10, fig.height=6}
+m2 <- glm(Survived ~ Sex*Age, data = titanic, family = binomial)
+
+pred2 <- prediction(m2$fitted.values, titanic$Survived)
+perf2 <- performance(pred2,"tpr","fpr")
+
+# performance(pred2, "auc")@y.values # 0.787
+
+data.frame(fpr = c(perf@x.values[[1]],
+                   perf2@x.values[[1]]),
+           tpr = c(perf@y.values[[1]],
+                   perf2@y.values[[1]]),
+           model = c(rep("With Pclass",
+                         length(perf@x.values[[1]])),
+                     rep("Without Pclass",
+                         length(perf2@x.values[[1]])))) %>%
+  ggplot(aes(x = fpr, y = tpr, color = model)) +
+  geom_line(lwd=1.5) +
+  geom_abline(slope = 1, intercept = 0, lty = 2,
+              lwd = 1.5) +
+  labs(x = "False positive rate (1 - Specificity)",
+       y = "True positive rate (Sensitivity)") +
+  theme_classic() +
+  theme(text = element_text(size = 20))
+```
+]
+
+---
+
+### Problem: reusing data...
+
+.large[
+.question[
+It is generally a bad idea to assess performance of a model on the same data we used to train it. This can lead to overfitting.
+
+What can we do instead?
+]
+]
+
+---
+
+### Systematically comparing models
+
+.large[
+We want to select the model which best predicts the response.
+]
+
+---
+
+### When, and when not, to use model selection
