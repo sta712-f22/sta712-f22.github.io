@@ -14,8 +14,7 @@ September 28
   : [Challenge 5](https://sta712-f22.github.io/homework/challenge_5.pdf)
 
 September 30
-: Model selection
-  : [Slides](https://sta712-f22.github.io/slides/lecture_18.pdf), [Class activity](https://sta712-f22.github.io/class_activities/ca_lecture_18.html)
+: **No class (weather)**{: .label .label-blue }
   
 : **HW 4 due**{: .label .label-red }
 
