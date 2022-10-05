@@ -10,8 +10,9 @@ October 3
 
 October 5
 : Introduction to Poisson regression
+  : [Slides](https://sta712-f22.github.io/slides/lecture_19.pdf)
 
-: Textbook Chapter 10
+: Textbook 5.2, 5.3, 5.5, 5.6, 10.1, 10.2
 
 October 7
 : **No class**{: .label .label-blue }
