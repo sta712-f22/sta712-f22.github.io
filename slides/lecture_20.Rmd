@@ -1,0 +1,35 @@
+---
+title: Exponential dispersion models
+output:
+  xaringan::moon_reader:
+    css: "lab-slides.css"
+    lib_dir: libs
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+editor_options: 
+  chunk_output_type: console
+---
+
+### Last time: Poisson regression
+
+---
+
+### Exponential dispersion models
+
+---
+
+### Examples of EDMs
+
+---
+
+### EDM components
+
+---
+
+### Cumulants and the cumulant generating function
+
+---
+
+### Generalized linear models
