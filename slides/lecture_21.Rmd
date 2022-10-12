@@ -1,0 +1,241 @@
+---
+title: EDMs and goodness of fit
+output:
+  xaringan::moon_reader:
+    css: "lab-slides.css"
+    lib_dir: libs
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+editor_options: 
+  chunk_output_type: console
+---
+
+### Recap: EDMs and GLMs
+
+---
+
+### Why is the canonical link function nice?
+
+---
+
+### Data
+
+.large[
+A concerned parent asks us to investigate crime rates on college campuses. We have access to data on 81 different colleges and universities in the US, including the following variables:
+
+* `type`: college (C) or university (U)
+* `nv`: the number of violent crimes for that institution in the given year
+* `enroll1000`: the number of enrolled students, in thousands
+* `region`: region of the US C = Central, MW = Midwest, NE = Northeast, SE = Southeast, SW = Southwest, and W = West)
+]
+
+---
+
+### Model
+
+.large[
+$$Crimes_i \sim Poisson(\lambda_i)$$
+
+$$\log(\lambda_i) = \beta_0 + \beta_1 MW_i + \beta_2 NE_i + \beta_3 SE_i + \beta_4 SW_i + \beta_5 W_i$$
+
+Fitted model:
+
+$$\log(\widehat{\lambda}_i) = 1.34 + 0.48 \ MW_i + 0.44 \ NE_i + 0.77 \ SE_i + \\ 0.33 \ SW_i + 0.53 \ W_i$$
+
+.question[
+How would I interpret the intercept 1.34?
+]
+]
+
+---
+
+### Model
+
+.large[
+$$Crimes_i \sim Poisson(\lambda_i)$$
+
+$$\log(\lambda_i) = \beta_0 + \beta_1 MW_i + \beta_2 NE_i + \beta_3 SE_i + \beta_4 SW_i + \beta_5 W_i$$
+
+.question[
+What assumptions is this model making?
+]
+]
+
+---
+
+### Exploratory data analysis
+
+```{r echo=F, message=F, warning=F, fig.align='center', fig.width=7, fig.height=5}
+library(tidyverse)
+
+crimes <- read_csv("~/Documents/Teaching/sta712-f22.github.io/slides/c_data.csv")
+
+crimes %>%
+  ggplot(aes(x = nv)) +
+  geom_histogram(bins = 10) +
+  labs(x = "Number of crimes") +
+  facet_wrap(~region) +
+  theme_bw() +
+  theme(text = element_text(size = 25))
+```
+
+---
+
+### Exploratory data analysis
+
+.large[
+Mean and variance for number of crimes by region:
+
+```{r echo=F, message=F, warning=F}
+crimes %>%
+  group_by(region) %>%
+  summarize(mean = round(mean(nv), digits=2),
+            variance = round(var(nv), digits=2)) %>%
+  knitr::kable()
+```
+]
+
+---
+
+### Goodness of fit
+
+.large[
+**Goodness of fit test:** If the model is a good fit for the data, then the residual deviance follows a $\chi^2$ distribution with the same degrees of freedom as the residual deviance
+
+```{r echo=F, message=F, output.lines = 22:23}
+library(knitr)
+hook_output <- knit_hooks$get("output")
+knit_hooks$set(output = function(x, options) {
+   lines <- options$output.lines
+   if (is.null(lines)) {
+     return(hook_output(x, options))  # pass to default hook
+   }
+   x <- unlist(strsplit(x, "\n"))
+   more <- "..."
+   if (length(lines)==1) {        # first n lines
+     if (length(x) > lines) {
+       # truncate the output, but add ....
+       x <- c(head(x, lines), more)
+     }
+   } else {
+     x <- c(more, x[lines], more)
+   }
+   # paste these lines together
+   x <- paste(c(x, ""), collapse = "\n")
+   hook_output(x, options)
+ })
+
+m1 <- glm(nv ~ region, data = crimes, family = poisson)
+summary(m1)
+```
+
+Residual deviance = 621.24, df = 75
+
+.question[
+How likely is a residual deviance of 621.24 if our model is correct?
+]
+]
+
+---
+
+### Goodness of fit
+
+.large[
+**Goodness of fit test:** If the model is a good fit for the data, then the residual deviance follows a $\chi^2$ distribution with the same degrees of freedom as the residual deviance
+
+Residual deviance = 621.24, df = 75
+
+```{r}
+pchisq(621.24, df=75, lower.tail=F)
+```
+
+So our model might not be a very good fit to the data.
+]
+
+---
+
+### EDMs and deviance
+
+---
+
+### Saddlepoint approximation
+
+---
+
+### Goodness of fit
+
+.large[
+**Goodness of fit test:** If the model is a good fit for the data, then the residual deviance follows a $\chi^2$ distribution with the same degrees of freedom as the residual deviance
+
+Residual deviance = 621.24, df = 75
+
+```{r}
+pchisq(621.24, df=75, lower.tail=F)
+```
+
+So our model might not be a very good fit to the data.
+
+.question[
+Why might our model not be a good fit?
+]
+]
+
+---
+
+### Offsets
+
+.large[
+We will account for school size by including an **offset** in the model:
+
+$$\log(\lambda_i) = \beta_0 + \beta_1 MW_i + \beta_2 NE_i + \beta_3 SE_i + \beta_4 SW_i + \beta_5 W_i \\ + \log(Enrollment_i)$$
+]
+
+---
+
+### Motivation for offsets
+
+.large[
+We can rewrite our regression model with the offset:
+
+$$\log(\lambda_i) = \beta_0 + \beta_1 MW_i + \beta_2 NE_i + \beta_3 SE_i + \beta_4 SW_i + \beta_5 W_i \\ + \log(Enrollment_i)$$
+]
+
+---
+
+### Fitting a model with an offset
+
+.large[
+```{r, output.lines = 10:16}
+m2 <- glm(nv ~ region, offset = log(enroll1000),
+          data = crimes, family = poisson)
+summary(m2)
+```
+
+* The offset doesn't show up in the output (because we're not estimating a coefficient for it)
+]
+
+---
+
+### Fitting a model with an offset
+
+.large[
+$$\log(\widehat{\lambda}_i) = -1.30 + 0.10 MW_i + 0.76 NE_i + \\ 0.87 SE_i + 0.51 SW_i + 0.21 W_i \\  + \log(Enrollment_i)$$
+
+.question[
+How would I interpret the intercept -1.30?
+]
+]
+
+---
+
+### When to use offsets
+
+.large[
+Offsets are useful in Poisson regression when our counts come from groups of very different sizes (e.g., different numbers of students on a college campus). The offset lets us interpret model coefficients in terms of rates instead of raw counts.
+
+.question[
+With your neighbor, brainstorm some other data scenarios where our response is a count variable, and an offset would be useful. What would our offset be?
+]
+]

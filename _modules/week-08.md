@@ -9,7 +9,10 @@ October 10
 : Textbook 5.2, 5.3, 5.5, 5.6
 
 October 12
-: Generalized linear models
+: EDMs and goodness of fit
+  : [Slides](https://sta712-f22.github.io/slides/lecture_21.pdf)
+  
+: Textbook 5.4, 10.5
 
 : **Project 1 due**{: .label .label-red }
 
