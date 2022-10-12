@@ -68,5 +68,19 @@ show that the Bonferroni method controls the FWER at level $\alpha$.
 \end{enumerate}
 \end{enumerate}
 
+\section*{Multiple pairwise comparisons}
+
+\begin{enumerate}
+\item[3.] Now suppose we have $k$ different groups we want to compare, and let $\mu_1,...,\mu_k$ denote the means of each group. We are interested in all pairwise comparisons of these means: that is, we test $H_0: \mu_i = \mu_j$ for every $i \neq j$. We want to control the FWER across all our pairwise comparisons.\\
+
+We observe a sample $Y_{i,1},...,Y_{i,n}$ of size $n$ from each group $i =1,...,k$ (note we are assuming the same sample size for every group). Let $\overline{Y}_i = \frac{1}{n} \sum \limits_{j=1}^n Y_{i,j}$ be the sample mean for group $i$, and let $s_i^2 = \frac{1}{n-1} \sum \limits_{j=1}^n (Y_{i,j} - \overline{Y}_i)^2$ be the sample variance for group $i$. Assuming the true variance for each group is the same, the \textit{pooled sample variance} is then
+$$s_p^2 = \frac{1}{k} \sum \limits_{i=1}^k s_i^2 .$$
+We reject $H_0: \mu_i = \mu_j$ when
+$$q_{ij} = \dfrac{|\overline{Y}_i - \overline{Y}_j|}{s_p \sqrt{2/n}}$$
+is large.\\
+
+With $k$ groups, we perform ${k \choose 2}$ pairwise tests. One option for controlling the FWER is to test each hypothesis with a two-sample $t$-test, and 
+\end{enumerate}
+
 
 \end{document}
