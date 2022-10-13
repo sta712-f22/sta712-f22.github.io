@@ -1,0 +1,104 @@
+\documentclass[11pt]{article}
+\usepackage{url}
+\usepackage{alltt}
+\usepackage{bm}
+\linespread{1}
+\textwidth 6.5in
+\oddsidemargin 0.in
+\addtolength{\topmargin}{-1in}
+\addtolength{\textheight}{2in}
+
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{bm}
+
+\begin{document}
+
+
+\begin{center}
+\Large
+STA 712 Homework 5\\
+\normalsize
+\vspace{5mm}
+\end{center}
+
+\noindent \textbf{Due:} Friday, October 28, 12:00pm (noon) on Canvas.\\ 
+
+\noindent \textbf{Instructions:} Submit your work as a single PDF. For this assignment, you may include written work by scanning it and incorporating it into the PDF. Include all R code needed to reproduce your results in your submission.
+
+\section*{Cumulants and cumulant generating functions}
+
+\begin{enumerate}
+\item Let $Y$ be a random variable, and recall that the \textit{moment generating function} (MGF) of $Y$ is given by
+$$M(t) = \mathbb{E}[e^{tY}].$$
+We call $M$ the moment generating function because
+$$ \dfrac{d^k}{dt^k} M(t) \biggr \rvert_{t=0} = \mathbb{E}[Y^k].$$
+
+We also define the \textit{cumulant generating function} (CGF): $C(t) = \log M(t)$.
+
+\begin{enumerate}
+\item Show that
+$$ \dfrac{d}{dt} C(t) \biggr \rvert_{t=0} = \mathbb{E}[Y]. $$
+
+\item Show that
+$$ \dfrac{d^2}{dt^2} C(t) \biggr \rvert_{t=0} = Var(Y). $$
+\end{enumerate}
+\end{enumerate}
+
+\section*{GLMs and the canonical link function}
+
+\begin{enumerate}
+\item[2.] Suppose we are interested in modeling a response variable $Y_i$, given explanatory variables $X_i$. We use the generalized linear model
+\begin{align*}
+Y_i &\sim EDM(\mu_i, \phi) \\
+g(\mu_i) &= \beta^T X_i,
+\end{align*}
+where $f(Y_i; \theta, \phi) = a(Y_i, \phi) \exp \left \lbrace \dfrac{Y_i \theta_i - \kappa(\theta_i)}{\phi} \right\rbrace$, and $g$ is the canonical link function (that is, $g(\mu_i) = \theta_i$, the canonical parameter). One reason the canonical link function is nice is that it makes Fisher scoring nice.
+
+\begin{enumerate}
+\item Show that $U(\beta) = \dfrac{X^T(Y - \bm{\mu})}{\phi}$, where $X$ is the design matrix, $Y = (Y_1,...,Y_n)^T$, and $\bm{\mu} = (\mu_1,...,\mu_n)^T$.
+
+\item Show that $\mathcal{I}(\beta) = \dfrac{X^T V X}{\phi}$, where $V = \text{diag}(V(\mu_1),...,V(\mu_n))$, and $V(\mu_i) = Var(Y_i)/\phi$.
+\end{enumerate}
+\end{enumerate}
+
+\section*{Practice with exponential dispersion models}
+
+\begin{enumerate}
+\item[3.] Suppose $Y \sim Gamma(\alpha, \beta)$, with shape $\alpha > 0$ and scale $\beta > 0$. The density function for $Y$ is given by
+$$f(y; \alpha, \beta) = \dfrac{y^{\alpha - 1}}{\Gamma(\alpha) \beta^\alpha} \exp \{ -y/\beta\}.$$
+
+\begin{enumerate}
+\item Show that the gamma distribution is an EDM by identifying $\theta$, $\kappa(\theta)$, and $\phi$.
+
+\item Find $\mu = \mathbb{E}[Y]$ as a function of $\alpha$ and $\beta$ by using the fact that $\mu = \dfrac{\partial}{\partial \theta} \kappa(\theta)$.
+
+\item Using (b), what is the canonical link function for the gamma distribution?
+
+\item Using the fact that $Var(Y) = \phi \cdot \dfrac{\partial \mu}{\partial \theta} = \phi \cdot V(\mu)$, find $V(\mu)$ as a function of $\mu$, and find $Var(Y)$ as a function of $\alpha$ and $\beta$.
+
+\item Show that the unit deviance for the gamma distribution is
+$$d(y, \mu) = 2 \left( - \log \frac{y}{\mu} + \frac{y - \mu}{\mu} \right).$$
+
+\item Write the density function for $Y$ in dispersion model form.
+\end{enumerate}
+
+\item[4.] A very cool property of EDMs is that the mean-variance relationship encoded by $V(\mu)$ uniquely determines the EDM. For example, a normal distribution is the only EDM for which $V(\mu) = 1$, a Poisson distribution is the only EDM for which $V(\mu) = \mu$, etc. This means that, given a desired mean-variance relationship, we can work backwards to figure out what the EDM should be!\\
+
+Suppose we are told that $Y \sim EDM(\mu, \phi)$, and we know that $V(\mu) = \mu^3$. In this problem, we will derive the corresponding EDM for $Y$.
+
+\begin{enumerate}
+\item Using the fact that $V(\mu) = \frac{\partial \mu}{\partial \theta}$, find $\theta$ as a function of $\mu$. \textit{Hint: recall from calculus that} $\dfrac{\partial \theta}{\partial \mu} = \dfrac{1}{\partial \mu / \partial \theta} = \mu^{-3}$.
+
+\item Using the fact that $\mu = \frac{\partial \kappa(\theta)}{\partial \theta}$, show that $\kappa(\theta) = - \sqrt{- 2 \theta} = -\dfrac{1}{\mu}$.
+
+\item Conclude that $f(y; \mu, \phi) = a(y, \phi) \exp \left \lbrace \dfrac{-y/(2 \mu^2) + 1/\mu}{\phi} \right\rbrace$. Then rearrange to show that 
+$$f(y; \mu, \phi) = b(y, \phi) \exp \left \lbrace -\dfrac{1}{2\phi}\dfrac{(y - \mu)^2}{y \mu^2} \right\rbrace. $$\\
+\end{enumerate}
+
+The density function of an inverse Gaussian distribution is given by
+$$f(y; \mu, \phi) = (2 \pi y^3 \phi)^{-1/2} \exp \left \lbrace -\dfrac{1}{2\phi}\dfrac{(y - \mu)^2}{y \mu^2} \right\rbrace, $$
+so we have shown that if $V(\mu) = \mu^3$, then $Y$ must have an inverse Gaussian distribution!
+\end{enumerate}
+
+\end{document}
