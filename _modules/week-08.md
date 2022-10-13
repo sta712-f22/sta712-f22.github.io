@@ -16,5 +16,8 @@ October 12
 
 : **Project 1 due**{: .label .label-red }
 
+: **Challenge Assignment 6 released**{: .label .label-yellow }
+  : [Challenge 6](https://sta712-f22.github.io/homework/challenge_6.pdf)
+
 October 14
 : **No class**{: .label .label-blue }
