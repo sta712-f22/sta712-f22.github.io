@@ -1,0 +1,184 @@
+---
+title: Goodness of fit and overdispersion
+output:
+  xaringan::moon_reader:
+    css: "lab-slides.css"
+    lib_dir: libs
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r include=F}
+library(tidyverse)
+library(knitr)
+hook_output <- knit_hooks$get("output")
+knit_hooks$set(output = function(x, options) {
+   lines <- options$output.lines
+   if (is.null(lines)) {
+     return(hook_output(x, options))  # pass to default hook
+   }
+   x <- unlist(strsplit(x, "\n"))
+   more <- "..."
+   if (length(lines)==1) {        # first n lines
+     if (length(x) > lines) {
+       # truncate the output, but add ....
+       x <- c(head(x, lines), more)
+     }
+   } else {
+     x <- c(more, x[lines], more)
+   }
+   # paste these lines together
+   x <- paste(c(x, ""), collapse = "\n")
+   hook_output(x, options)
+ })
+
+crimes <- read_csv("~/Documents/Teaching/sta712-f22.github.io/slides/c_data.csv")
+```
+
+### Recap: EDMs and deviance
+
+---
+
+### Saddlepoint approximation
+
+---
+
+### Data
+
+.large[
+A concerned parent asks us to investigate crime rates on college campuses. We have access to data on 81 different colleges and universities in the US, including the following variables:
+
+* `type`: college (C) or university (U)
+* `nv`: the number of violent crimes for that institution in the given year
+* `enroll1000`: the number of enrolled students, in thousands
+* `region`: region of the US C = Central, MW = Midwest, NE = Northeast, SE = Southeast, SW = Southwest, and W = West)
+]
+
+---
+
+### Goodness of fit
+
+.large[
+**Goodness of fit test:** If the model is a good fit for the data, then the residual deviance follows a $\chi^2$ distribution with the same degrees of freedom as the residual deviance
+
+Residual deviance = 621.24, df = 75
+
+```{r}
+pchisq(621.24, df=75, lower.tail=F)
+```
+
+So our model might not be a very good fit to the data.
+
+.question[
+Why might our model not be a good fit?
+]
+]
+
+---
+
+### Offsets
+
+.large[
+We will account for school size by including an **offset** in the model:
+
+$$\log(\lambda_i) = \beta_0 + \beta_1 MW_i + \beta_2 NE_i + \beta_3 SE_i + \beta_4 SW_i + \beta_5 W_i \\ + \log(Enrollment_i)$$
+]
+
+---
+
+### Motivation for offsets
+
+.large[
+We can rewrite our regression model with the offset:
+
+$$\log(\lambda_i) = \beta_0 + \beta_1 MW_i + \beta_2 NE_i + \beta_3 SE_i + \beta_4 SW_i + \beta_5 W_i \\ + \log(Enrollment_i)$$
+]
+
+---
+
+### Fitting a model with an offset
+
+.large[
+```{r, output.lines = 10:16}
+m2 <- glm(nv ~ region, offset = log(enroll1000),
+          data = crimes, family = poisson)
+summary(m2)
+```
+
+* The offset doesn't show up in the output (because we're not estimating a coefficient for it)
+]
+
+---
+
+### Fitting a model with an offset
+
+.large[
+$$\log(\widehat{\lambda}_i) = -1.30 + 0.10 MW_i + 0.76 NE_i + \\ 0.87 SE_i + 0.51 SW_i + 0.21 W_i \\  + \log(Enrollment_i)$$
+
+.question[
+How would I interpret the intercept -1.30?
+]
+]
+
+---
+
+### When to use offsets
+
+.large[
+Offsets are useful in Poisson regression when our counts come from groups of very different sizes (e.g., different numbers of students on a college campus). The offset lets us interpret model coefficients in terms of rates instead of raw counts.
+
+.question[
+With your neighbor, brainstorm some other data scenarios where our response is a count variable, and an offset would be useful. What would our offset be?
+]
+]
+
+---
+
+### Goodness of fit
+
+.large[
+```{r, output.lines = 20:23}
+m2 <- glm(nv ~ region, offset = log(enroll1000),
+          data = crimes, family = poisson)
+summary(m2)
+```
+
+```{r}
+pchisq(433.14, df=75, lower.tail=F)
+```
+]
+
+---
+
+### Overdispersion
+
+.large[
+**Overdispersion** occurs when the response $Y$ has higher variance than we would expect from the specified EDM
+
+.question[
+Why is it a problem if $Y$ has more variance than we account for in our model?
+]
+]
+
+---
+
+### Estimating $\phi$
+
+---
+
+### Using $\widehat{\phi}$
+
+.large[
+```{r}
+pearson_resids <- residuals(m2, type="pearson")
+sum(pearson_resids^2)/df.residual(m2)
+```
+
+```{r echo=F, output.lines = 10:16}
+summary(m2)
+```
+]
