@@ -1814,8 +1814,8 @@ model your friend suggested in any way? If so, write down your chosen
 model.</p></li>
 </ol>
 </div>
-<div id="model-fitting-and-diagnostics" class="section level3">
-<h3>Model fitting and diagnostics</h3>
+<div id="model-fitting-and-interpretation" class="section level3">
+<h3>Model fitting and interpretation</h3>
 <ol start="6" style="list-style-type: decimal">
 <li><p>Using the <code>glm</code> function in R (with
 <code>family = poisson</code>), fit your model from Question 5.</p></li>
@@ -1824,6 +1824,68 @@ model.</p></li>
 published in the last three years for a married, male student with 0
 children, attending a PhD program with <span class="math inline">\(Prestige = 3\)</span>, whose advisor has published
 10 articles in the last 3 years?</p></li>
+</ol>
+</div>
+<div id="diagnostics" class="section level3">
+<h3>Diagnostics</h3>
+<p>Diagnostics for Poisson regression are similar to diagnostics for
+logistic regression. Quantile residuals are still useful for assessing
+the shape assumption, and we use VIFs to check for multicollinearity and
+Cook’s distance to check for potential outliers.</p>
+<ol start="9" style="list-style-type: decimal">
+<li><p>Create quantile residual plots for Prestige and Mentor. Do the
+plots show any potential violations of the shape assumption for our
+model?</p></li>
+<li><p>Calculate Cook’s distance for each observation in the data. Are
+there any potential influential points?</p></li>
+<li><p>Calculate variance inflation factors for the explanatory
+variables. Should we be concerned about multicollinearity?</p></li>
+<li><p>If you identified any violations of model assumptions, how would
+you change your model to address these violations?</p></li>
+</ol>
+</div>
+<div id="goodness-of-fit" class="section level3">
+<h3>Goodness of fit</h3>
+<p>In addition to our usual regression diagnostics, we can perform a
+<em>goodness of fit</em> test to assess whether our model is a good fit
+to the data. Recall that our hypotheses are</p>
+<p><span class="math inline">\(H_0:\)</span> the model is a good fit</p>
+<p><span class="math inline">\(H_A:\)</span> the model is not a good
+fit</p>
+<p>We test these hypotheses using the scaled residual deviance, which
+should have a <span class="math inline">\(\chi^2\)</span> distribution
+with <span class="math inline">\(n - (k + 1)\)</span> degrees of freedom
+under the null hypothesis. For Poisson regression, <span class="math inline">\(\phi = 1\)</span>, so the scaled residual deviance
+is the same as the residual deviance reported by R.</p>
+<ol start="13" style="list-style-type: decimal">
+<li>Calculate a p-value for the goodness of fit test. Does it seem like
+our model is a good fit to the data?</li>
+</ol>
+</div>
+<div id="overdispersion" class="section level3">
+<h3>Overdispersion</h3>
+<p>There are two reasons why our model may not fit the data well: (1) we
+may need to include additional variables in the model, and (2) the
+Poisson distribution may not be appropriate. We don’t have any more
+variables to include, so let’s consider (2).</p>
+<p>The Poisson distribution assumes that the mean and variance of <span class="math inline">\(Y_i\)</span> are the <em>same</em>. But, it is
+common for count data to exhibit <em>overdispersion</em>: the variance
+is bigger than it should be if our model were correct.</p>
+<p>One way to handle overdispersion is to estimate the dispersion
+parameter <span class="math inline">\(\phi\)</span>. In class, we
+learned about two options for estimating <span class="math inline">\(\phi\)</span>: the mean deviance estimate, and the
+Pearson estimate.</p>
+<ol start="14" style="list-style-type: decimal">
+<li><p>Report both the mean deviance estimate and the Pearson estimate
+for <span class="math inline">\(\phi\)</span>. How would you interpret
+the value of your estimate <span class="math inline">\(\widehat{\phi}\)</span>?</p></li>
+<li><p>The point of estimating <span class="math inline">\(\phi\)</span>
+is to correct for overdispersion when performing inference. Using one of
+your estimates <span class="math inline">\(\widehat{\phi}\)</span> from
+Question 14 (either is acceptable, though the Pearson estimate is more
+common), construct a confidence interval for the difference in the
+average number of articles published by single and married
+students.</p></li>
 </ol>
 </div>
 </div>

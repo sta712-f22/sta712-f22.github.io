@@ -18,3 +18,6 @@ October 19
 : Textbook 5.4, 6.8, 7.4
 
 October 21
+: **No class**{: .label .label-blue }
+  [Class activity](https://sta712-f22.github.io/class_activities/ca_lecture_22.html)
+

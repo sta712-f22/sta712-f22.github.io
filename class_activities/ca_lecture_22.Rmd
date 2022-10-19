@@ -133,4 +133,37 @@ logmean_plot(articles, 20, "equal_size", "phd", "art")
 
 ### Diagnostics
 
-9. 
+Diagnostics for Poisson regression are similar to diagnostics for logistic regression. Quantile residuals are still useful for assessing the shape assumption, and we use VIFs to check for multicollinearity and Cook's distance to check for potential outliers.
+
+9. Create quantile residual plots for Prestige and Mentor. Do the plots show any potential violations of the shape assumption for our model?
+
+10. Calculate Cook's distance for each observation in the data. Are there any potential influential points?
+
+11. Calculate variance inflation factors for the explanatory variables. Should we be concerned about multicollinearity?
+
+12. If you identified any violations of model assumptions, how would you change your model to address these violations?
+
+### Goodness of fit
+
+In addition to our usual regression diagnostics, we can perform a *goodness of fit* test to assess whether our model is a good fit to the data. Recall that our hypotheses are
+
+$H_0:$ the model is a good fit
+
+$H_A:$ the model is not a good fit
+
+We test these hypotheses using the scaled residual deviance, which should have a $\chi^2$ distribution with $n - (k + 1)$ degrees of freedom under the null hypothesis. For Poisson regression, $\phi = 1$, so the scaled residual deviance is the same as the residual deviance reported by R.
+
+13. Calculate a p-value for the goodness of fit test. Does it seem like our model is a good fit to the data?
+
+### Overdispersion
+
+There are two reasons why our model may not fit the data well: (1) we may need to include additional variables in the model, and (2) the Poisson distribution may not be appropriate. We don't have any more variables to include, so let's consider (2).
+
+The Poisson distribution assumes that the mean and variance of $Y_i$ are the *same*. But, it is common for count data to exhibit *overdispersion*: the variance is bigger than it should be if our model were correct.
+
+One way to handle overdispersion is to estimate the dispersion parameter $\phi$. In class, we learned about two options for estimating $\phi$: the mean deviance estimate, and the Pearson estimate.
+
+14. Report both the mean deviance estimate and the Pearson estimate for $\phi$. How would you interpret the value of your estimate $\widehat{\phi}$?
+
+15. The point of estimating $\phi$ is to correct for overdispersion when performing inference. Using one of your estimates $\widehat{\phi}$ from Question 14 (either is acceptable, though the Pearson estimate is more common), construct a confidence interval for the difference in the average number of articles published by single and married students.
+
