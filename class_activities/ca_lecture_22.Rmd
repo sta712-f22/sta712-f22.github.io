@@ -1,0 +1,136 @@
+---
+title: "Class Activity, October 21"
+output: 
+  rmdformats::robobook:
+    css: "homework.css"
+    highlight: pygments
+link-citations: yes
+---
+
+# Exploring Poisson regression
+
+In this activity, we are interested in analyzing the number of articles published by biochemistry PhD students. The data contains the following variables:
+
+* `art`: articles published in last three years of Ph.D.
+* `fem`: gender (recorded as `Men` or `Women` in the data)
+* `mar`: marital status (recorded as married or single)
+* `kid5`: number of children under age six
+* `phd`: prestige of Ph.D. program
+* `ment`: articles published by their mentor in last three years
+
+```{r, eval=F}
+library(foreign)
+
+articles <- read.dta("http://www.stata-press.com/data/lf2/couart2.dta")
+```
+
+## Questions
+
+Since the number of articles published is a count variable, your friend proposes the following Poisson regression model:
+
+$$Articles_i \sim Poisson(\lambda_i)$$
+
+$$\log(\lambda_i) = \beta_0 + \beta_1 Female_i + \beta_2 Married_i + \beta_3 Kids_i + \\  \beta_4 Prestige_i + \beta_5 Mentor_i$$
+
+### EDA
+
+1. Do you think we need to include an offset in our model? If so, what would the offset be?
+
+Now let's explore our data. Our Poisson regression model assumes that the log mean number of articles published has a linear relationship with the explanatory variables. We can investigate whether this assumption seems reasonable by creating an *empirical log means* plot, which is analogous to our empirical logits plot from logistic regression. The following function can be used to create an empirical log means plot:
+
+```{r eval=F}
+logmean_plot <- function(data, num_bins, bin_method,
+                         x, y, grouping = NULL, reg_formula = y ~ x){
+  
+  if(is.null(grouping)){
+    dat <- data.frame(x = data[,x], 
+                      y = data[,y],
+                      group = 1)
+  } else {
+    dat <- data.frame(x = data[,x], 
+                      y = data[,y],
+                      group = data[,grouping])
+  }
+  
+  if(bin_method == "equal_size"){
+    log_table <- dat %>%
+      drop_na() %>%
+      arrange(group, x) %>%
+      group_by(group) %>%
+      mutate(obs = y,
+             bin = rep(1:num_bins,
+                       each=ceiling(n()/num_bins))[1:n()]) %>%
+      group_by(bin, group) %>%
+      summarize(mean_x = mean(x),
+                mean_y = mean(obs),
+                num_obs = n()) %>%
+      ungroup() %>%
+      mutate(log_mean = log(mean_y))
+  } else {
+    log_table <- dat %>%
+      drop_na() %>%
+      group_by(group) %>%
+      mutate(obs = y,
+             bin = cut(x, 
+                       breaks = num_bins,
+                       labels = F)) %>%
+      group_by(bin, group) %>%
+      summarize(mean_x = mean(x),
+                mean_y = mean(obs),
+                num_obs = n()) %>%
+      ungroup() %>%
+      mutate(log_mean = log(mean_y))
+  }
+  
+  if(is.null(grouping)){
+    log_table %>%
+      ggplot(aes(x = mean_x,
+                 y = log_mean)) +
+      geom_point(size=2.5) +
+      geom_smooth(se=F, method="lm", formula = reg_formula) +
+      theme_bw() +
+      labs(x = x,
+           y = "Empirical log mean count") +
+      theme(text = element_text(size=25))
+  } else {
+    log_table %>%
+      ggplot(aes(x = mean_x,
+                 y = log_mean,
+                 color = group,
+                 shape = group)) +
+      geom_point(size=2.5) +
+      geom_smooth(se=F, method="lm", formula = reg_formula) +
+      theme_bw() +
+      labs(x = x,
+           y = "Empirical log mean count",
+           color = grouping,
+           shape = grouping) +
+      theme(text = element_text(size=25))
+  }
+  
+}
+```
+
+2. Use the code below to investigate the relationship between the log mean number of articles, and the prestige of the PhD program, and experiment with a few different numbers of bins. Do you think a transformation will be needed for Prestige?
+
+```{r, eval=F}
+logmean_plot(articles, 20, "equal_size", "phd", "art")
+```
+
+3. Explore the relationship between the log mean number of articles, and the number of articles the student's mentor has published. Do you think a transformation is needed for Mentor?
+
+4. Use the `grouping` argument in the `logmean_plot` function to assess whether we should include interaction terms in the model.
+
+5. Based on your initial data exploration, would you modify the model your friend suggested in any way? If so, write down your chosen model.
+
+### Model fitting and interpretation
+
+6. Using the `glm` function in R (with `family = poisson`), fit your model from Question 5. 
+
+7. Interpret the fitted coefficient on Prestige.
+
+8. Using your fitted model, what is the estimated number of articles published in the last three years for a married, male student with 0 children, attending a PhD program with $Prestige = 3$, whose advisor has published 10 articles in the last 3 years?
+
+### Diagnostics
+
+9. 

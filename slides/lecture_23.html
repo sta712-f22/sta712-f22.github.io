@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Overdispersion</title>
+    <meta charset="utf-8" />
+    <script src="libs/header-attrs-2.16/header-attrs.js"></script>
+    <link rel="stylesheet" href="lab-slides.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+.title[
+# Overdispersion
+]
+
+---
+
+
+
+
+### Data
+
+.large[
+A concerned parent asks us to investigate crime rates on college campuses. We have access to data on 81 different colleges and universities in the US, including the following variables:
+
+* `type`: college (C) or university (U)
+* `nv`: the number of violent crimes for that institution in the given year
+* `enroll1000`: the number of enrolled students, in thousands
+* `region`: region of the US C = Central, MW = Midwest, NE = Northeast, SE = Southeast, SW = Southwest, and W = West)
+]
+
+---
+
+### Offsets
+
+.large[
+We will account for school size by including an **offset** in the model:
+
+`$$Crimes_i \sim Poisson(\lambda_i)$$`
+
+`$$\log(\lambda_i) = \beta_0 + \beta_1 MW_i + \beta_2 NE_i + \beta_3 SE_i + \beta_4 SW_i + \beta_5 W_i \\ + \log(Enrollment_i)$$`
+]
+
+---
+
+### Fitting a model with an offset
+
+.large[
+
+```r
+m2 &lt;- glm(nv ~ region, offset = log(enroll1000),
+          data = crimes, family = poisson)
+summary(m2)
+```
+
+```
+...
+##             Estimate Std. Error z value Pr(&gt;|z|)    
+## (Intercept) -1.30445    0.12403 -10.517  &lt; 2e-16 ***
+## regionMW     0.09754    0.17752   0.549  0.58270    
+## regionNE     0.76268    0.15292   4.987 6.12e-07 ***
+## regionSE     0.87237    0.15313   5.697 1.22e-08 ***
+## regionSW     0.50708    0.18507   2.740  0.00615 ** 
+## regionW      0.20934    0.18605   1.125  0.26053    
+...
+```
+
+* The offset doesn't show up in the output (because we're not estimating a coefficient for it)
+]
+
+---
+
+### Fitting a model with an offset
+
+.large[
+`$$\log(\widehat{\lambda}_i) = -1.30 + 0.10 MW_i + 0.76 NE_i + \\ 0.87 SE_i + 0.51 SW_i + 0.21 W_i \\  + \log(Enrollment_i)$$`
+
+.question[
+How would I interpret the intercept -1.30?
+]
+]
+
+---
+
+### When to use offsets
+
+.large[
+Offsets are useful in Poisson regression when our counts come from groups of very different sizes (e.g., different numbers of students on a college campus). The offset lets us interpret model coefficients in terms of rates instead of raw counts.
+
+.question[
+With your neighbor, brainstorm some other data scenarios where our response is a count variable, and an offset would be useful. What would our offset be?
+]
+]
+
+---
+
+### Goodness of fit
+
+.large[
+
+```r
+m2 &lt;- glm(nv ~ region, offset = log(enroll1000),
+          data = crimes, family = poisson)
+summary(m2)
+```
+
+```
+...
+## (Dispersion parameter for poisson family taken to be 1)
+## 
+##     Null deviance: 491.00  on 80  degrees of freedom
+## Residual deviance: 433.14  on 75  degrees of freedom
+...
+```
+
+
+```r
+pchisq(433.14, df=75, lower.tail=F)
+```
+
+```
+## [1] 8.33082e-52
+```
+]
+
+---
+
+### Overdispersion
+
+.large[
+**Overdispersion** occurs when the response `\(Y\)` has higher variance than we would expect from the specified EDM
+
+.question[
+Why is it a problem if `\(Y\)` has more variance than we account for in our model?
+]
+]
+
+---
+
+### Estimating `\(\phi\)`
+
+---
+
+### Using `\(\widehat{\phi}\)`
+
+.large[
+
+```r
+pearson_resids &lt;- residuals(m2, type="pearson")
+sum(pearson_resids^2)/df.residual(m2)
+```
+
+```
+## [1] 7.58542
+```
+
+
+```
+...
+##             Estimate Std. Error z value Pr(&gt;|z|)    
+## (Intercept) -1.30445    0.12403 -10.517  &lt; 2e-16 ***
+## regionMW     0.09754    0.17752   0.549  0.58270    
+## regionNE     0.76268    0.15292   4.987 6.12e-07 ***
+## regionSE     0.87237    0.15313   5.697 1.22e-08 ***
+## regionSW     0.50708    0.18507   2.740  0.00615 ** 
+## regionW      0.20934    0.18605   1.125  0.26053    
+...
+```
+]
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+// add `data-at-shortcutkeys` attribute to <body> to resolve conflicts with JAWS
+// screen reader (see PR #262)
+(function(d) {
+  let res = {};
+  d.querySelectorAll('.remark-help-content table tr').forEach(tr => {
+    const t = tr.querySelector('td:nth-child(2)').innerText;
+    tr.querySelectorAll('td:first-child .key').forEach(key => {
+      const k = key.innerText;
+      if (/^[a-z]$/.test(k)) res[k] = t;  // must be a single letter (key)
+    });
+  });
+  d.body.setAttribute('data-at-shortcutkeys', JSON.stringify(res));
+})(document);
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

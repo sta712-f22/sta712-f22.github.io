@@ -13,5 +13,8 @@ October 17
 
 October 19
 : Overdispersion
+  : [Slides](https://sta712-f22.github.io/slides/lecture_23.pdf)
+    
+: Textbook 5.4, 6.8, 7.4
 
 October 21
