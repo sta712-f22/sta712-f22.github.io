@@ -19,5 +19,5 @@ October 19
 
 October 21
 : **No class**{: .label .label-blue }
-  [Class activity](https://sta712-f22.github.io/class_activities/ca_lecture_22.html)
+  [Class activity](https://sta712-f22.github.io/class_activities/ca_lecture_22.html), [Solutions](https://sta712-f22.github.io/class_activities/ca_lecture_22_solutions.html)
 

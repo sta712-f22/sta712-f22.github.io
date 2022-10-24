@@ -1,0 +1,212 @@
+---
+title: "Class Activity Solutions, October 21"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = F, warning=F)
+library(tidyverse)
+library(foreign)
+library(gridExtra)
+
+articles <- read.dta("http://www.stata-press.com/data/lf2/couart2.dta")
+
+logmean_plot <- function(data, num_bins, bin_method,
+                         x, y, grouping = NULL, reg_formula = y ~ x){
+  
+  if(is.null(grouping)){
+    dat <- data.frame(x = data[,x], 
+                      y = data[,y],
+                      group = 1)
+  } else {
+    dat <- data.frame(x = data[,x], 
+                      y = data[,y],
+                      group = data[,grouping])
+  }
+  
+  if(bin_method == "equal_size"){
+    log_table <- dat %>%
+      drop_na() %>%
+      arrange(group, x) %>%
+      group_by(group) %>%
+      mutate(obs = y,
+             bin = rep(1:num_bins,
+                       each=ceiling(n()/num_bins))[1:n()]) %>%
+      group_by(bin, group) %>%
+      summarize(mean_x = mean(x),
+                mean_y = mean(obs),
+                num_obs = n()) %>%
+      ungroup() %>%
+      mutate(log_mean = log(mean_y))
+  } else {
+    log_table <- dat %>%
+      drop_na() %>%
+      group_by(group) %>%
+      mutate(obs = y,
+             bin = cut(x, 
+                       breaks = num_bins,
+                       labels = F)) %>%
+      group_by(bin, group) %>%
+      summarize(mean_x = mean(x),
+                mean_y = mean(obs),
+                num_obs = n()) %>%
+      ungroup() %>%
+      mutate(log_mean = log(mean_y))
+  }
+  
+  if(is.null(grouping)){
+    log_table %>%
+      ggplot(aes(x = mean_x,
+                 y = log_mean)) +
+      geom_point(size=2.5) +
+      geom_smooth(se=F, method="lm", formula = reg_formula) +
+      theme_bw() +
+      labs(x = x,
+           y = "Empirical log mean count") +
+      theme(text = element_text(size=15))
+  } else {
+    log_table %>%
+      ggplot(aes(x = mean_x,
+                 y = log_mean,
+                 color = group,
+                 shape = group)) +
+      geom_point(size=2.5) +
+      geom_smooth(se=F, method="lm", formula = reg_formula) +
+      theme_bw() +
+      labs(x = x,
+           y = "Empirical log mean count",
+           color = grouping,
+           shape = grouping) +
+      theme(text = element_text(size=15))
+  }
+  
+}
+```
+
+1. No offset is needed in this model. For all students, we are interested in the number of articles published in the last three years of their program. If we compared the number of articles published by students at *different* points in the PhD, then we would want to include the length of time they had been a PhD student as an offset term.
+
+2. Based on the empirical log mean plot, it seems reasonable to model the log mean number of articles as a linear function of PhD prestige. I don't think a transformation is needed for Prestige.
+
+```{r, fig.align='center', fig.width=5, fig.height=3}
+logmean_plot(articles, 35, "equal_size", "phd", "art")
+```
+
+3. There appears to be a nonlinear relationship between the log means and the number of articles published by the mentor. A log transformation seems like it might be appropriate.
+
+```{r, fig.align='center', fig.width=8, fig.height=3}
+p1 <- logmean_plot(articles, 25, "equal_size", "ment", "art")
+p2 <- logmean_plot(articles, 25, "equal_size", "ment", "art", 
+                   reg_formula = y ~ log(x+1))
+
+grid.arrange(p1, p2, ncol=2)
+```
+
+4. Based on the plots below, we may want to include an interaction between PhD program prestige and marital status, though honestly it is hard to tell. I will err on the side of simplicity here, and leave out the interaction term.
+
+```{r, fig.align='center', fig.width=8, fig.height=6}
+p1 <- logmean_plot(articles, 30, "equal_size", "phd", "art",
+                   grouping = "mar")
+
+p2 <- logmean_plot(articles, 30, "equal_size", "phd", "art",
+                   grouping = "fem")
+
+p3 <- articles %>% 
+  mutate(log_ment = log(ment + 1)) %>%
+  logmean_plot(30, "equal_size", "log_ment", "art",
+                   grouping = "mar")
+
+p4 <- articles %>% 
+  mutate(log_ment = log(ment + 1)) %>%
+  logmean_plot(30, "equal_size", "log_ment", "art",
+                   grouping = "fem")
+
+grid.arrange(p1, p2, p3, p4, ncol=2)
+```
+
+5. For simplicity I'll leave out any interaction terms for now, since it isn't clear from EDA whether the interactions are needed. The model is therefore
+
+$$Articles_i \sim Poisson(\lambda_i)$$
+
+$$\log(\lambda_i) = \beta_0 + \beta_1 Female_i + \beta_2 Married_i + \beta_3 Kids_i + \\  \beta_4 Prestige_i + \beta_5 \log(Mentor_i + 1)$$
+
+6. Fitted model:
+
+```{r}
+m1 <- glm(art ~ fem + mar + kid5 + phd + log(ment + 1),
+          data = articles, family = poisson)
+summary(m1)
+```
+
+7. A one-unit increase in prestige is associated with a change in the average number of articles published by a factor of $e^{-0.023} = 0.977$, holding the other variables fixed.
+
+8. The estimated average number of articles published for a student of this description would be 2.47.
+
+```{r}
+a <- c(1, 0, 1, 0, 3, log(10 + 1))
+exp(t(coef(m1)) %*% a)
+```
+
+9. Quantile residual plots:
+
+```{r, fig.align='center', fig.width=8, fig.height=3}
+library(statmod)
+
+p1 <- articles %>%
+  mutate(qresids = qresid(m1)) %>%
+  ggplot(aes(x = phd, y = qresids)) +
+  geom_point() +
+  geom_smooth() +
+  theme_bw() +
+  labs(x = "PhD prestige", y = "Quantile residuals")
+
+p2 <- articles %>%
+  mutate(qresids = qresid(m1)) %>%
+  ggplot(aes(x = log(ment + 1), y = qresids)) +
+  geom_point() +
+  geom_smooth() +
+  theme_bw() +
+  labs(x = "log(Number of mentor articles + 1)", y = "Quantile residuals")
+
+grid.arrange(p1, p2, ncol=2)
+```
+
+The shape assumption seems reasonable for both PhD prestige and the transformed number of mentor articles.
+
+10. Cook's distance:
+
+```{r}
+plot(log(articles$ment + 1), cooks.distance(m1))
+```
+
+The largest Cook's distance is about 0.25, which is below the usual thresholds of 0.5 or 1 at which we are concerned about influential points.
+
+11. Variance inflation factors:
+
+```{r}
+library(car)
+
+vif(m1)
+```
+
+There does not appear to be any multicollinearity issues in our data.
+
+12. There are no apparent assumption violations.
+
+13. The residual deviance is 1598.8, on 909 degrees of freedom. This gives a goodness of fit p-value of essentially 0, so our model may not be a good fit to the data.
+
+```{r}
+pchisq(1598.8, df=909, lower.tail=F)
+```
+
+14. Mean deviance estimate: $\widehat{\phi} = 1598.8/909 = 1.76$
+
+Pearson estimate: $\widehat{\phi} = 1.81$
+
+```{r}
+pearson_resids <- residuals(m1, type="pearson")
+sum(pearson_resids^2)/df.residual(m1)
+```
+
+15. 95% confidence interval for $\beta_2$: $0.168 \pm 1.96 \cdot \sqrt{1.81} \cdot (0.061) = (0.0071, 0.329)$
+
+We are 95% confident that the average number of articles published by married students is between $e^{0.0071} = 1.007$ and $e^{0.329} = 1.39$ times higher than the average number of articles published by single students, holding all other variables constant.

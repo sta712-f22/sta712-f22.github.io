@@ -1,0 +1,107 @@
+---
+title: Overdispersion
+output:
+  xaringan::moon_reader:
+    css: "lab-slides.css"
+    lib_dir: libs
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r include=F}
+library(tidyverse)
+library(knitr)
+hook_output <- knit_hooks$get("output")
+knit_hooks$set(output = function(x, options) {
+   lines <- options$output.lines
+   if (is.null(lines)) {
+     return(hook_output(x, options))  # pass to default hook
+   }
+   x <- unlist(strsplit(x, "\n"))
+   more <- "..."
+   if (length(lines)==1) {        # first n lines
+     if (length(x) > lines) {
+       # truncate the output, but add ....
+       x <- c(head(x, lines), more)
+     }
+   } else {
+     x <- c(more, x[lines], more)
+   }
+   # paste these lines together
+   x <- paste(c(x, ""), collapse = "\n")
+   hook_output(x, options)
+ })
+
+crimes <- read_csv("~/Documents/Teaching/sta712-f22.github.io/slides/c_data.csv")
+
+m2 <- glm(nv ~ region, offset = log(enroll1000),
+          data = crimes, family = poisson)
+summary(m2)
+
+
+```
+
+
+### Recap: Overdispersion
+
+.large[
+**Overdispersion** occurs when the response $Y$ has higher variance than we would expect from the specified EDM
+]
+
+---
+
+### Estimating $\phi$
+
+---
+
+### Using $\widehat{\phi}$
+
+.large[
+```{r}
+pearson_resids <- residuals(m2, type="pearson")
+sum(pearson_resids^2)/df.residual(m2)
+```
+
+```{r echo=F, output.lines = 10:16}
+summary(m2)
+```
+]
+
+---
+
+### Quasi-Poisson regression
+
+.large[
+A model for overdispersed Poisson-like counts, using an estimated dispersion parameter $\widehat{\phi}$, is called a *quasi-Poisson* model.
+
+```{r, output.lines = 11:16}
+m3 <- glm(nv ~ region, offset = log(enroll1000),
+          data = crimes, family = quasipoisson)
+summary(m3)
+```
+]
+
+---
+
+### Poisson vs. quasi-Poisson
+
+.large[
+**Poisson:**
+
+```{r echo=F, output.lines=10:14}
+summary(m2)
+```
+
+**Quasi-Poisson:**
+```{r echo=F, output.lines=11:14}
+summary(m3)
+```
+]
+
+---
+
+### Quasi-likelihood models
