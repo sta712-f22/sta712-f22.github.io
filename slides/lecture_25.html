@@ -224,13 +224,13 @@ What if we want variance to depend on the mean in a different way?
 ### The negative binomial distribution
 
 .large[
-If `\(Y_i \sim NB(\theta, p)\)`, then `\(Y_i\)` takes values `\(y = 0, 1, 2, 3, ...\)` with probabilities
+If `\(Y_i \sim NB(r, p)\)`, then `\(Y_i\)` takes values `\(y = 0, 1, 2, 3, ...\)` with probabilities
 
-`$$P(Y_i = y) = \dfrac{\Gamma(y + \theta)}{\Gamma(y + 1)\Gamma(\theta)} (1 - p)^\theta p^y$$`
+`$$P(Y_i = y) = \dfrac{\Gamma(y + r)}{\Gamma(y + 1)\Gamma(r)} (1 - p)^r p^y$$`
 
-* `\(\theta &gt; 0\)`, `\(\ \ \ p \in [0, 1]\)`
-* `\(\mathbb{E}[Y_i] = \dfrac{p \theta}{1 - p} = \mu\)`
-* `\(Var(Y_i) = \dfrac{p \theta}{(1 - p)^2} = \mu + \dfrac{\mu^2}{\theta}\)`
+* `\(r &gt; 0\)`, `\(\ \ \ p \in [0, 1]\)`
+* `\(\mathbb{E}[Y_i] = \dfrac{p r}{1 - p} = \mu\)`
+* `\(Var(Y_i) = \dfrac{p r}{(1 - p)^2} = \mu + \dfrac{\mu^2}{r}\)`
 * Variance is a *quadratic* function of the mean
 ]
 
@@ -239,13 +239,13 @@ If `\(Y_i \sim NB(\theta, p)\)`, then `\(Y_i\)` takes values `\(y = 0, 1, 2, 3, 
 ### Mean and variance for a negative binomial variable
 
 .large[
-If `\(Y_i \sim NB(\theta, p)\)`, then
+If `\(Y_i \sim NB(r, p)\)`, then
 
-* `\(\mathbb{E}[Y_i] = \dfrac{p \theta}{1 - p} = \mu\)`
-* `\(Var(Y_i) = \dfrac{p \theta}{(1 - p)^2} = \mu + \dfrac{\mu^2}{\theta}\)`
+* `\(\mathbb{E}[Y_i] = \dfrac{p r}{1 - p} = \mu\)`
+* `\(Var(Y_i) = \dfrac{p r}{(1 - p)^2} = \mu + \dfrac{\mu^2}{r}\)`
 
 .question[
-How is `\(\theta\)` related to overdispersion?
+How is `\(r\)` related to overdispersion?
 ]
 ]
 
@@ -254,12 +254,12 @@ How is `\(\theta\)` related to overdispersion?
 ### Negative binomial regression
 
 .large[
-`$$Y_i \sim NB(\theta, \ p_i)$$`
+`$$Y_i \sim NB(r, \ p_i)$$`
 
 `$$\log(\mu_i) = \beta^T X_i$$`
 
-* `\(\mu_i = \dfrac{p_i \theta}{1 - p_i}\)`
-* Note that `\(\theta\)` is the same for all `\(i\)`
+* `\(\mu_i = \dfrac{p_i r}{1 - p_i}\)`
+* Note that `\(r\)` is the same for all `\(i\)`
 * Note that just like in Poisson regression, we model the average count
   * Interpretation of `\(\beta\)`s is the same as in Poisson regression
 ]
@@ -291,7 +291,7 @@ m3 &lt;- glm.nb(nv ~ region + offset(log(enroll1000)),
 ...
 ```
 
-`\(\widehat{\theta} = 1.066\)`
+`\(\widehat{r} = 1.066\)`
 ]
     </textarea>
 <style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
