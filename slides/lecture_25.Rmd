@@ -1,0 +1,244 @@
+---
+title: Quasi-Poisson models
+output:
+  xaringan::moon_reader:
+    css: "lab-slides.css"
+    lib_dir: libs
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r include=F}
+library(tidyverse)
+library(knitr)
+hook_output <- knit_hooks$get("output")
+knit_hooks$set(output = function(x, options) {
+   lines <- options$output.lines
+   if (is.null(lines)) {
+     return(hook_output(x, options))  # pass to default hook
+   }
+   x <- unlist(strsplit(x, "\n"))
+   more <- "..."
+   if (length(lines)==1) {        # first n lines
+     if (length(x) > lines) {
+       # truncate the output, but add ....
+       x <- c(head(x, lines), more)
+     }
+   } else {
+     x <- c(more, x[lines], more)
+   }
+   # paste these lines together
+   x <- paste(c(x, ""), collapse = "\n")
+   hook_output(x, options)
+ })
+
+crimes <- read_csv("~/Documents/Teaching/sta712-f22.github.io/slides/c_data.csv")
+
+m2 <- glm(nv ~ region, offset = log(enroll1000),
+          data = crimes, family = poisson)
+
+```
+
+### Recap: Quasi-Poisson regression
+
+.large[
+A model for overdispersed Poisson-like counts, using an estimated dispersion parameter $\widehat{\phi}$, is called a *quasi-Poisson* model.
+
+```{r, output.lines = 11:16}
+m1 <- glm(nv ~ region, offset = log(enroll1000),
+          data = crimes, family = quasipoisson)
+summary(m1)
+```
+]
+
+---
+
+### Recap: Poisson vs. quasi-Poisson
+
+.large[
+**Poisson:**
+
+```{r echo=F, output.lines=10:14}
+summary(m2)
+```
+
+**Quasi-Poisson:**
+```{r echo=F, output.lines=11:14}
+summary(m1)
+```
+]
+
+---
+
+### Quasi-likelihood models
+
+---
+
+### Pros and cons of quasi-Poisson
+
+.large[
+**Pros:**
+
+* Estimated coefficients are the same as the Poisson model
+* Just need to get $\mu$ and $V(\mu)$ correct
+* Easy to use and interpret estimated dispersion $\widehat{\phi}$
+
+**Cons:** Uses a quasi-likelihood, not a full likelihood. So we don't get
+* AIC or BIC (these require log-likelihood)
+* Quantile residuals (these require a defined CDF)
+
+]
+
+---
+
+### Inference with quasi-Poisson models
+
+.large[
+```{r, output.lines = 11:17}
+m1 <- glm(nv ~ region, offset = log(enroll1000),
+          data = crimes, family = quasipoisson)
+summary(m1)
+```
+
+.question[
+How can we test whether there is a difference between crime rates for Western and Central schools?
+]
+]
+
+---
+
+### $t$-tests for single coefficients
+
+---
+
+### Inference with quasi-Poisson models
+
+.large[
+```{r, output.lines = 11:17}
+m1 <- glm(nv ~ region, offset = log(enroll1000),
+          data = crimes, family = quasipoisson)
+summary(m1)
+```
+
+.question[
+How can we test whether there is any relationship between Region and crime rates?
+]
+]
+
+---
+
+### $F$-tests for multiple coefficients
+
+---
+
+### $F$-test example
+
+---
+
+### $F$-test example
+
+.large[
+```{r}
+m1 <- glm(nv ~ region, offset = log(enroll1000),
+          data = crimes, family = quasipoisson)
+m0 <- glm(nv ~ 1, offset = log(enroll1000),
+          data = crimes, family = quasipoisson)
+
+deviance_change <- m0$deviance - m1$deviance
+df_numerator <- m0$df.residual - m1$df.residual
+numerator <- deviance_change/df_numerator
+denominator <- m1$deviance/m1$df.residual
+
+numerator/denominator
+pf(numerator/denominator,  df_numerator, 
+   m1$df.residual, lower.tail=F)
+```
+]
+
+---
+
+### An alternative to quasi-Poisson
+
+.large[
+**Poisson:**
+
+* Mean = $\lambda_i$
+* Variance = $\lambda_i$
+
+**quasi-Poisson:**
+
+* Mean = $\lambda_i$
+* Variance = $\phi \lambda_i$
+* Variance is a linear function of the mean
+
+.question[
+What if we want variance to depend on the mean in a different way?
+]
+]
+
+---
+
+### The negative binomial distribution
+
+.large[
+If $Y_i \sim NB(\theta, p)$, then $Y_i$ takes values $y = 0, 1, 2, 3, ...$ with probabilities
+
+$$P(Y_i = y) = \dfrac{\Gamma(y + \theta)}{\Gamma(y + 1)\Gamma(\theta)} (1 - p)^\theta p^y$$
+
+* $\theta > 0$, $\ \ \ p \in [0, 1]$
+* $\mathbb{E}[Y_i] = \dfrac{p \theta}{1 - p} = \mu$
+* $Var(Y_i) = \dfrac{p \theta}{(1 - p)^2} = \mu + \dfrac{\mu^2}{\theta}$
+* Variance is a *quadratic* function of the mean
+]
+
+---
+
+### Mean and variance for a negative binomial variable
+
+.large[
+If $Y_i \sim NB(\theta, p)$, then
+
+* $\mathbb{E}[Y_i] = \dfrac{p \theta}{1 - p} = \mu$
+* $Var(Y_i) = \dfrac{p \theta}{(1 - p)^2} = \mu + \dfrac{\mu^2}{\theta}$
+
+.question[
+How is $\theta$ related to overdispersion?
+]
+]
+
+---
+
+### Negative binomial regression
+
+.large[
+$$Y_i \sim NB(\theta, \ p_i)$$
+
+$$\log(\mu_i) = \beta^T X_i$$
+
+* $\mu_i = \dfrac{p_i \theta}{1 - p_i}$
+* Note that $\theta$ is the same for all $i$
+* Note that just like in Poisson regression, we model the average count
+  * Interpretation of $\beta$s is the same as in Poisson regression
+]
+
+---
+
+### In R
+
+.large[
+```{r message=F}
+library(MASS)
+m3 <- glm.nb(nv ~ region + offset(log(enroll1000)),
+          data = crimes)
+```
+
+```{r echo=F, output.lines = c(11:17, 20, 21)}
+summary(m3)
+```
+
+$\widehat{\theta} = 1.066$
+]

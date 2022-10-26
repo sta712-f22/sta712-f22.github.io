@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Quasi-Poisson models</title>
+    <meta charset="utf-8" />
+    <script src="libs/header-attrs-2.16/header-attrs.js"></script>
+    <link rel="stylesheet" href="lab-slides.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+.title[
+# Quasi-Poisson models
+]
+
+---
+
+
+
+
+### Recap: Quasi-Poisson regression
+
+.large[
+A model for overdispersed Poisson-like counts, using an estimated dispersion parameter `\(\widehat{\phi}\)`, is called a *quasi-Poisson* model.
+
+
+```r
+m1 &lt;- glm(nv ~ region, offset = log(enroll1000),
+          data = crimes, family = quasipoisson)
+summary(m1)
+```
+
+```
+...
+##             Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept) -1.30445    0.34161  -3.818 0.000274 ***
+## regionMW     0.09754    0.48893   0.199 0.842417    
+## regionNE     0.76268    0.42117   1.811 0.074167 .  
+## regionSE     0.87237    0.42175   2.068 0.042044 *  
+## regionSW     0.50708    0.50973   0.995 0.323027    
+...
+```
+]
+
+---
+
+### Recap: Poisson vs. quasi-Poisson
+
+.large[
+**Poisson:**
+
+
+```
+...
+##             Estimate Std. Error z value Pr(&gt;|z|)    
+## (Intercept) -1.30445    0.12403 -10.517  &lt; 2e-16 ***
+## regionMW     0.09754    0.17752   0.549  0.58270    
+## regionNE     0.76268    0.15292   4.987 6.12e-07 ***
+## regionSE     0.87237    0.15313   5.697 1.22e-08 ***
+...
+```
+
+**Quasi-Poisson:**
+
+```
+...
+##             Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept) -1.30445    0.34161  -3.818 0.000274 ***
+## regionMW     0.09754    0.48893   0.199 0.842417    
+## regionNE     0.76268    0.42117   1.811 0.074167 .  
+...
+```
+]
+
+---
+
+### Quasi-likelihood models
+
+---
+
+### Pros and cons of quasi-Poisson
+
+.large[
+**Pros:**
+
+* Estimated coefficients are the same as the Poisson model
+* Just need to get `\(\mu\)` and `\(V(\mu)\)` correct
+* Easy to use and interpret estimated dispersion `\(\widehat{\phi}\)`
+
+**Cons:** Uses a quasi-likelihood, not a full likelihood. So we don't get
+* AIC or BIC (these require log-likelihood)
+* Quantile residuals (these require a defined CDF)
+
+]
+
+---
+
+### Inference with quasi-Poisson models
+
+.large[
+
+```r
+m1 &lt;- glm(nv ~ region, offset = log(enroll1000),
+          data = crimes, family = quasipoisson)
+summary(m1)
+```
+
+```
+...
+##             Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept) -1.30445    0.34161  -3.818 0.000274 ***
+## regionMW     0.09754    0.48893   0.199 0.842417    
+## regionNE     0.76268    0.42117   1.811 0.074167 .  
+## regionSE     0.87237    0.42175   2.068 0.042044 *  
+## regionSW     0.50708    0.50973   0.995 0.323027    
+## regionW      0.20934    0.51242   0.409 0.684055    
+...
+```
+
+.question[
+How can we test whether there is a difference between crime rates for Western and Central schools?
+]
+]
+
+---
+
+### `\(t\)`-tests for single coefficients
+
+---
+
+### Inference with quasi-Poisson models
+
+.large[
+
+```r
+m1 &lt;- glm(nv ~ region, offset = log(enroll1000),
+          data = crimes, family = quasipoisson)
+summary(m1)
+```
+
+```
+...
+##             Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept) -1.30445    0.34161  -3.818 0.000274 ***
+## regionMW     0.09754    0.48893   0.199 0.842417    
+## regionNE     0.76268    0.42117   1.811 0.074167 .  
+## regionSE     0.87237    0.42175   2.068 0.042044 *  
+## regionSW     0.50708    0.50973   0.995 0.323027    
+## regionW      0.20934    0.51242   0.409 0.684055    
+...
+```
+
+.question[
+How can we test whether there is any relationship between Region and crime rates?
+]
+]
+
+---
+
+### `\(F\)`-tests for multiple coefficients
+
+---
+
+### `\(F\)`-test example
+
+---
+
+### `\(F\)`-test example
+
+.large[
+
+```r
+m1 &lt;- glm(nv ~ region, offset = log(enroll1000),
+          data = crimes, family = quasipoisson)
+m0 &lt;- glm(nv ~ 1, offset = log(enroll1000),
+          data = crimes, family = quasipoisson)
+
+deviance_change &lt;- m0$deviance - m1$deviance
+df_numerator &lt;- m0$df.residual - m1$df.residual
+numerator &lt;- deviance_change/df_numerator
+denominator &lt;- m1$deviance/m1$df.residual
+
+numerator/denominator
+```
+
+```
+## [1] 2.003533
+```
+
+```r
+pf(numerator/denominator,  df_numerator, 
+   m1$df.residual, lower.tail=F)
+```
+
+```
+## [1] 0.0878041
+```
+]
+
+---
+
+### An alternative to quasi-Poisson
+
+.large[
+**Poisson:**
+
+* Mean = `\(\lambda_i\)`
+* Variance = `\(\lambda_i\)`
+
+**quasi-Poisson:**
+
+* Mean = `\(\lambda_i\)`
+* Variance = `\(\phi \lambda_i\)`
+* Variance is a linear function of the mean
+
+.question[
+What if we want variance to depend on the mean in a different way?
+]
+]
+
+---
+
+### The negative binomial distribution
+
+.large[
+If `\(Y_i \sim NB(\theta, p)\)`, then `\(Y_i\)` takes values `\(y = 0, 1, 2, 3, ...\)` with probabilities
+
+`$$P(Y_i = y) = \dfrac{\Gamma(y + \theta)}{\Gamma(y + 1)\Gamma(\theta)} (1 - p)^\theta p^y$$`
+
+* `\(\theta &gt; 0\)`, `\(\ \ \ p \in [0, 1]\)`
+* `\(\mathbb{E}[Y_i] = \dfrac{p \theta}{1 - p} = \mu\)`
+* `\(Var(Y_i) = \dfrac{p \theta}{(1 - p)^2} = \mu + \dfrac{\mu^2}{\theta}\)`
+* Variance is a *quadratic* function of the mean
+]
+
+---
+
+### Mean and variance for a negative binomial variable
+
+.large[
+If `\(Y_i \sim NB(\theta, p)\)`, then
+
+* `\(\mathbb{E}[Y_i] = \dfrac{p \theta}{1 - p} = \mu\)`
+* `\(Var(Y_i) = \dfrac{p \theta}{(1 - p)^2} = \mu + \dfrac{\mu^2}{\theta}\)`
+
+.question[
+How is `\(\theta\)` related to overdispersion?
+]
+]
+
+---
+
+### Negative binomial regression
+
+.large[
+`$$Y_i \sim NB(\theta, \ p_i)$$`
+
+`$$\log(\mu_i) = \beta^T X_i$$`
+
+* `\(\mu_i = \dfrac{p_i \theta}{1 - p_i}\)`
+* Note that `\(\theta\)` is the same for all `\(i\)`
+* Note that just like in Poisson regression, we model the average count
+  * Interpretation of `\(\beta\)`s is the same as in Poisson regression
+]
+
+---
+
+### In R
+
+.large[
+
+```r
+library(MASS)
+m3 &lt;- glm.nb(nv ~ region + offset(log(enroll1000)),
+          data = crimes)
+```
+
+
+```
+...
+##             Estimate Std. Error z value Pr(&gt;|z|)    
+## (Intercept) -1.33404    0.28137  -4.741 2.12e-06 ***
+## regionMW     0.14230    0.44824   0.317  0.75089    
+## regionNE     0.94567    0.36641   2.581  0.00985 ** 
+## regionSE     1.18534    0.39736   2.983  0.00285 ** 
+## regionSW     0.33449    0.45666   0.732  0.46387    
+## regionW      0.06466    0.47628   0.136  0.89201    
+## 
+## (Dispersion parameter for Negative Binomial(1.0662) family taken to be 1)
+...
+```
+
+`\(\widehat{\theta} = 1.066\)`
+]
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+// add `data-at-shortcutkeys` attribute to <body> to resolve conflicts with JAWS
+// screen reader (see PR #262)
+(function(d) {
+  let res = {};
+  d.querySelectorAll('.remark-help-content table tr').forEach(tr => {
+    const t = tr.querySelector('td:nth-child(2)').innerText;
+    tr.querySelectorAll('td:first-child .key').forEach(key => {
+      const k = key.innerText;
+      if (/^[a-z]$/.test(k)) res[k] = t;  // must be a single letter (key)
+    });
+  });
+  d.body.setAttribute('data-at-shortcutkeys', JSON.stringify(res));
+})(document);
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
