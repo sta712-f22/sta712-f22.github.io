@@ -1,0 +1,135 @@
+\documentclass[11pt]{article}
+\usepackage{url}
+\usepackage{alltt}
+\usepackage{bm}
+\linespread{1}
+\textwidth 6.5in
+\oddsidemargin 0.in
+\addtolength{\topmargin}{-1in}
+\addtolength{\textheight}{2in}
+
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{bm}
+
+\begin{document}
+
+
+\begin{center}
+\Large
+STA 712 Homework 6\\
+\normalsize
+\vspace{5mm}
+\end{center}
+
+\noindent \textbf{Due:} Friday, November 4, 12:00pm (noon) on Canvas.\\ 
+
+\noindent \textbf{Instructions:} Submit your work as a single PDF. For this assignment, you may include written work by scanning it and incorporating it into the PDF. Include all R code needed to reproduce your results in your submission.
+
+\section*{Practice with the Negative Binomial}
+
+\begin{enumerate}
+\item If $Y_i \sim NB(r, p)$, then $Y_i$ takes values $y = 0, 1, 2, 3, ...$ with probabilities
+$$P(Y_i = y) = \dfrac{\Gamma(y + r)}{\Gamma(y + 1)\Gamma(r)} (1 - p)^r p^y,$$
+where $r > 0$ and $p \in [0,1]$.
+
+\begin{enumerate}
+\item Show that if $r$ is known, then the negative binomial is an EDM by identifying $\theta, \kappa(\theta)$, and $\phi$.
+\item Use (a) to show that $\mathbb{E}[Y] = \dfrac{pr}{(1-p)}$ and $Var(Y) = \dfrac{p r}{(1 - p)^2}$.
+\item Deduce the canonical link function for the negative binomial distribution (it is \textit{not} the log link that we use in practice!).
+\item Derive the unit deviance $d(y,\mu)$ for the negative binomial distribution (assuming $r$ is known). 
+\end{enumerate}
+
+\item The negative binomial is one distribution we can use when there is more variability in the response variable than accounted for in a Poisson model. It turns out there is a very cool relationship between the Poisson and the negative binomial.\\
+
+Suppose that $\lambda_i$ is treated as a random variable, instead of a fixed parameter, and that
+$$Y_i | \lambda_i \sim Poisson(\lambda_i) \hspace{1cm} \lambda_i \sim Gamma\left(\dfrac{1}{\psi}, \mu_i \psi\right).$$
+(This means that $\mathbb{E}[\lambda_i] = \mu_i$).\\
+
+Show that the marginal distribution of $Y_i$ is 
+$$Y_i \sim NB \left( \dfrac{1}{\psi}, \dfrac{\mu_i}{\mu_i + 1/\psi}\right).$$
+\end{enumerate}
+
+\newpage
+
+\section*{Data Analysis}
+
+\begin{enumerate}
+\item[3.] In this question, you will model the number of purchases of different kinds of books on Amazon. We have a random sample of data from a particular book seller on how many books were purchase from their Amazon store in the last 30 days. Your report will be given to this (imaginary) bookseller who wants you to tell them what kinds of books they might want to stock, or not stock, in their Amazon store for next month. What characteristics might be related to a book that sells a lot of copies? One that sells very few? And so on.
+
+Note: You may assume there are no season buying patterns we need to be aware of (no holiday spending or extraordinary sales). In other words, you can assume there is nothing special about the month of data you have, nor the month you are predicting for, that would impact book buying habits.
+
+Your variables include:
+\begin{itemize}
+\item title: The title of the Book
+\item author: The author of the book
+\item rating: An average score the book has received on Amazon.
+\item purchases: The number of copies of the book purchased in the last 30 days.
+\item price: The price of the book in US. Dollars.
+\item publisher: The company that published the book.
+\item page\_count: The number of pages in the book.
+\item ISBN: a unique numeric identifier for the book.
+\item published\_date: The date the book was published.
+\item Year: the year in which the book was published
+\item genre: the book's genre (Fiction, Fantasy, Mystery, Business, General Interest, Comics and Graphic Novels, or Other.
+\end{itemize}
+
+You can load the data into R by
+\begin{verbatim}
+books <- read.csv("https://sta712-f22.github.io/homework/books.csv")
+\end{verbatim}
+
+\begin{enumerate}
+\item Create empirical log means plots (see \url{https://sta712-f22.github.io/class_activities/ca_lecture_22.html}) to explore the relationships between quantitative explanatory variables and the number of purchases. Do you think any transformations are necessary?
+
+\item Do you think we need to include an offset in our model? If so, what would the offset be?
+
+\item Using your exploratory data analysis, fit a Poisson regression model for the number of purchases in the last 30 days.
+
+\item Perform model diagnostics:
+\begin{itemize}
+\item Create quantile residual plots to check the shape assumption for quantitative variables (you may use the \verb;qresid; function in the \verb;statmod; package)
+
+\item Calculate Cook’s distance to check for any influential points (use a threshold of 0.5 or 1 to identify influential points)
+
+\item Calculate variance inflation factors to check for multicollinearity (see the \verb;vif; function in the \verb;car; package, and use a threshold of 5 or 10 to identify high multicollinearity).
+\end{itemize}
+
+\item Perform a $\chi^2$ goodness of fit test for your fitted Poisson regression model. Do you think there might be overdispersion in the data?
+
+\item Fit a quasi-Poisson model instead, and reported the estimated dispersion $\widehat{\phi}$.
+
+\item Now fit a negative binomial model, and report the estimate $\widehat{r}$.
+
+\item As in (d), perform model diagnostics for your negative binomial model. Do you think the quasi-Poisson or the negative binomial does a better job at modeling the mean-variance relationship? (Or do they look equivalent?)
+
+\item Using either your quasi-Poisson or negative binomial model, carry out at least one hypothesis test to address the client's question: which book characteristics are related to the number of copies sold?
+\end{enumerate}
+
+\end{enumerate}
+
+\section*{(Optional) Practice with EDMs}
+
+\begin{enumerate}
+\item[4.] Determine which of these functions are suitable link functions for a GLM. For those that are not suitable, explain why not. (\textit{Hint: what is true about the relationship between the mean $\mu$ and the canonical parameter $\theta$ in an EDM?})
+
+\begin{enumerate}
+\item $g(\mu) = -1/\mu^2$ when $\mu > 0$
+\item $g(\mu) = |\mu|$ when $-\infty < \mu < \infty$
+\item $g(\mu) = \log(\mu)$ when $\mu > 0$
+\item $g(\mu) = \mu^2$ when $-\infty < \mu < \infty$
+\item $g(\mu) = \mu^2$ when $0 < \mu < \infty$
+\end{enumerate}
+
+\item[5.] Suppose we are told that $Y \sim EDM(\mu, \phi)$, and we know that $V(\mu) = \mu + \dfrac{\mu^2}{k}$, where $k$ is known. In this problem, we will work backwards from $V(\mu)$ to show that $Y$ must follow a negative binomial distribution. \textit{Note: some of the integrals in this question are quite tricky! You are welcome to use software, like WolframAlpha or Mathematica, to help with the integration.}
+
+\begin{enumerate}
+\item Using the fact that $V(\mu) = \partial \mu / \partial \theta$, find $\theta$ as a function of $\mu$.
+
+\item Using the fact that $\mu = \partial \kappa(\theta) / \partial \theta$, find $\kappa(\theta)$.
+
+\item Conclude, using Question 1, that $Y$ must follow a negative binomial distribution.
+\end{enumerate}
+\end{enumerate}
+
+\end{document}

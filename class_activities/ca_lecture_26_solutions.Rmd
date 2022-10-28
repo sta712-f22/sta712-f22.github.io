@@ -1,0 +1,42 @@
+---
+title: "Class Activity Solutions, October 28"
+output: html_document
+---
+
+**Question 1:**
+
+To perform a goodness of fit test, we use the fact that if our Poisson regression model is a good fit to the data, then the scaled residual deviance $D^*(y, \widehat{\mu})$ has approximately a $\chi^2_{n-(k+1)}$ distribution. For the Poisson, $\phi = 1$, so the scaled residual deviance is simply the residual deviance $D(y, \widehat{\mu})$, which is 11540 for our fitted model, and the residual degrees of freedom are $n-(k+1) = 2004$. The p-value for our test is therefore $\approx 0$, and so we reject the null hypothesis that our model is a good fit to the data.
+
+```{r}
+pchisq(11540, df=2004, lower.tail=F)
+```
+
+The model could be a poor fit because we need to add additional variables, or because we have overdispersion. We will investigate overdispersion here.
+
+**Question 2:**
+
+The mean deviance estimate is $\dfrac{D(y, \widehat{\mu})}{n - (k+1)} = \dfrac{11540}{2004} = 5.76$. This is similar to the Pearson estimate of 5.52, which R reports in the the quasi-Poisson output.
+
+**Question 3:**
+
+Here we use a nested $F$-test. Recall that the test statistic is
+
+$$F = \dfrac{(D(y, \widehat{\mu}_{red}) - D(y, \widehat{\mu}_{full}))/(df_{red} - df_{full})}{\widehat{\phi}_{full}}$$
+
+Plugging in the values from the R output, we get
+
+$$F = \dfrac{(11544 - 11540)/3}{5.76} = 0.231$$
+
+We compare to an $F_{3, 11540}$ distribution to calculate a p-value:
+
+```{r}
+pf(0.231, 3, 11540, lower.tail=F)
+```
+
+
+**Question 4:**
+
+In the data, age ranges from about 30 to 70, so let's consider an age difference of 40 years. Holding all other variables fixed, a change in 40 years is associated with a change in the expected number of cigarettes by a factor of $e^{-0.0068(40)} = 0.76$. So, if a 30 year old smokes 20 cigarettes per day, we would expect a 70 year old with the same characteristics to smoke about 15 cigarettes per day. This seems like a difference, but maybe not a very large one.
+
+Most participants are between 40 and 60. An age difference of 20 years would be associated with a change in the expected number of cigarettes by a factor of $e^{-0.0068(20)} = 0.87$, which seems pretty close to 1. 
+

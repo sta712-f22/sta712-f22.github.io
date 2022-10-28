@@ -1,0 +1,71 @@
+---
+title: "Class Activity, October 28"
+output: 
+  rmdformats::robobook:
+    css: "homework.css"
+    highlight: pygments
+link-citations: yes
+---
+
+# The Framingham heart study
+
+The data in this class activity comes from a study on residents of Framingham, MA, which was conducted to research variables related to heart health. We will work with a subset of the data, containing
+
+* `cigsPerDay`: The number of cigarettes smoked per day during the study period.
+* `education`: 1 = High School, 2 = Some College, 3 = College Degree, 4 = Advanced Degree.
+* `male`: 1 = Male, 0 = Female.
+* `age`: The age of the individual in years.
+* `diabetes`: 1 if the individual has diabetes, 0 otherwise.
+* `BMI`: the individual's body mass index (BMI)
+* `currentSmoker`: 1 if the individual currently smokes, 0 otherwise
+
+```{r, include=F}
+library(tidyverse)
+heart_data <- read.csv("~/Documents/Teaching/sta214-f22.github.io/class_activities/framingham.csv")
+
+heart_data <- heart_data %>%
+  drop_na(male, age, education, diabetes, cigsPerDay, BMI) %>%
+  mutate(education = as.factor(education))
+```
+
+## Questions
+
+While the data were originally collected to study heart health, in this activity we will try to model the number of cigarettes smoked. Since not all participants are smokers, we will restrict our analysis only to the current smokers in the data.
+
+Below is the output of several Poisson and quasi-Poisson regression models using this data. Use this output to answer the following question.
+
+1. Perform a goodness of fit test to assess whether the initial Poisson model is a good fit to the data. Why might the model be a poor fit?
+
+2. Calculate the mean deviance estimate $\widehat{\phi}$ of the dispersion parameter.
+
+3. Test whether there is any relationship between education level and the number of cigarettes smoked per day, after accounting for sex, age, diabetes, and BMI.
+
+4. Examining the R output, age appears to have a statistically significant relationship with the number of cigarettes smoked in each model. Do you think this relationship is *practically* significant (e.g., is there a meaningful difference between the number of cigarettes smoked per day for participants of different ages?)
+
+
+## Output
+
+```{r}
+smokers <- heart_data %>%
+  filter(currentSmoker == 1)
+
+m1 <- glm(cigsPerDay ~ male + age + education + diabetes + BMI,
+          data = smokers, family = poisson)
+summary(m1)
+```
+
+```{r}
+m2 <- glm(cigsPerDay ~ male + age + education + diabetes + BMI,
+          data = smokers, family = quasipoisson)
+summary(m2)
+```
+
+```{r}
+m3 <- glm(cigsPerDay ~ male + age + diabetes + BMI,
+          data = smokers, family = quasipoisson)
+summary(m3)
+```
+
+
+
+
