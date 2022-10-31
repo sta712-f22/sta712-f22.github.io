@@ -21,4 +21,6 @@ October 28
 : **HW 6 released**{: .label .label-yellow }
   : [HW 6](https://sta712-f22.github.io/homework/HW6.pdf)
   
+: **Homework 5 due**{: .label .label-red }
+  
 : Textbook 7.6, 10.5

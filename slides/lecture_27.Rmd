@@ -1,0 +1,214 @@
+---
+title: Negative binomial regression
+output:
+  xaringan::moon_reader:
+    css: "lab-slides.css"
+    lib_dir: libs
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r include=F}
+library(tidyverse)
+library(knitr)
+library(gridExtra)
+library(statmod)
+hook_output <- knit_hooks$get("output")
+knit_hooks$set(output = function(x, options) {
+   lines <- options$output.lines
+   if (is.null(lines)) {
+     return(hook_output(x, options))  # pass to default hook
+   }
+   x <- unlist(strsplit(x, "\n"))
+   more <- "..."
+   if (length(lines)==1) {        # first n lines
+     if (length(x) > lines) {
+       # truncate the output, but add ....
+       x <- c(head(x, lines), more)
+     }
+   } else {
+     x <- c(more, x[lines], more)
+   }
+   # paste these lines together
+   x <- paste(c(x, ""), collapse = "\n")
+   hook_output(x, options)
+ })
+
+heart_data <- read.csv("~/Documents/Teaching/sta214-f22.github.io/class_activities/framingham.csv")
+
+heart_data <- heart_data %>%
+  drop_na(male, age, education, diabetes, cigsPerDay, BMI) %>%
+  mutate(education = as.factor(education))
+
+smokers <- heart_data %>%
+  filter(currentSmoker == 1)
+
+m1 <- glm(cigsPerDay ~ male + age + education + diabetes + BMI,
+          data = smokers, family = poisson)
+
+```
+
+### Recap: negative binomial regression
+
+.large[
+$$Y_i \sim NB(r, \ p_i)$$
+
+$$\log(\mu_i) = \beta^T X_i$$
+
+* $\mu_i = \dfrac{p_i r}{1 - p_i}$
+* Note that $r$ is the same for all $i$
+* Note that just like in Poisson regression, we model the average count
+  * Interpretation of $\beta$s is the same as in Poisson regression
+]
+
+---
+
+### In R
+
+.large[
+```{r message=F}
+library(MASS)
+m2 <- glm.nb(cigsPerDay ~ male + age + education + 
+               diabetes + BMI, data = smokers)
+```
+
+```{r echo=F, output.lines = c(11:17, 22, 23)}
+summary(m2)
+```
+
+$\widehat{r} = 3.3$
+]
+
+---
+
+### Class activity
+
+.large[
+[https://sta712-f22.github.io/class_activities/ca_lecture_27.html](https://sta712-f22.github.io/class_activities/ca_lecture_27.html)
+]
+
+---
+
+### Class activity
+
+```{r, echo=F, message=F, warning=F, fig.width=10, fig.height=7.5,fig.align='center'}
+r <- 1
+x <- rnorm(1000, mean=0, sd=1.2)
+y1 <- rpois(1000, lambda = exp(x))
+y2 <- rnbinom(1000, size=r, mu=exp(x))
+
+sim_m1 <- glm(y1 ~ x, family = poisson)
+sim_m2 <- glm.nb(y1 ~ x)
+
+p1 <- data.frame(x = x, resids = qresid(sim_m1)) %>%
+  ggplot(aes(x = x, y = resids)) +
+  geom_point() +
+  geom_smooth() +
+  labs(x = "X", y = "Quantile residuals",
+       title = "Poisson regression on Poisson data") +
+  theme_bw()
+
+p2 <- data.frame(x = x, resids = qresid(sim_m2)) %>%
+  ggplot(aes(x = x, y = resids)) +
+  geom_point() +
+  geom_smooth() +
+  labs(x = "X", y = "Quantile residuals",
+       title = "Negative binomial regression on Poisson data") +
+  theme_bw()
+
+sim_m1 <- glm(y2 ~ x, family = poisson)
+sim_m2 <- glm.nb(y2 ~ x)
+
+p3 <- data.frame(x = x, resids = qresid(sim_m1)) %>%
+  ggplot(aes(x = x, y = resids)) +
+  geom_point() +
+  geom_smooth() +
+  labs(x = "X", y = "Quantile residuals",
+       title = "Poisson regression on negative binomial data") +
+  theme_bw()
+
+p4 <- data.frame(x = x, resids = qresid(sim_m2)) %>%
+  ggplot(aes(x = x, y = resids)) +
+  geom_point() +
+  geom_smooth() +
+  labs(x = "X", y = "Quantile residuals",
+       title = "Negative binomial regression on negative binomial data") +
+  theme_bw()
+
+grid.arrange(p1, p2, p3, p4, ncol=2)
+```
+
+---
+
+### Poisson vs. negative binomial fits
+
+```{r, echo=F, message=F, fig.align='center', fig.width=10, fig.height=4}
+p1 <- smokers %>%
+  mutate(qres = qresid(m1)) %>%
+  ggplot(aes(x = age, y = qres)) +
+  geom_point() +
+  geom_smooth() +
+  theme_bw() +
+  labs(x = "Age", y = "Quantile residuals",
+       title = "Poisson fit") +
+  theme(text = element_text(size = 20))
+
+p2 <- smokers %>%
+  mutate(qres = qresid(m2)) %>%
+  ggplot(aes(x = age, y = qres)) +
+  geom_point() +
+  geom_smooth() +
+  theme_bw() +
+  labs(x = "Age", y = "Quantile residuals",
+       title = "Negative binomial fit") +
+  theme(text = element_text(size = 20))
+
+grid.arrange(p1, p2, ncol=2)
+```
+
+---
+
+### Inference with negative binomial models
+
+.large[
+```{r echo=F, output.lines = c(11:19)}
+summary(m2)
+```
+
+.question[
+How would I test whether there is a relationship between age and the number of cigarettes smoked, after accounting for other variables?
+]
+]
+
+---
+
+### Inference with negative binomial models
+
+.large[
+```{r echo=F, output.lines = c(11:19)}
+summary(m2)
+```
+
+.question[
+How would I test whether there is a relationship between education and the number of cigarettes smoked, after accounting for other variables?
+]
+]
+
+---
+
+### Likelihood ratio test
+
+.large[
+```{r}
+m2 <- glm.nb(cigsPerDay ~ male + age + education + 
+               diabetes + BMI, data = smokers)
+m3 <- glm.nb(cigsPerDay ~ male + age +
+               diabetes + BMI, data = smokers)
+m2$twologlik - m3$twologlik
+pchisq(1.423, df=3, lower.tail=F)
+```
+]

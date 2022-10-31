@@ -1,0 +1,108 @@
+---
+title: "Class Activity, October 31"
+output: 
+  rmdformats::robobook:
+    css: "homework.css"
+    highlight: pygments
+link-citations: yes
+---
+
+# Negative binomial vs. Poisson regression
+
+The negative binomial distribution allows a more flexible mean-variance relationship than the Poisson distribution. For the Poisson distribution, $V(\mu) = \mu$, whereas for the negative binomial $V(\mu) = \mu + \dfrac{\mu^2}{r}$. For large values of $r$, the negative binomial is similar to the Poisson, whereas for small values of $r$ the negative binomial allows much more variability in the response.
+
+In this class activity, we will simulate data from the Poisson and the negative binomial, and we will compare Poisson regression with negative binomial regression.
+
+### Simulating data
+
+Run the following code in R to simulate $X$ from a normal distribution, and two different response variables; $Y_{(1)}$ is Poisson, and $Y_{(2)}$ is negative binomial with $r = 1$.
+
+```{r, eval=F}
+r <- 1
+x <- rnorm(1000, mean=0, sd=1.2)
+y1 <- rpois(1000, lambda = exp(x))
+y2 <- rnbinom(1000, size=r, mu=exp(x))
+```
+
+### Visualizing the results
+
+Let's compare the plots of $Y_{(1)}$ vs. $X$ and $Y_{(2)}$ vs $X$. Run the following code:
+
+```{r, eval=F}
+plot(x, y1, main = "Poisson response")
+plot(x, y2, main = "Negative binomial response")
+```
+
+**Question 1:** What do you notice about the difference in the variability of $Y$ for the Poisson vs. negative binomial data?
+
+### Fitting models on the Poisson data
+
+Now let's fit both a Poisson regression model and a negative binomial regression model *on the Poisson data*, and compare the quantile residual plots.
+
+
+```{r, eval=F}
+library(MASS)
+library(statmod)
+library(tidyverse)
+
+m1 <- glm(y1 ~ x, family = poisson)
+m2 <- glm.nb(y1 ~ x)
+
+summary(m1)
+summary(m2)
+
+data.frame(x = x, resids = qresid(m1)) %>%
+  ggplot(aes(x = x, y = resids)) +
+  geom_point() +
+  geom_smooth() +
+  labs(x = "X", y = "Quantile residuals",
+       title = "Poisson regression on Poisson data") +
+  theme_bw()
+
+data.frame(x = x, resids = qresid(m2)) %>%
+  ggplot(aes(x = x, y = resids)) +
+  geom_point() +
+  geom_smooth() +
+  labs(x = "X", y = "Quantile residuals",
+       title = "Negative binomial regression on Poisson data") +
+  theme_bw()
+```
+
+**Question 2:** Are the estimated coefficients for the two models similar? What is the estimate $\widehat{r}$ for the negative binomial model?
+
+**Question 3:** Do the quantile residual plots for both models look reasonable?
+
+
+### Fitting models on the negative binomial data
+
+Now let's fit both a Poisson regression model and a negative binomial regression model *on the negative binomial data*, and compare the quantile residual plots.
+
+
+```{r, eval=F}
+m1 <- glm(y2 ~ x, family = poisson)
+m2 <- glm.nb(y2 ~ x)
+
+summary(m1)
+summary(m2)
+
+data.frame(x = x, resids = qresid(m1)) %>%
+  ggplot(aes(x = x, y = resids)) +
+  geom_point() +
+  geom_smooth() +
+  labs(x = "X", y = "Quantile residuals",
+       title = "Poisson regression on negative binomial data") +
+  theme_bw()
+
+data.frame(x = x, resids = qresid(m2)) %>%
+  ggplot(aes(x = x, y = resids)) +
+  geom_point() +
+  geom_smooth() +
+  labs(x = "X", y = "Quantile residuals",
+       title = "Negative binomial regression on negative binomial data") +
+  theme_bw()
+```
+
+**Question 4:** Are the estimated coefficients for the two models similar? What is the estimate $\widehat{r}$ for the negative binomial model?
+
+**Question 5:** Do the quantile residual plots for both models look reasonable?
+
