@@ -12,9 +12,8 @@ October 31
   : [Challenge 7](https://sta712-f22.github.io/homework/challenge_7.pdf)
   
 November 2
-: ZIP models
+: Negative binomial, ZIP models
+  : [Slides](https://sta712-f22.github.io/slides/lecture_28.pdf)
 
 November 4
 : ZIP models
-
-: **Homework 6 due**{: .label .label-red }

@@ -1,0 +1,261 @@
+---
+title: Negative binomial regression
+output:
+  xaringan::moon_reader:
+    css: "lab-slides.css"
+    lib_dir: libs
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r include=F}
+library(tidyverse)
+library(knitr)
+library(gridExtra)
+library(statmod)
+hook_output <- knit_hooks$get("output")
+knit_hooks$set(output = function(x, options) {
+   lines <- options$output.lines
+   if (is.null(lines)) {
+     return(hook_output(x, options))  # pass to default hook
+   }
+   x <- unlist(strsplit(x, "\n"))
+   more <- "..."
+   if (length(lines)==1) {        # first n lines
+     if (length(x) > lines) {
+       # truncate the output, but add ....
+       x <- c(head(x, lines), more)
+     }
+   } else {
+     x <- c(more, x[lines], more)
+   }
+   # paste these lines together
+   x <- paste(c(x, ""), collapse = "\n")
+   hook_output(x, options)
+ })
+
+heart_data <- read.csv("~/Documents/Teaching/sta214-f22.github.io/class_activities/framingham.csv")
+
+heart_data <- heart_data %>%
+  drop_na(male, age, education, diabetes, cigsPerDay, BMI) %>%
+  mutate(education = as.factor(education))
+
+smokers <- heart_data %>%
+  filter(currentSmoker == 1)
+
+m1 <- glm(cigsPerDay ~ male + age + education + diabetes + BMI,
+          data = smokers, family = poisson)
+
+library(MASS)
+m2 <- glm.nb(cigsPerDay ~ male + age + education + 
+               diabetes + BMI, data = smokers)
+
+```
+
+### Recap: inference with negative binomial models
+
+.large[
+```{r echo=F, output.lines = c(11:19)}
+summary(m2)
+```
+]
+
+---
+
+### Likelihood ratio test
+
+.large[
+```{r}
+m2 <- glm.nb(cigsPerDay ~ male + age + education + 
+               diabetes + BMI, data = smokers)
+m3 <- glm.nb(cigsPerDay ~ male + age +
+               diabetes + BMI, data = smokers)
+m2$twologlik - m3$twologlik
+pchisq(1.423, df=3, lower.tail=F)
+```
+]
+
+---
+
+### Likelihood ratio test
+
+.large[
+.question[
+Why can I use the residual deviance to perform a likelihood ratio test for a  Poisson regression model, but not for a negative binomial model?
+]
+]
+
+---
+
+### New data
+
+.large[
+Survey data from 77 college students on a dry campus (i.e., alcohol is prohibited) in the US. Survey asks students "How many alcoholic drinks did you consume last weekend?"
+
+* `drinks`: the number of drinks the student reports consuming
+* `sex`: an indicator for whether the student identifies as male
+* `OffCampus`: an indicator for whether the student lives off campus
+* `FirstYear`: an indicator for whether the student is a first-year student
+
+.question[
+Our goal: model the number of drinks students report consuming.
+]
+]
+
+---
+
+### EDA: drinks
+
+```{r echo=F, message=F, warning=F, fig.align='center', fig.width=7, fig.height=5}
+library(tidyverse)
+
+wdrinks <- read.csv("~/Documents/Teaching/sta279-s22.github.io/slides/weekendDrinks.csv")
+
+FirstYear <- ifelse( wdrinks$dorm %in% c("mohn","kittlesby", "kildahl"), "TRUE", "FALSE")
+OffCampus <- ifelse( wdrinks$dorm == "off campus", "TRUE", "FALSE")
+
+wdrinks <- cbind(wdrinks, FirstYear, OffCampus)
+
+wdrinks %>%
+  ggplot(aes(x = drinks)) +
+  geom_bar() +
+  theme_bw() +
+  theme(text = element_text(size = 25))
+```
+
+.large[
+.question[
+What do you notice about this distribution?
+]
+]
+
+---
+
+### Comparisons with Poisson distributions
+
+```{r echo=F, message=F, warning=F, fig.align='center', fig.width=10, fig.height=7}
+library(gridExtra)
+set.seed(1)
+p1 <- wdrinks %>%
+  ggplot(aes(x = drinks)) +
+  geom_bar() +
+  theme_bw() +
+  theme(text = element_text(size = 25)) +
+  labs(title = "Observed data", x = "", y = "") +
+  scale_x_continuous(limits = c(-1, 25)) +
+  scale_y_continuous(limits = c(0, 45))
+
+p2 <- data.frame(x = rpois(100, 1)) %>%
+  ggplot(aes(x = x)) +
+  geom_bar() +
+  theme_bw() +
+  theme(text = element_text(size = 25)) +
+  labs(title = "Poisson(1)", x = "", y = "") +
+  scale_x_continuous(limits = c(-1, 25)) +
+  scale_y_continuous(limits = c(0, 45))
+
+p3 <- data.frame(x = rpois(100, 2)) %>%
+  ggplot(aes(x = x)) +
+  geom_bar() +
+  theme_bw() +
+  theme(text = element_text(size = 25)) +
+  labs(title = "Poisson(2)", x = "", y = "") +
+  scale_x_continuous(limits = c(-1, 25)) +
+  scale_y_continuous(limits = c(0, 45))
+
+p4 <- data.frame(x = rpois(100, 5)) %>%
+  ggplot(aes(x = x)) +
+  geom_bar() +
+  theme_bw() +
+  theme(text = element_text(size = 25)) +
+  labs(title = "Poisson(5)", x = "", y = "") +
+  scale_x_continuous(limits = c(-1, 25)) +
+  scale_y_continuous(limits = c(0, 45))
+
+grid.arrange(p1, p2, p3, p4, ncol=2)
+```
+
+---
+
+### Excess zeros
+
+.pull-left[
+.large[
+.question[
+*Why might there be excess 0s in the data, and why is that a problem for modeling the number of drinks consumed?*
+]
+]
+]
+
+.pull-right[
+```{r echo=F, message=F, warning=F, fig.align='center', fig.width=6, fig.height=4}
+wdrinks %>%
+  ggplot(aes(x = drinks)) +
+  geom_bar() +
+  theme_bw() +
+  theme(text = element_text(size = 25))
+```
+]
+
+---
+
+### Modeling
+
+---
+
+### Zero-inflated Poisson (ZIP) model
+
+.large[
+$$P(Y_i = y) = \begin{cases} e^{-\lambda_i}(1 - \alpha_i) + \alpha_i & y = 0 \\ \dfrac{e^{-\lambda_i} \lambda_i^y}{y!}(1 - \alpha_i) & y > 0 \end{cases}$$
+
+where
+
+$\log \left( \dfrac{\alpha_i}{1 - \alpha_i} \right) = \gamma_0 + \gamma_1 FirstYear_i + \gamma_2 OffCampus_i + \gamma_3 Male_i$
+
+$\log(\lambda_i) = \beta_0 + \beta_1 FirstYear_i + \beta_2 OffCampus_i + \beta_3 Male_i$
+
+]
+
+---
+
+### In R
+
+```{r, output.lines = 10:22, message=F, warning=F}
+library(pscl)
+m1 <- zeroinfl(drinks ~ FirstYear + OffCampus + sex | 
+                 FirstYear + OffCampus + sex, 
+               data = wdrinks)
+summary(m1)
+```
+
+---
+
+### Interpretation
+
+.large[
+```{r, echo=F,output.lines = 17:22, message=F, warning=F}
+summary(m1)
+```
+
+.question[
+How would I interpret the estimated coefficient 0.892 in the logistic regression component of the model?
+]
+]
+
+---
+
+### Interpretation
+
+.large[
+```{r, echo=F,output.lines = 10:16, message=F, warning=F}
+summary(m1)
+```
+
+.question[
+How would I interpret the estimated coefficient 0.372 in the Poisson regression component of the model?
+]
+]

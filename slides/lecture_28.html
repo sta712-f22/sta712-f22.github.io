@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Negative binomial regression</title>
+    <meta charset="utf-8" />
+    <script src="libs/header-attrs-2.16/header-attrs.js"></script>
+    <link rel="stylesheet" href="lab-slides.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+.title[
+# Negative binomial regression
+]
+
+---
+
+
+
+
+### Recap: inference with negative binomial models
+
+.large[
+
+```
+...
+##              Estimate Std. Error z value Pr(&gt;|z|)    
+## (Intercept)  2.877771   0.123477  23.306  &lt; 2e-16 ***
+## male         0.459148   0.027641  16.611  &lt; 2e-16 ***
+## age         -0.007010   0.001731  -4.050 5.12e-05 ***
+## education2   0.024518   0.032534   0.754    0.451    
+## education3   0.009252   0.040802   0.227    0.821    
+## education4  -0.027732   0.044825  -0.619    0.536    
+## diabetes    -0.010124   0.099126  -0.102    0.919    
+## BMI          0.003693   0.003573   1.033    0.301    
+...
+```
+]
+
+---
+
+### Likelihood ratio test
+
+.large[
+
+```r
+m2 &lt;- glm.nb(cigsPerDay ~ male + age + education + 
+               diabetes + BMI, data = smokers)
+m3 &lt;- glm.nb(cigsPerDay ~ male + age +
+               diabetes + BMI, data = smokers)
+m2$twologlik - m3$twologlik
+```
+
+```
+## [1] 1.423055
+```
+
+```r
+pchisq(1.423, df=3, lower.tail=F)
+```
+
+```
+## [1] 0.7001524
+```
+]
+
+---
+
+### Likelihood ratio test
+
+.large[
+.question[
+Why can I use the residual deviance to perform a likelihood ratio test for a  Poisson regression model, but not for a negative binomial model?
+]
+]
+
+---
+
+### New data
+
+.large[
+Survey data from 77 college students on a dry campus (i.e., alcohol is prohibited) in the US. Survey asks students "How many alcoholic drinks did you consume last weekend?"
+
+* `drinks`: the number of drinks the student reports consuming
+* `sex`: an indicator for whether the student identifies as male
+* `OffCampus`: an indicator for whether the student lives off campus
+* `FirstYear`: an indicator for whether the student is a first-year student
+
+.question[
+Our goal: model the number of drinks students report consuming.
+]
+]
+
+---
+
+### EDA: drinks
+
+&lt;img src="lecture_28_files/figure-html/unnamed-chunk-4-1.png" style="display: block; margin: auto;" /&gt;
+
+.large[
+.question[
+What do you notice about this distribution?
+]
+]
+
+---
+
+### Comparisons with Poisson distributions
+
+&lt;img src="lecture_28_files/figure-html/unnamed-chunk-5-1.png" style="display: block; margin: auto;" /&gt;
+
+---
+
+### Excess zeros
+
+.pull-left[
+.large[
+.question[
+*Why might there be excess 0s in the data, and why is that a problem for modeling the number of drinks consumed?*
+]
+]
+]
+
+.pull-right[
+&lt;img src="lecture_28_files/figure-html/unnamed-chunk-6-1.png" style="display: block; margin: auto;" /&gt;
+]
+
+---
+
+### Modeling
+
+---
+
+### Zero-inflated Poisson (ZIP) model
+
+.large[
+`$$P(Y_i = y) = \begin{cases} e^{-\lambda_i}(1 - \alpha_i) + \alpha_i &amp; y = 0 \\ \dfrac{e^{-\lambda_i} \lambda_i^y}{y!}(1 - \alpha_i) &amp; y &gt; 0 \end{cases}$$`
+
+where
+
+`\(\log \left( \dfrac{\alpha_i}{1 - \alpha_i} \right) = \gamma_0 + \gamma_1 FirstYear_i + \gamma_2 OffCampus_i + \gamma_3 Male_i\)`
+
+`\(\log(\lambda_i) = \beta_0 + \beta_1 FirstYear_i + \beta_2 OffCampus_i + \beta_3 Male_i\)`
+
+]
+
+---
+
+### In R
+
+
+```r
+library(pscl)
+m1 &lt;- zeroinfl(drinks ~ FirstYear + OffCampus + sex | 
+                 FirstYear + OffCampus + sex, 
+               data = wdrinks)
+summary(m1)
+```
+
+```
+...
+## Count model coefficients (poisson with log link):
+##               Estimate Std. Error z value Pr(&gt;|z|)    
+## (Intercept)     0.8010     0.1620   4.945 7.60e-07 ***
+## FirstYearTRUE  -0.1619     0.3651  -0.444   0.6574    
+## OffCampusTRUE   0.3724     0.2135   1.744   0.0811 .  
+## sexm            0.9835     0.1889   5.205 1.94e-07 ***
+## 
+## Zero-inflation model coefficients (binomial with logit link):
+##               Estimate Std. Error z value Pr(&gt;|z|)
+## (Intercept)   -0.39618    0.39752  -0.997    0.319
+## FirstYearTRUE  0.89197    0.65878   1.354    0.176
+## OffCampusTRUE -1.69137    1.47761  -1.145    0.252
+## sexm          -0.07079    0.58846  -0.120    0.904
+...
+```
+
+---
+
+### Interpretation
+
+.large[
+
+```
+...
+## Zero-inflation model coefficients (binomial with logit link):
+##               Estimate Std. Error z value Pr(&gt;|z|)
+## (Intercept)   -0.39618    0.39752  -0.997    0.319
+## FirstYearTRUE  0.89197    0.65878   1.354    0.176
+## OffCampusTRUE -1.69137    1.47761  -1.145    0.252
+## sexm          -0.07079    0.58846  -0.120    0.904
+...
+```
+
+.question[
+How would I interpret the estimated coefficient 0.892 in the logistic regression component of the model?
+]
+]
+
+---
+
+### Interpretation
+
+.large[
+
+```
+...
+## Count model coefficients (poisson with log link):
+##               Estimate Std. Error z value Pr(&gt;|z|)    
+## (Intercept)     0.8010     0.1620   4.945 7.60e-07 ***
+## FirstYearTRUE  -0.1619     0.3651  -0.444   0.6574    
+## OffCampusTRUE   0.3724     0.2135   1.744   0.0811 .  
+## sexm            0.9835     0.1889   5.205 1.94e-07 ***
+## 
+...
+```
+
+.question[
+How would I interpret the estimated coefficient 0.372 in the Poisson regression component of the model?
+]
+]
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+// add `data-at-shortcutkeys` attribute to <body> to resolve conflicts with JAWS
+// screen reader (see PR #262)
+(function(d) {
+  let res = {};
+  d.querySelectorAll('.remark-help-content table tr').forEach(tr => {
+    const t = tr.querySelector('td:nth-child(2)').innerText;
+    tr.querySelectorAll('td:first-child .key').forEach(key => {
+      const k = key.innerText;
+      if (/^[a-z]$/.test(k)) res[k] = t;  // must be a single letter (key)
+    });
+  });
+  d.body.setAttribute('data-at-shortcutkeys', JSON.stringify(res));
+})(document);
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
