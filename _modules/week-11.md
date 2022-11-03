@@ -18,3 +18,6 @@ November 2
 November 4
 : ZIP models
   : [Slides](https://sta712-f22.github.io/slides/lecture_29.pdf), [Class activity](https://sta712-f22.github.io/class_activities/ca_lecture_29.html)
+  
+: **Challenge Assignment 8 released**{: .label .label-yellow }
+  : [Challenge 8](https://sta712-f22.github.io/homework/challenge_8.pdf)
