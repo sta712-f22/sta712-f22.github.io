@@ -17,3 +17,4 @@ November 2
 
 November 4
 : ZIP models
+  : [Slides](https://sta712-f22.github.io/slides/lecture_29.pdf), [Class activity](https://sta712-f22.github.io/class_activities/ca_lecture_29.html)

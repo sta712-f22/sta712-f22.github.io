@@ -1,0 +1,39 @@
+---
+title: "Class Activity, November 4"
+output: 
+  rmdformats::robobook:
+    css: "homework.css"
+    highlight: pygments
+link-citations: yes
+---
+
+# Modeling campus drinking
+
+In this class activity, we will work with the campus drinking data. Recall that we have survey data from 77 college students on a dry campus (i.e., alcohol is prohibited) in the US. The survey asks students "How many alcoholic drinks did you consume last weekend?" The following variables were recorded:
+
+* `drinks`: the number of drinks the student reports consuming
+* `sex`: an indicator for whether the student identifies as male
+* `OffCampus`: an indicator for whether the student lives off campus
+* `FirstYear`: an indicator for whether the student is a first-year student
+
+Last time, we fit the following ZIP model:
+
+$$P(Y_i = y) = \begin{cases} e^{-\lambda_i}(1 - \alpha_i) + \alpha_i & y = 0 \\ \dfrac{e^{-\lambda_i} \lambda_i^y}{y!}(1 - \alpha_i) & y > 0 \end{cases}$$
+
+where
+
+$\log \left( \dfrac{\alpha_i}{1 - \alpha_i} \right) = \gamma_0 + \gamma_1 FirstYear_i + \gamma_2 OffCampus_i + \gamma_3 Male_i$
+
+$\log(\lambda_i) = \beta_0 + \beta_1 FirstYear_i + \beta_2 OffCampus_i + \beta_3 Male_i$
+
+The equation of our fitted model is
+
+$\log \left( \dfrac{\widehat{\alpha}_i}{1 - \widehat{\alpha}_i} \right) = 0.80 - 0.16 FirstYear_i + 0.37 OffCampus_i + 0.98 Male_i$
+
+$\log(\widehat{\lambda}_i) = -0.40 + 0.89 FirstYear_i -1.69 OffCampus_i -0.07 Male_i$
+
+## Questions
+
+1. What is the estimated probability that a male first year student who lives on campus *never* drinks?
+
+2. What is the estimated probability that a male first year student who lives on campus consumed 3 drinks last weekend?

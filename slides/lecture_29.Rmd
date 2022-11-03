@@ -1,0 +1,88 @@
+---
+title: ZIP models
+output:
+  xaringan::moon_reader:
+    css: "lab-slides.css"
+    lib_dir: libs
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+editor_options: 
+  chunk_output_type: console
+---
+
+### Recap: Zero-inflated Poisson (ZIP) model
+
+.large[
+$$P(Y_i = y) = \begin{cases} e^{-\lambda_i}(1 - \alpha_i) + \alpha_i & y = 0 \\ \dfrac{e^{-\lambda_i} \lambda_i^y}{y!}(1 - \alpha_i) & y > 0 \end{cases}$$
+
+where
+
+$\log \left( \dfrac{\alpha_i}{1 - \alpha_i} \right) = \gamma_0 + \gamma_1 FirstYear_i + \gamma_2 OffCampus_i + \gamma_3 Male_i$
+
+$\log(\lambda_i) = \beta_0 + \beta_1 FirstYear_i + \beta_2 OffCampus_i + \beta_3 Male_i$
+
+]
+
+---
+
+### Fitted model
+
+.large[
+$$P(Y_i = y) = \begin{cases} e^{-\lambda_i}(1 - \alpha_i) + \alpha_i & y = 0 \\ \dfrac{e^{-\lambda_i} \lambda_i^y}{y!}(1 - \alpha_i) & y > 0 \end{cases}$$
+]
+
+$$\log \left( \dfrac{\widehat{\alpha}_i}{1 - \widehat{\alpha}_i} \right) = 0.80 - 0.16 FirstYear_i + 0.37 OffCampus_i + 0.98 Male_i$$
+
+$$\log(\widehat{\lambda}_i) = -0.40 + 0.89 FirstYear_i -1.69 OffCampus_i -0.07 Male_i$$
+
+---
+
+### Warm up: Class activity
+
+.large[
+[https://sta712-f22.github.io/class_activities/ca_lecture_29.html](https://sta712-f22.github.io/class_activities/ca_lecture_29.html)
+]
+
+---
+
+### Class activity
+
+
+.large[
+$$P(Y_i = y) = \begin{cases} e^{-\lambda_i}(1 - \alpha_i) + \alpha_i & y = 0 \\ \dfrac{e^{-\lambda_i} \lambda_i^y}{y!}(1 - \alpha_i) & y > 0 \end{cases}$$
+]
+
+$$\log \left( \dfrac{\widehat{\alpha}_i}{1 - \widehat{\alpha}_i} \right) = 0.80 - 0.16 FirstYear_i + 0.37 OffCampus_i + 0.98 Male_i$$
+
+$$\log(\widehat{\lambda}_i) = -0.40 + 0.89 FirstYear_i -1.69 OffCampus_i -0.07 Male_i$$
+
+.large[
+.question[
+What is the estimated probability that a male first year student who lives on campus *never* drinks?
+]
+]
+
+---
+
+### Class activity
+
+
+.large[
+$$P(Y_i = y) = \begin{cases} e^{-\lambda_i}(1 - \alpha_i) + \alpha_i & y = 0 \\ \dfrac{e^{-\lambda_i} \lambda_i^y}{y!}(1 - \alpha_i) & y > 0 \end{cases}$$
+]
+
+$$\log \left( \dfrac{\widehat{\alpha}_i}{1 - \widehat{\alpha}_i} \right) = 0.80 - 0.16 FirstYear_i + 0.37 OffCampus_i + 0.98 Male_i$$
+
+$$\log(\widehat{\lambda}_i) = -0.40 + 0.89 FirstYear_i -1.69 OffCampus_i -0.07 Male_i$$
+
+.large[
+.question[
+What is the estimated probability that a male first year student who lives on campus consumed 3 drinks last weekend?
+]
+]
+
+---
+
+### Fitting ZIP models
