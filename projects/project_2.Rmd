@@ -42,7 +42,7 @@ The dataset provided for this project contains the following columns:
 To load the data, use the code below. 
 
 ```r
-serengeti <- read.csv("https://sta712_f22.github.io/projects/serengeti.csv")
+serengeti <- read.csv("https://sta712-f22.github.io/projects/serengeti.csv")
 ```
 
 # Research questions
