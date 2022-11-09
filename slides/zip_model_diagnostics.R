@@ -134,6 +134,7 @@ data.frame(x = x, resids = qresid_zeroinfl(m)) %>%
 
 m0 <- glm(y ~ x, family = poisson)
 m_pospois <- glm.pospois(m0)
+m_pospois$coefficients
 
 data.frame(x = x[y > 0], resids = qresid_positive_poisson(m_pospois)) %>%
   ggplot(aes(x = x, y = resids)) +
@@ -166,6 +167,7 @@ data.frame(x = x, resids = qresid_zeroinfl(m)) %>%
 
 m0 <- glm(y ~ x, family = poisson)
 m_pospois <- glm.pospois(m0)
+m_pospois$coefficients
 
 data.frame(x = x[y > 0], resids = qresid_positive_poisson(m_pospois)) %>%
   ggplot(aes(x = x, y = resids)) +
