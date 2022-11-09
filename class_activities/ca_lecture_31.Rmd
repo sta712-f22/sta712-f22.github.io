@@ -1,0 +1,65 @@
+---
+title: "Class Activity, November 9"
+output: 
+  rmdformats::robobook:
+    css: "homework.css"
+    highlight: pygments
+link-citations: yes
+---
+
+# Diagnostics for ZIP models
+
+In this class activity, we will create quantile residual plots to check the shape assumption for ZIP models
+
+## Questions
+
+1. Run the code below to generate ZIP data for which the shape assumptions are satisfied for both the logistic and the Poisson components.
+
+```{r, eval=F}
+x <- rnorm(1000)
+alpha <- exp(x)/(1 + exp(x))
+lambda <- exp(1 + x)
+z <- rbinom(1000, 1, prob=alpha)
+y <- 0*z + rpois(1000, lambda)*(1 - z)
+```
+
+2. Now use the code below to fit a ZIP model, and create a quantile residual plot for your fitted model. Are the fitted regression coefficients close to the true parameters?
+
+```{r, eval=F}
+library(pscl)
+library(tidyverse)
+
+## randomized quantile residuals for a ZIP model
+## zip_m = fitted ZIP model from pscl
+qresid_zeroinfl <- function(zip_m){
+  y <- zip_m$y
+  pred_probs <- predict(zip_m, type="prob")
+  resids <- c()
+  for(i in 1:length(y)){
+    cdf_b <- sum(pred_probs[i,1:(y[i]+1)])
+    if(y[i] == 0){
+      cdf_a <- 0
+    } else {
+      cdf_a <- sum(pred_probs[i,1:y[i]])
+    }
+    
+    resids[i] <- qnorm(runif(1, cdf_a, cdf_b))
+  }
+  return(resids)
+}
+
+
+m <- zeroinfl(y ~ x | x)
+summary(m)
+
+data.frame(x = x, resids = qresid_zeroinfl(m)) %>%
+  ggplot(aes(x = x, y = resids)) +
+  geom_point() +
+  geom_smooth() +
+  theme_bw()
+```
+
+3. Now generate data so that the Poisson or logistic shape assumption is violated. Re-fit the ZIP model, and make a quantile residual plot for the new model. Can you detect the shape violations in the residual plot?
+
+4. If you see a violation in the quantile residual plot, will you be able to tell whether the violation is in the Poisson component or in the logistic component?
+
