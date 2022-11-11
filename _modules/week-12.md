@@ -12,7 +12,8 @@ November 9
   
 November 11
 : ZIP model diagnostics
-  : [Class activity](https://sta712-f22.github.io/class_activities/ca_lecture_31.html)
+  : [Slides](https://sta712-f22.github.io/slides/lecture_32.pdf), [Class activity](https://sta712-f22.github.io/class_activities/ca_lecture_31.html)
 
 : **Exam 2 released**{: .label .label-yellow }  
+  : [Exam 2](https://sta712-f22.github.io/exams/exam_2.pdf)
 

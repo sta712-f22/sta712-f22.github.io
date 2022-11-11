@@ -1,0 +1,134 @@
+\documentclass[11pt]{article}
+\usepackage{url}
+\usepackage{alltt}
+\usepackage{bm}
+\linespread{1}
+\textwidth 6.5in
+\oddsidemargin 0.in
+\addtolength{\topmargin}{-1in}
+\addtolength{\textheight}{2in}
+
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{bm}
+
+\begin{document}
+
+
+\begin{center}
+\Large
+STA 712 Exam 1\\
+\normalsize
+\vspace{5mm}
+\end{center}
+
+\noindent \textbf{Due:} Friday, November 18, 12:00pm (noon) on Canvas.\\ 
+
+\noindent \textbf{Instructions:} You have until the due date to complete this exam. There are no other time restrictions.\\
+
+\noindent Submit your work as a single PDF. For this exam, you may include written work by scanning it and incorporating it into the PDF. Include all R code needed to reproduce your results in your submission.\\
+
+\noindent For this exam, you may:
+\begin{itemize}
+\item Use any resources from the course (the textbook, the course website, class notes, previous assignments, etc.)
+\item Use the internet for R help
+\item Email me, or come to office hours, with specific questions (I may be somewhat less helpful than for regular assignments)
+\end{itemize}
+You may \textit{not}:
+\begin{itemize}
+\item Discuss the exam with anyone else
+\item Use the internet or other textbooks (except for R help and to access the course materials)
+\end{itemize}
+
+\newpage
+
+\section*{Part I: Modeling a Geometric response}
+
+\begin{enumerate}
+\item If $Y \sim Geometric(p)$, then $Y$ takes values $y = 1, 2, 3,...$ with probabilities
+\begin{align*}
+f(y;p) = p(1 - p)^{y-1},
+\end{align*}
+where $p \in [0, 1]$.
+\begin{enumerate}
+\item Show that the geometric distribution is an EDM by identifying $\theta$, $\kappa(\theta)$, and $\phi$.
+\item Use (a) to find $\mathbb{E}[Y]$ and $Var(Y)$.
+\item Deduce the canonical link function for the geometric distribution.
+\item Find the variance function $V(\mu)$ for the geometric distribution.
+\item Derive the unit deviance for the geometric distribution, and write the probability function in dispersion model form.
+\end{enumerate}
+
+\item Suppose that the Deacon OneCard Office is tired of Wake Forest students losing their ID card and having to get a replacement. The office posits a relationship between the number of credits a student has completed at the university, and the number of ID cards the student has been issued (all students have been issued at least one ID card). They propose the following model:
+\begin{align}
+\begin{split}
+cards_i \sim Geometric(p_i) \\
+\log \left( \frac{1}{p_i} \right) = \beta_0 + \beta_1 \ credits_i
+\end{split}
+\end{align}
+
+\noindent We have data on a sample of 1000 Wake students. You can load the data into R by
+\begin{verbatim}
+id_cards <- read.csv("https://sta712-f22.github.io/exams/ids.csv")
+\end{verbatim}
+
+In base R, the \verb;glm; function supports families which include the \verb;binomial;, \verb;gaussian;, \verb;poisson;, \verb;Gamma;, and \verb;quasipoisson;. The \verb;MASS; package also allows the \verb;negative.binomial; family (with a specified $r$, which is referred to as \verb;theta; in R), and the \verb;glm.nb; function fits a negative binomial model with unknown $r$.
+
+\begin{enumerate}
+\item You will note that the Geometric distribution is not listed among the families supported in base R or in \verb;MASS;. Explain how you could still fit the model in Equation (1) using one of the supported families.
+
+\item Using your answer to (a), fit the model proposed by the Deacon OneCard Office, and report the estimated coefficients.
+\end{enumerate}
+\end{enumerate}
+
+\newpage
+
+\section*{Part II: Count regression with insects}
+
+In the second part of this exam, you will work with a real dataset from researchers interested in studying how insects are attracted to artificial lights. In the original study, the researchers set up light traps containing different bulbs, and captured any insect attracted by the light. The traps were set up each evening at sunset and then checked in the morning after sunrise, and the insects collected identified and counted.\\
+
+\noindent You will work with a subset of this insect data, consisting of data on 190 traps with the following variables:
+
+\begin{itemize}
+\item \verb;Light.Type;: Type of light bulb used to attract insects.`No' means no bulb at all; `A', `B', and `C' are all Philips light bulbs whose color can be adjusted by the user; `LED' is a commercial white LED bulb; and `CFL' is a commercial compact fluorescent bulb.
+
+\item \verb;Standardized.Moon;: Standardized variable representing the percentage of the moon visible on the night chosen (i.e., the moon phase). 
+
+\item \verb;Standardized.Mean.Temp;: Temperature on the night, standardized. 
+
+\item \verb;Standardized.Mean.Humidity;: Humidity on the night, standardized. 
+
+\item \verb;Total;: Total number of insects captured in the trap 
+\end{itemize}
+
+\noindent You can load the data into R by
+\begin{verbatim}
+bugs <- read.csv("https://sta712-f22.github.io/exams/bugs_small.csv")
+\end{verbatim}
+
+\noindent Let $\mu_i$ denote the mean number of insects captured in trap $i$. The researchers propose the following model:
+
+\begin{align*}
+\log(\mu_i) &= \beta_0 + \beta_1 \ LightB_i + \beta_2 \ LightC_i + \beta_3 \ LightCFL_i + \beta_4 \ LightLED_i + \beta_5 \ LightNo_i \ + \\
+& \hspace{1cm} \beta_6 \ Moon_i + \beta_7 \ Temp_i + \beta_8 \ Humidity_i
+\end{align*}
+
+\begin{enumerate}
+\item[3.] The researchers have specified a relationship for the mean $\mu_i$, but have not specified a distribution for the response $Total_i$. Choose between a Poisson, quasi-Poisson, and negative binomial model by fitting models in R, creating appropriate diagnostic plots, and assessing goodness of fit and overdispersion.
+
+\item[4.] The researchers are interested in how the amount of natural light (the percentage of the moon visible) is related to the number of insects attracted by artificial light.  Using your model from Question 3:
+\begin{enumerate}
+\item Interpret the estimated coefficient $\widehat{\beta}_6$ for the standardized percentage of the moon visible on the night.
+
+\item Calculate and interpret a 90\% confidence interval for the parameter $\beta_6$ in (a).
+\end{enumerate}
+
+\newpage
+
+\item[5.] Now the researchers want to test whether different types of lights are associated with different numbers of insects attracted to artificial lights. Using your model from Question 3:
+\begin{enumerate}
+\item Test whether there is a relationship between the type of artificial light and the number of insects caught in the trap, after accounting for the percentage of moon visible, the temperature, and the humidity. You should state the hypotheses in terms of one or more model parameters, calculate the test statistic and p-value, and make a conclusion.
+\item Test whether the relationship between the amount of natural light (the moon) and the number of insects caught in traps depends on the type of light bulb used to attract insects, after accounting for temperature and humidity. (\textit{Hint: you may need to modify your model from Question 3.}) You should state the hypotheses in terms of one or more model parameters, calculate the test statistic and p-value, and make a conclusion.
+\end{enumerate}
+\end{enumerate}
+
+\end{document}
