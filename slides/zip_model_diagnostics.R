@@ -149,7 +149,7 @@ data.frame(x = x[y > 0], resids = qresid_positive_poisson(m_pospois)) %>%
 ## Quantile residual plot doesn't look right!
 
 x <- rnorm(1000)
-alpha <- exp(-2*x^2)/(1 + exp(-2*x^2))
+alpha <- exp(x^2)/(1 + exp(x^2))
 lambda <- exp(1 + x)
 z <- rbinom(1000, 1, prob=alpha)
 y <- 0*z + rpois(1000, lambda)*(1 - z)
