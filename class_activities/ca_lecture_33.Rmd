@@ -1,0 +1,45 @@
+---
+title: "Class Activity, November 14"
+output: 
+  rmdformats::robobook:
+    css: "homework.css"
+    highlight: pygments
+link-citations: yes
+---
+
+# The Framingham heart study
+
+In this class activity, we revisit the data from the Framingham heart study. Recall the data contains the following variables:
+
+* `cigsPerDay`: The number of cigarettes smoked per day during the study period.
+* `education`: 1 = High School, 2 = Some College, 3 = College Degree, 4 = Advanced Degree.
+* `age`: The age of the individual in years.
+* `diabetes`: 1 if the individual has diabetes, 0 otherwise.
+* `currentSmoker`: 1 if the individual currently smokes, 0 otherwise
+
+Previously, we fit a Poisson regression model for the number of cigarettes smoked by current smokers. But what if we don't observe whether someone is a current smoker or not? Then we could fit a ZIP model, where the latent variable $Z_i$ would represent whether someone is a non-smoker ($Z_i = 1$) or a smoker ($Z_i = 0$).
+
+In this class activity, we will work with the following model. Letting $Y_i$ denote the number of cigarettes smoked per day,
+
+$$P(Y_i = y) = \begin{cases} e^{-\lambda_i}(1 - \alpha_i) + \alpha_i & y = 0 \\ \dfrac{e^{-\lambda_i} \lambda_i^y}{y!}(1 - \alpha_i) & y > 0 \end{cases}$$
+
+$$\log \left( \dfrac{\alpha_i}{1 - \alpha_i} \right) = \gamma_0 + \gamma_1 EducationSome_i + \gamma_2 EducationCollege_i + \\ \gamma_3 EducationAdv_i + \gamma_4 Diabetes_i + \gamma_5 Age_i$$
+
+$$\log(\lambda_i) = \beta_0 + \beta_1 EducationSome_i + \beta_2 EducationCollege_i + \\ \beta_3 EducationAdv_i + \beta_4 Diabetes_i + \beta_5 Age_i$$
+
+```{r, include=F}
+library(tidyverse)
+heart_data <- read.csv("~/Documents/Teaching/sta214-f22.github.io/class_activities/framingham.csv")
+
+heart_data <- heart_data %>%
+  drop_na(male, age, education, diabetes, cigsPerDay, BMI) %>%
+  mutate(education = as.factor(education))
+```
+
+## Questions
+
+1. Suppose researchers want to answer the following question: for smokers, does the number of cigarettes smoked per day depend on age? What would the null and alternative hypotheses be, in terms of one or more model parameters?
+
+2. Now the researchers want to answer a different question: is there a relationship between age and whether someone is a smoker? What would the null and alternative hypotheses be?
+
+3. Finally, the researchers want to know whether there is a relationship between education level and the number of cigarettes smoked. What would the null and alternative hypotheses be?
