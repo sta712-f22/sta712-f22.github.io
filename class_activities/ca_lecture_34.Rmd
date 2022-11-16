@@ -1,0 +1,61 @@
+---
+title: "Class Activity, November 16"
+output: 
+  rmdformats::robobook:
+    css: "homework.css"
+    highlight: pygments
+link-citations: yes
+---
+
+# Modeling earthquake damage
+
+We have data from the 2015 Gorkha earthquake in Nepal. After the earthquake, a large scale survey was conducted to determine the amount of damage the earthquake caused for homes, businesses and other structures. Variables include:
+
+* `Damage`: the amount of damage suffered by the building (none, moderate, severe)
+* `age`: the age of the building (in years)
+* `condition`: a de-identified variable recording the condition of the land surrounding the building (n, o, or t)
+
+We fit a multinomial regression model to predict Damage:
+
+$$Damage_i \sim Categorical(\pi_{i(None)}, \pi_{i(Moderate)}, \pi_{i(Severe)})$$
+$$\log \left( \dfrac{\pi_{i(Moderate)}}{\pi_{i(None)}} \right) = \beta_{0(Moderate)} + \beta_{1(Moderate)} Age_i^{1/2} + \\ \hspace{5cm} \beta_{2(Moderate)} ConditionO_i + \beta_{3(Moderate)} ConditionT_i$$
+$$\log \left( \dfrac{\pi_{i(Severe)}}{\pi_{i(None)}} \right) = \beta_{0(Severe)} + \beta_{1(Severe)} Age_i^{1/2} +  \\ \hspace{5cm} \beta_{2(Severe)} ConditionO_i + \beta_{3(Severe)} ConditionT_i$$
+
+
+The output of the fitted model is shown below:
+
+```{r include=F}
+library(nnet)
+library(tidyverse)
+earthquake <- read.csv("https://sta214-f22.github.io/labs/EarthquakeData.csv")
+
+set.seed(100)
+
+earthquake <- earthquake %>%
+  slice_sample(n=10000) %>%
+  dplyr::select(Damage, count_families, 
+         foundation_type, land_surface_condition, 
+         age) %>%
+  mutate(Damage = factor(Damage, levels = c("none", "moderate", "severe"))) %>%
+  rename(condition = land_surface_condition)
+
+m1 <- multinom(Damage ~ sqrt(age) + 
+                 condition, 
+               data = earthquake)
+```
+
+```{r, eval=F}
+m1 <- multinom(Damage ~ sqrt(age) + 
+                 condition, 
+               data = earthquake)
+```
+
+```{r}
+summary(m1)
+```
+
+## Questions
+
+1. What is the predicted odds of moderate damage vs. no damage for a 25 year old building with surface condition O?
+
+2. What is the predicted *probability* of moderate damage for a 25 year old building with surface condition O?

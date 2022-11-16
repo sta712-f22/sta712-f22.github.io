@@ -1,0 +1,246 @@
+---
+title: Introduction to multinomial regression
+output:
+  xaringan::moon_reader:
+    css: "lab-slides.css"
+    lib_dir: libs
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+editor_options: 
+  chunk_output_type: console
+---
+
+### Motivating example: earthquake data
+
+.large[
+We have data from the 2015 Gorkha earthquake in Nepal. After the earthquake, a large scale survey was conducted to determine the amount of damage the earthquake caused for homes, businesses and other structures. Variables include:
+* `Damage`: the amount of damage suffered by the building (none, moderate, severe)
+* `age`: the age of the building (in years)
+* `condition`: a de-identified variable recording the condition of the land surrounding the building
+
+**Research goal:** Build a model to predict Damage
+
+.question[
+Are any of the models we have learned so far suitable for predicting Damage?
+]
+]
+
+---
+
+### The categorical distribution
+
+---
+
+### Multivariate GLM
+
+---
+
+### Multinomial regression model
+
+---
+
+### Exploratory data analysis
+
+.large[
+.question[
+We want to model damage using age and land surface condition. What kind of EDA could I do?
+]
+]
+
+---
+
+### Empirical logit plots
+
+```{r, echo=F, message=F, warning=F, fig.width=10, fig.height=4}
+library(tidyverse)
+library(nnet)
+library(gridExtra)
+library(knitr)
+
+hook_output <- knit_hooks$get("output")
+knit_hooks$set(output = function(x, options) {
+   lines <- options$output.lines
+   if (is.null(lines)) {
+     return(hook_output(x, options))  # pass to default hook
+   }
+   x <- unlist(strsplit(x, "\n"))
+   more <- "..."
+   if (length(lines)==1) {        # first n lines
+     if (length(x) > lines) {
+       # truncate the output, but add ....
+       x <- c(head(x, lines), more)
+     }
+   } else {
+     x <- c(more, x[lines], more)
+   }
+   # paste these lines together
+   x <- paste(c(x, ""), collapse = "\n")
+   hook_output(x, options)
+ })
+
+log_rr_plot <- function(data, num_bins, bin_method,
+                        x, y, cat_num, cat_denom,
+                        grouping = NULL, reg_formula = y ~ x){
+  
+  if(is.null(grouping)){
+    dat <- data.frame(x = data[,x], 
+                      y = data[,y],
+                      group = 1)
+  } else {
+    dat <- data.frame(x = data[,x], 
+                      y = data[,y],
+                      group = data[,grouping])
+  }
+  
+  dat <- dat %>%
+    filter(y %in% c(cat_num, cat_denom)) %>%
+    mutate(obs = ifelse(y == cat_num, 1, 0))
+  
+  
+  if(bin_method == "equal_size"){
+    logodds_table <- dat %>%
+      slice_sample(n = nrow(dat), replace=F) %>%
+      drop_na() %>%
+      arrange(group, x) %>%
+      group_by(group) %>%
+      mutate(bin = rep(1:num_bins,
+                       each=ceiling(n()/num_bins))[1:n()]) %>%
+      group_by(bin, group) %>%
+      summarize(mean_x = mean(x),
+                prop = mean(c(obs, 0.5)),
+                num_obs = n()) %>%
+      ungroup() %>%
+      mutate(logodds = log(prop/(1 - prop)))
+  } else {
+    logodds_table <- dat %>%
+      slice_sample(n = nrow(dat), replace=F) %>%
+      drop_na() %>%
+      group_by(group) %>%
+      mutate(bin = cut(x, 
+                       breaks = num_bins,
+                       labels = F)) %>%
+      group_by(bin, group) %>%
+      summarize(mean_x = mean(x),
+                prop = mean(c(obs, 0.5)),
+                num_obs = n()) %>%
+      ungroup() %>%
+      mutate(logodds = log(prop/(1 - prop)))
+  }
+  
+  if(is.null(grouping)){
+    logodds_table %>%
+      ggplot(aes(x = mean_x,
+                 y = logodds)) +
+      geom_point(size=2.5) +
+      geom_smooth(se=F, method="lm", formula = reg_formula) +
+      theme_bw() +
+      labs(x = x,
+           y = paste("Log odds", cat_num, "vs.", cat_denom)) +
+      theme(text = element_text(size=15))
+  } else {
+    logodds_table %>%
+      ggplot(aes(x = mean_x,
+                 y = logodds,
+                 color = group,
+                 shape = group)) +
+      geom_point(size=2.5) +
+      geom_smooth(se=F, method="lm", formula = reg_formula) +
+      theme_bw() +
+      labs(x = x,
+           y = paste("Log odds", cat_num, "vs.", cat_denom),
+           color = grouping,
+           shape = grouping) +
+      theme(text = element_text(size=15))
+  }
+  
+}
+
+earthquake <- read.csv("https://sta214-f22.github.io/labs/EarthquakeData.csv")
+
+set.seed(100)
+
+earthquake <- earthquake %>%
+  slice_sample(n=10000) %>%
+  dplyr::select(Damage, count_families, 
+         foundation_type, land_surface_condition, 
+         age) %>%
+  mutate(Damage = factor(Damage, levels = c("none", "moderate", "severe"))) %>%
+  rename(condition = land_surface_condition)
+
+p1 <- earthquake %>%
+  log_rr_plot(35, "equal_size", 
+            x = "age", y = "Damage", 
+            cat_num = "moderate", cat_denom = "none", 
+            reg_formula = y ~ x) +
+  theme(text = element_text(size=20))
+
+p2 <- earthquake %>%
+  log_rr_plot(35, "equal_size", 
+            x = "age", y = "Damage", 
+            cat_num = "severe", cat_denom = "none", 
+            reg_formula = y ~ x) +
+  theme(text = element_text(size=20))
+
+grid.arrange(p1, p2, ncol=2)
+```
+
+---
+
+### Trying a transformation
+
+```{r, echo=F, message=F, warning=F, fig.align='center', fig.width=10, fig.height=7.5}
+p1 <- earthquake %>%
+  log_rr_plot(35, "equal_size", 
+            x = "age", y = "Damage", 
+            cat_num = "moderate", cat_denom = "none", 
+            reg_formula = y ~ x) 
+
+p2 <- earthquake %>%
+  log_rr_plot(35, "equal_size", 
+            x = "age", y = "Damage", 
+            cat_num = "severe", cat_denom = "none", 
+            reg_formula = y ~ x)
+
+p3 <- earthquake %>%
+  mutate(sqrt_age = sqrt(age)) %>%
+  log_rr_plot(35, "equal_size", 
+            x = "sqrt_age", y = "Damage", 
+            cat_num = "moderate", cat_denom = "none", 
+            reg_formula = y ~ x) +
+  labs(x = "sqrt(age)")
+
+p4 <- earthquake %>%
+  mutate(sqrt_age = sqrt(age)) %>%
+  log_rr_plot(35, "equal_size", 
+            x = "sqrt_age", y = "Damage", 
+            cat_num = "severe", cat_denom = "none", 
+            reg_formula = y ~ x) +
+  labs(x = "sqrt(age)")
+
+grid.arrange(p1, p2, p3, p4, ncol=2)
+```
+
+---
+
+### Fitting the model in R
+
+```{r, message=F, warning=F, results='hide'}
+library(nnet)
+m1 <- multinom(Damage ~ sqrt(age) + 
+                 condition, 
+               data = earthquake)
+```
+
+```{r, output.lines = 4:12}
+summary(m1)
+```
+
+---
+
+### Class activity
+
+.large[
+[https://sta712-f22.github.io/class_activities/ca_lecture_34.html](https://sta712-f22.github.io/class_activities/ca_lecture_34.html)
+]
