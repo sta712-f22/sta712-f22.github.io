@@ -17,3 +17,4 @@ November 18
 : **Exam 2 due**{: .label .label-red } 
 
 : **Homework 7 released**{: .label .label-yellow }
+  : [HW 7](https://sta712-f22.github.io/homework/HW7.pdf)
