@@ -1,0 +1,194 @@
+---
+title: "Class Activity, November 21"
+output: 
+  rmdformats::robobook:
+    css: "homework.css"
+    highlight: pygments
+link-citations: yes
+---
+
+# Back to the BRFSS data
+
+The Behavioral Risk Factor Surveillance System (BRFSS) is an annual telephone survey of 350,000 people in the United States. As its name implies, the BRFSS is designed to identify risk factors in the adult population and report emerging health trends. For example, respondents are asked about their diet and weekly physical activity, their HIV/AIDS status, possible tobacco use, and even their level of healthcare coverage. The [BRFSS Web site](https://www.cdc.gov/brfss/) contains a complete description of the survey, including the research questions that motivate the study and many interesting results derived from the data.
+
+We will focus on a random sample of 20,000 people from the BRFSS survey. While there are over 200 variables in this data set, we will work with a small subset for this class activity, containing the following columns:
+
+* `genhlth`: respondents were asked to evaluate their general health, responding either excellent, very good, good, fair or poor.
+* `exerany`: indicates whether the respondent exercised in the past month (1) or did not (0).
+* `hlthplan`: indicates whether the respondent had some form of health coverage (1) or did not (0).
+* `smoke100`: indicates whether the respondent had smoked at least 100 cigarettes in their lifetime.
+* `height`: in inches
+* `weight`: in pounds
+* `wtdesire`: desired weight in pounds
+* `age`: in years
+* `gender`: biological sex, limited to male/female.
+
+## Downloading the data
+
+To load the data, use the code below. It will import a data set called `cdc` into R.
+
+```r
+source("http://www.openintro.org/stat/data/cdc.R")
+```
+
+# Questions
+
+In this class activity, we are interested in predicting respondents' general health from other variables in the data. We will focus on `exerany`, `hlthplan`, `smoke100`, and `age`. We will use poor general health as the baseline category for our multinomial regression model.
+
+### Question 1
+
+Since `age` is a quantitative variable, let's look at empirical logit plots to explore the relationship between age and general health. The function `multinom_logit_plot` (see the bottom of this activity) can be used to create empirical logit plots for a categorical response with more than two levels. Here `cat_num` is the numerator category, and `cat_denom` is the denominator category.
+
+Run the following code to create an empirical logit plot for fair vs. poor health:
+
+```{r, eval=F}
+library(tidyverse)
+multinom_logit_plot(cdc, num_bins = 25, bin_method = "equal_size", 
+                    x = "age", y = "genhlth", 
+                    cat_num = "fair", cat_denom = "poor",
+                    reg_formula = y ~ x)
+```
+
+Does a linear relationship seem appropriate, or do we need to use a transformation?
+
+### Question 2
+
+Use empirical logit plots to examine the other logits in the multinomial regression model.
+
+### Question 3
+
+Using the results of your exploratory data analysis, fit a multinomial regression model with general health as the response, and age, smoking, exercise, and health plan as the explanatory variables. Fill in the following code:
+
+```{r, eval=F}
+library(nnet)
+m1 <- multinom(genhlth ~ ..., 
+               data = cdc)
+summary(m1)
+```
+
+### Question 4
+
+As with other models we have fit this semester, we can use quantile residuals as a diagnostic for multinomial regression models. The `qresid_multinom` function below (at the bottom of the activity) can be used to calculate quantile residuals. Since we have multiple categories, we will create quantile residual plots for each component of the model (fair vs. poor, good vs. poor, etc.). The `qresid_multinom` function accepts the `category` argument to specify the numerator category.
+
+Use the code below to create a quantile residual plot for fair vs. poor health. Are there any assumption violations shown in the plot?
+
+```{r, eval=F}
+cdc %>%
+  filter(genhlth %in% c("poor", "fair")) %>%
+  mutate(resids = qresid_multinom(m1, cdc$genhlth, "fair")) %>%
+  ggplot(aes(x = age, y = resids)) +
+  geom_point() +
+  geom_smooth() +
+  theme_bw() +
+  labs(title = "Fair vs. Poor")
+```
+
+### Question 5
+
+Create quantile residual plots for the other components of the multinomial regression model.
+
+### Question 6
+
+We are interested in whether there is a relationship between age and general health, after accounting for exercise, smoking, and health plan. Use a hypothesis test to address this research question; specify the null and alternative hypotheses in terms of one or more model parameters, calculate a test statistic, and report the p-value.
+
+# Helper functions
+
+```{r, eval=F}
+multinom_logit_plot <- function(data, num_bins, bin_method,
+                        x, y, cat_num, cat_denom,
+                        grouping = NULL, reg_formula = y ~ x){
+  
+  if(is.null(grouping)){
+    dat <- data.frame(x = data[,x], 
+                      y = data[,y],
+                      group = 1)
+  } else {
+    dat <- data.frame(x = data[,x], 
+                      y = data[,y],
+                      group = data[,grouping])
+  }
+  
+  dat <- dat %>%
+    filter(y %in% c(cat_num, cat_denom)) %>%
+    mutate(obs = ifelse(y == cat_num, 1, 0))
+  
+  
+  if(bin_method == "equal_size"){
+    logodds_table <- dat %>%
+      drop_na() %>%
+      arrange(group, x) %>%
+      group_by(group) %>%
+      mutate(bin = rep(1:num_bins,
+                       each=ceiling(n()/num_bins))[1:n()]) %>%
+      group_by(bin, group) %>%
+      summarize(mean_x = mean(x),
+                prop = mean(c(obs, 0.5)),
+                num_obs = n()) %>%
+      ungroup() %>%
+      mutate(logodds = log(prop/(1 - prop)))
+  } else {
+    logodds_table <- dat %>%
+      arrange(x) %>%
+      drop_na() %>%
+      group_by(group) %>%
+      mutate(bin = cut(x, 
+                       breaks = num_bins,
+                       labels = F)) %>%
+      group_by(bin, group) %>%
+      summarize(mean_x = mean(x),
+                prop = mean(c(obs, 0.5)),
+                num_obs = n()) %>%
+      ungroup() %>%
+      mutate(logodds = log(prop/(1 - prop)))
+  }
+  
+  if(is.null(grouping)){
+    logodds_table %>%
+      ggplot(aes(x = mean_x,
+                 y = logodds)) +
+      geom_point(size=2.5) +
+      geom_smooth(se=F, method="lm", formula = reg_formula) +
+      theme_bw() +
+      labs(x = x,
+           y = paste("Log odds", cat_num, "vs.", cat_denom)) +
+      theme(text = element_text(size=15))
+  } else {
+    logodds_table %>%
+      ggplot(aes(x = mean_x,
+                 y = logodds,
+                 color = group,
+                 shape = group)) +
+      geom_point(size=2.5) +
+      geom_smooth(se=F, method="lm", formula = reg_formula) +
+      theme_bw() +
+      labs(x = x,
+           y = paste("Log odds", cat_num, "vs.", cat_denom),
+           color = grouping,
+           shape = grouping) +
+      theme(text = element_text(size=15))
+  }
+  
+}
+
+
+
+qresid_multinom <- function(m1, y, category){
+  pred_probs <- predict(m1, type="probs")
+  level_names <- colnames(pred_probs)
+  base_category <- level_names[1]
+  pred_probs <- pred_probs[y %in% c(base_category, category),]
+  y <- y[y %in% c(base_category, category)]
+  
+  resids <- c()
+  for(i in 1:length(y)){
+    prob <- pred_probs[i,category]/(pred_probs[i, category] + 
+                                      pred_probs[i,base_category])
+    cur_y <- ifelse(y[i] == category, 1, 0)
+    cdf_b <- pbinom(cur_y, 1, prob)
+    cdf_a <- pbinom(cur_y - 1, 1, prob)
+    resids[i] <- qnorm(runif(1, cdf_a, cdf_b))
+  }
+  
+  return(resids)
+}
+```

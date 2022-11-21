@@ -1,0 +1,155 @@
+---
+title: Multinomial regression
+output:
+  xaringan::moon_reader:
+    css: "lab-slides.css"
+    lib_dir: libs
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+editor_options: 
+  chunk_output_type: console
+---
+
+### Motivating example: earthquake data
+
+.large[
+We have data from the 2015 Gorkha earthquake in Nepal. After the earthquake, a large scale survey was conducted to determine the amount of damage the earthquake caused for homes, businesses and other structures. Variables include:
+* `Damage`: the amount of damage suffered by the building (none, moderate, severe)
+* `age`: the age of the building (in years)
+* `condition`: a de-identified variable recording the condition of the land surrounding the building
+
+]
+
+---
+
+### Fisher scoring
+
+---
+
+### Wald tests
+
+```{r, include=F}
+library(tidyverse)
+library(nnet)
+library(gridExtra)
+library(knitr)
+
+hook_output <- knit_hooks$get("output")
+knit_hooks$set(output = function(x, options) {
+   lines <- options$output.lines
+   if (is.null(lines)) {
+     return(hook_output(x, options))  # pass to default hook
+   }
+   x <- unlist(strsplit(x, "\n"))
+   more <- "..."
+   if (length(lines)==1) {        # first n lines
+     if (length(x) > lines) {
+       # truncate the output, but add ....
+       x <- c(head(x, lines), more)
+     }
+   } else {
+     x <- c(more, x[lines], more)
+   }
+   # paste these lines together
+   x <- paste(c(x, ""), collapse = "\n")
+   hook_output(x, options)
+ })
+
+earthquake <- read.csv("~/Documents/Teaching/sta712-f22.github.io/slides/earthquake_small.csv") %>%
+  mutate(Damage = factor(Damage, levels = c("none", "moderate", "severe")))
+
+m1 <- multinom(Damage ~ sqrt(age) + condition,
+               data = earthquake)
+
+```
+
+.large[
+```{r, echo=F, message=F, warning=F, output.lines=4:12}
+summary(m1)
+```
+]
+
+.large[
+.question[
+Suppose we want to know whether there is a relationship between age and the odds of moderate vs. no damage, after accounting for surface condition. What hypotheses would we test?
+]
+]
+
+---
+
+### Wald tests
+
+.large[
+```{r, echo=F, message=F, warning=F, output.lines=4:12}
+summary(m1)
+```
+]
+
+.large[
+.question[
+Suppose we want to know whether the relationship between age and the odds of moderate vs. no damage is the *same* as the relationship between age and the odds of severe vs. no damage. What hypotheses would we test?
+]
+]
+
+---
+
+### Wald tests
+
+.large[
+```{r}
+diff <- t(c(0, -1, 0, 0, 0, 1, 0, 0)) %*% 
+  c(t(coef(m1)))
+std_err <- sqrt(t(c(0, -1, 0, 0, 0, 1, 0, 0)) %*% 
+                  vcov(m1) %*% 
+                  c(0, -1, 0, 0, 0, 1, 0, 0))
+(diff - 0)/std_err
+
+2*pnorm((diff - 0)/std_err, lower.tail = F)
+```
+]
+
+---
+
+### Likelihood ratio tests
+
+.large[
+```{r, echo=F, message=F, warning=F, output.lines=4:12}
+summary(m1)
+```
+]
+
+.large[
+.question[
+Suppose we want to know whether there is a relationship between surface condition and damage, after accounting for building age. What hypotheses would we test?
+]
+]
+
+---
+
+### Likelihood ratio tests
+
+.large[
+```{r, results = F}
+m1 <- multinom(Damage ~ sqrt(age) + condition,
+               data = earthquake)
+m2 <- multinom(Damage ~ sqrt(age),
+               data = earthquake)
+
+pchisq(m2$deviance - m1$deviance, df = 4, 
+       lower.tail=F)
+```
+
+```{r, echo=F}
+pchisq(m2$deviance - m1$deviance, df = 4, lower.tail=F)
+```
+]
+
+---
+
+### Class activity
+
+.large[
+[https://sta712-f22.github.io/class_activities/ca_lecture_36.html](https://sta712-f22.github.io/class_activities/ca_lecture_36.html)
+]
