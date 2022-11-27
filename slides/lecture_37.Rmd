@@ -1,0 +1,144 @@
+---
+title: Intro to mixed effects models
+output:
+  xaringan::moon_reader:
+    css: "lab-slides.css"
+    lib_dir: libs
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+editor_options: 
+  chunk_output_type: console
+---
+
+### Motivating example: performance anxiety
+
+.large[
+We have data from a 2010 study on performance anxiety in 37 undergraduate music majors. For each musician, data was collected on anxiety levels before different performances (between 2 and 15 performances were measured for each musician), with variables including:
+* `id`: a unique identifier for the musician
+* `na`: negative affect score (a measure of anxiety)
+* `perform_type`: whether the musican was performing in a large ensemble, small ensemble, or solo
+
+.question[
+How can we model the relationship between performance type and anxiety?
+]
+
+]
+
+---
+
+### A linear model for anxiety
+
+.large[
+$$Anxiety_i = \beta_0 + \beta_1 \ SmallEnsemble_i + \beta_2 \ Solo_i + \varepsilon_i$$
+
+$\varepsilon_i \overset{iid}{\sim} N(0, \sigma_\varepsilon^2)$
+
+.question[
+What assumptions does this linear model make? Are all the assumptions reasonable?
+]
+]
+
+---
+
+### Exploratory data analysis
+
+```{r, include=F}
+library(tidyverse)
+library(nnet)
+library(gridExtra)
+library(knitr)
+
+hook_output <- knit_hooks$get("output")
+knit_hooks$set(output = function(x, options) {
+   lines <- options$output.lines
+   if (is.null(lines)) {
+     return(hook_output(x, options))  # pass to default hook
+   }
+   x <- unlist(strsplit(x, "\n"))
+   more <- "..."
+   if (length(lines)==1) {        # first n lines
+     if (length(x) > lines) {
+       # truncate the output, but add ....
+       x <- c(head(x, lines), more)
+     }
+   } else {
+     x <- c(more, x[lines], more)
+   }
+   # paste these lines together
+   x <- paste(c(x, ""), collapse = "\n")
+   hook_output(x, options)
+ })
+
+music <- read.csv("~/Documents/Teaching/sta214-f22.github.io/slides/musicdata.csv")
+```
+
+```{r, echo=F, message=F, warning=F, fig.align='center', fig.width=12, fig.height=5}
+music %>% 
+  ggplot(aes(x = factor(id), y = na)) + 
+  geom_boxplot() + 
+  facet_wrap(~perform_type) +
+  theme_bw() +
+  labs(x = "Musician", y = "Anxiety") +
+  theme(text = element_text(size = 20))
+```
+
+.large[
+.question[
+Does it look like anxiety is correlated within musicians?
+]
+]
+
+---
+
+### Changing the model
+
+.large[
+$$Anxiety_i = \beta_0 + \beta_1 \ SmallEnsemble_i + \beta_2 \ Solo_i + \varepsilon_i$$
+
+$\varepsilon_i \overset{iid}{\sim} N(0, \sigma_\varepsilon^2)$
+
+.question[
+How can we change the model to account for correlation within musicians?
+]
+]
+
+---
+
+### A mixed effects model
+
+.large[
+$$Anxiety_{ij} = \beta_0 + u_i + \beta_1 \ SmallEnsemble_{ij} + \beta_2 \ Solo_{ij} + \varepsilon_{ij}$$
+
+$u_i \overset{iid}{\sim} N(0, \sigma_u^2) \hspace{1cm} \varepsilon_{ij} \overset{iid}{\sim} N(0, \sigma_\varepsilon^2)$
+]
+
+---
+
+### Fitting the model in R
+
+.large[
+```{r, output.lines = c(11:15, 17:21), message=F, warning=F}
+library(lme4)
+m1 <- lmer(na ~ perform_type + (1|id), 
+           data = music)
+summary(m1)
+```
+]
+
+---
+
+### Assumptions
+
+.large[
+$$Anxiety_{ij} = \beta_0 + u_i + \beta_1 \ SmallEnsemble_{ij} + \beta_2 \ Solo_{ij} + \varepsilon_{ij}$$
+
+$u_i \overset{iid}{\sim} N(0, \sigma_u^2) \hspace{1cm} \varepsilon_{ij} \overset{iid}{\sim} N(0, \sigma_\varepsilon^2)$
+]
+
+.large[
+.question[
+What assumptions does this mixed effects model make?
+]
+]
