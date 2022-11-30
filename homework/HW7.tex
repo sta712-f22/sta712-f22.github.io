@@ -152,7 +152,9 @@ where $\phi > 0$, $\theta, y \in \mathbb{R}^d$, and $\kappa: \mathbb{R}^d \to \m
 with $\mu = \mathbb{E}[Y] \in \mathbb{R}^d$ and $V(\mu) = \frac{1}{\phi} Var(Y) \in \mathbb{R}^{d \times d}$.
 
 \begin{enumerate}
-\item[3.] Suppose that $Y \sim Categorical(\pi_{1},...,\pi_{J})$. Then $\mu = (\pi_1,...,\pi_{J-1})^T$, $\theta = \left( \dfrac{\pi_1}{1 - \sum_{j=1}^{J-1} \pi_j}, ..., \dfrac{\pi_{J-1}}{1 - \sum_{j=1}^{J-1} \pi_j} \right)$, and $\kappa(\theta) = -\log\left(1 - \sum \limits_{j=1}^{J-1} \pi_j \right)$.
+\item[3.] Suppose that $Y \sim Categorical(\pi_{1},...,\pi_{J})$. Then $\mu = (\pi_1,...,\pi_{J-1})^T$, 
+
+$\theta = \left( \log \left(\dfrac{\pi_1}{1 - \sum_{j=1}^{J-1} \pi_j} \right), ..., \log \left( \dfrac{\pi_{J-1}}{1 - \sum_{j=1}^{J-1} \pi_j} \right) \right)$, and $\kappa(\theta) = -\log\left(1 - \sum \limits_{j=1}^{J-1} \pi_j \right)$.
 
 \begin{enumerate}
 \item By differentiating $\kappa$, confirm that $\dfrac{\partial \kappa}{\partial \theta} = \mu$ for the categorical distribution.

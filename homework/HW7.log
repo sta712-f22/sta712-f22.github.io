@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.22 (TeX Live 2021) (preloaded format=pdflatex 2021.8.13)  18 NOV 2022 16:37
+This is pdfTeX, Version 3.141592653-2.6-1.40.22 (TeX Live 2021) (preloaded format=pdflatex 2021.8.13)  30 NOV 2022 11:33
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -173,16 +173,7 @@ Overfull \hbox (45.7137pt too wide) detected at line 115
 []
  []
 
-[2]
-Overfull \hbox (66.29861pt too wide) in paragraph at lines 155--156
-[]\OT1/cmr/m/n/10.95 Suppose that $\OML/cmm/m/it/10.95 Y \OMS/cmsy/m/n/10.95 ^^
-X \OML/cmm/m/it/10.95 Categorical\OT1/cmr/m/n/10.95 (\OML/cmm/m/it/10.95 ^^Y[];
- :::; ^^Y[]\OT1/cmr/m/n/10.95 )$. Then $\OML/cmm/m/it/10.95 ^^V \OT1/cmr/m/n/10
-.95 = (\OML/cmm/m/it/10.95 ^^Y[]; :::; ^^Y[]\OT1/cmr/m/n/10.95 )[]$, $\OML/cmm/
-m/it/10.95 ^^R \OT1/cmr/m/n/10.95 = []$,
- []
-
-[3] (./HW7.aux) ) 
+[2] [3] (./HW7.aux) ) 
 Here is how much of TeX's memory you used:
  1766 strings out of 478994
  23093 string characters out of 5858184
@@ -191,23 +182,23 @@ Here is how much of TeX's memory you used:
  412195 words of font info for 60 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  67i,16n,74p,479b,328s stack positions out of 5000i,500n,10000p,200000b,80000s
- </Users/evansc/Library/texlive/2021/texmf-var/fonts/pk/ljfour
-/public/bbm/bbm10.657pk></usr/local/texlive/2021/texmf-dist/fonts/type1/public/
-amsfonts/cm/cmbx10.pfb></usr/local/texlive/2021/texmf-dist/fonts/type1/public/a
-msfonts/cm/cmbx12.pfb></usr/local/texlive/2021/texmf-dist/fonts/type1/public/am
-sfonts/cm/cmex10.pfb></usr/local/texlive/2021/texmf-dist/fonts/type1/public/ams
-fonts/cm/cmmi10.pfb></usr/local/texlive/2021/texmf-dist/fonts/type1/public/amsf
-onts/cm/cmmi6.pfb></usr/local/texlive/2021/texmf-dist/fonts/type1/public/amsfon
-ts/cm/cmmi8.pfb></usr/local/texlive/2021/texmf-dist/fonts/type1/public/amsfonts
-/cm/cmr10.pfb></usr/local/texlive/2021/texmf-dist/fonts/type1/public/amsfonts/c
-m/cmr12.pfb></usr/local/texlive/2021/texmf-dist/fonts/type1/public/amsfonts/cm/
-cmr6.pfb></usr/local/texlive/2021/texmf-dist/fonts/type1/public/amsfonts/cm/cmr
-8.pfb></usr/local/texlive/2021/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10
-.pfb></usr/local/texlive/2021/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.p
-fb></usr/local/texlive/2021/texmf-dist/fonts/type1/public/amsfonts/cm/cmti10.pf
-b></usr/local/texlive/2021/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm1
-0.pfb>
-Output written on HW7.pdf (3 pages, 156182 bytes).
+ </Users/evansc/Library/texlive/2021/texmf-var/fonts/pk/lj
+four/public/bbm/bbm10.657pk></usr/local/texlive/2021/texmf-dist/fonts/type1/pub
+lic/amsfonts/cm/cmbx10.pfb></usr/local/texlive/2021/texmf-dist/fonts/type1/publ
+ic/amsfonts/cm/cmbx12.pfb></usr/local/texlive/2021/texmf-dist/fonts/type1/publi
+c/amsfonts/cm/cmex10.pfb></usr/local/texlive/2021/texmf-dist/fonts/type1/public
+/amsfonts/cm/cmmi10.pfb></usr/local/texlive/2021/texmf-dist/fonts/type1/public/
+amsfonts/cm/cmmi6.pfb></usr/local/texlive/2021/texmf-dist/fonts/type1/public/am
+sfonts/cm/cmmi8.pfb></usr/local/texlive/2021/texmf-dist/fonts/type1/public/amsf
+onts/cm/cmr10.pfb></usr/local/texlive/2021/texmf-dist/fonts/type1/public/amsfon
+ts/cm/cmr12.pfb></usr/local/texlive/2021/texmf-dist/fonts/type1/public/amsfonts
+/cm/cmr6.pfb></usr/local/texlive/2021/texmf-dist/fonts/type1/public/amsfonts/cm
+/cmr8.pfb></usr/local/texlive/2021/texmf-dist/fonts/type1/public/amsfonts/cm/cm
+sy10.pfb></usr/local/texlive/2021/texmf-dist/fonts/type1/public/amsfonts/cm/cms
+y8.pfb></usr/local/texlive/2021/texmf-dist/fonts/type1/public/amsfonts/cm/cmti1
+0.pfb></usr/local/texlive/2021/texmf-dist/fonts/type1/public/amsfonts/symbols/m
+sbm10.pfb>
+Output written on HW7.pdf (3 pages, 156198 bytes).
 PDF statistics:
  75 PDF objects out of 1000 (max. 8388607)
  54 compressed objects within 1 object stream
