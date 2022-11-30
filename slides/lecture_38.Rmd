@@ -1,0 +1,243 @@
+---
+title: Intro to mixed effects models
+output:
+  xaringan::moon_reader:
+    css: "lab-slides.css"
+    lib_dir: libs
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r, include=F}
+library(tidyverse)
+library(nnet)
+library(gridExtra)
+library(knitr)
+
+hook_output <- knit_hooks$get("output")
+knit_hooks$set(output = function(x, options) {
+   lines <- options$output.lines
+   if (is.null(lines)) {
+     return(hook_output(x, options))  # pass to default hook
+   }
+   x <- unlist(strsplit(x, "\n"))
+   more <- "..."
+   if (length(lines)==1) {        # first n lines
+     if (length(x) > lines) {
+       # truncate the output, but add ....
+       x <- c(head(x, lines), more)
+     }
+   } else {
+     x <- c(more, x[lines], more)
+   }
+   # paste these lines together
+   x <- paste(c(x, ""), collapse = "\n")
+   hook_output(x, options)
+ })
+
+music <- read.csv("~/Documents/Teaching/sta214-f22.github.io/slides/musicdata.csv")
+```
+
+### Recap: data and motivation
+
+.large[
+We have data from a 2010 study on performance anxiety in 37 undergraduate music majors. For each musician, data was collected on anxiety levels before different performances (between 2 and 15 performances were measured for each musician), with variables including:
+* `id`: a unique identifier for the musician
+* `na`: negative affect score (a measure of anxiety)
+* `perform_type`: whether the musican was performing in a large ensemble, small ensemble, or solo
+
+.question[
+How can we model the relationship between performance type and anxiety?
+]
+
+]
+
+---
+
+### Recap: a mixed effects model
+
+.large[
+$$Anxiety_{ij} = \beta_0 + u_i + \beta_1 \ SmallEnsemble_{ij} + \beta_2 \ Solo_{ij} + \varepsilon_{ij}$$
+
+$u_i \overset{iid}{\sim} N(0, \sigma_u^2) \hspace{1cm} \varepsilon_{ij} \overset{iid}{\sim} N(0, \sigma_\varepsilon^2)$
+]
+
+---
+
+### Fitting the model in R
+
+.large[
+```{r, output.lines = c(11:15, 17:21), message=F, warning=F}
+library(lme4)
+m1 <- lmer(na ~ perform_type + (1|id), 
+           data = music)
+summary(m1)
+```
+]
+
+---
+
+### Interpretation
+
+.large[
+```{r, echo=F, output.lines = c(17:21), message=F, warning=F}
+summary(m1)
+```
+
+.question[
+How would we interpret the estimated fixed effects?
+]
+]
+
+---
+
+### Prediction
+
+.large[
+```{r, echo=F, output.lines = c(17:21), message=F, warning=F}
+summary(m1)
+```
+
+.question[
+What is the estimated anxiety for Musician 1 before a solo performance? 
+]
+]
+
+---
+
+### Prediction
+
+.large[
+.question[
+What is the estimated anxiety for Musician 1 before a solo performance? 
+]
+]
+
+```{r, output.lines = c(1:5), message=F, warning=F}
+coef(m1)
+```
+
+
+---
+
+### Prediction
+
+.large[
+```{r, echo=F, output.lines = c(17:21), message=F, warning=F}
+summary(m1)
+```
+
+.question[
+What is the estimated anxiety for a *new* musician (not in the data) before a solo performance? 
+]
+]
+
+---
+
+### Assumptions
+
+.large[
+$$Anxiety_{ij} = \beta_0 + u_i + \beta_1 \ SmallEnsemble_{ij} + \beta_2 \ Solo_{ij} + \varepsilon_{ij}$$
+
+$u_i \overset{iid}{\sim} N(0, \sigma_u^2) \hspace{1cm} \varepsilon_{ij} \overset{iid}{\sim} N(0, \sigma_\varepsilon^2)$
+]
+
+.large[
+.question[
+What assumptions does this mixed effects model make?
+]
+]
+
+---
+
+### Assessing normality
+
+.large[
+$$Anxiety_{ij} = \beta_0 + u_i + \beta_1 \ SmallEnsemble_{ij} + \beta_2 \ Solo_{ij} + \varepsilon_{ij}$$
+
+$u_i \overset{iid}{\sim} N(0, \sigma_u^2) \hspace{1cm} \varepsilon_{ij} \overset{iid}{\sim} N(0, \sigma_\varepsilon^2)$
+]
+
+.large[
+.question[
+How should we check the normality assumption?
+]
+]
+
+---
+
+### QQ plots
+
+.pull-left[
+```{r message=F, warning=F, echo=F, fig.align='center', fig.height=4, fig.width=6}
+
+music %>%
+  mutate(resids = residuals(m1)) %>%
+  ggplot(aes(sample = resids)) +
+  geom_qq(size=2) +
+  geom_qq_line(color="blue", lwd=1.2) +
+  labs(x = "Theoretical normal quantiles", 
+       y = "Observed residual quantiles") +
+  theme_bw() +
+  theme(text = element_text(size = 15))
+```
+]
+
+.pull-right[
+```{r message=F, warning=F, echo=F, fig.align='center', fig.height=4, fig.width=6}
+
+data.frame(re = coef(m1)$id[,1] - summary(m1)$coefficients[1,1]) %>%
+  ggplot(aes(sample = re)) +
+  geom_qq(size=2) +
+  geom_qq_line(color="blue", lwd=1.2) +
+  labs(x = "Theoretical normal quantiles", 
+       y = "Observed random effect quantiles") +
+  theme_bw() +
+  theme(text = element_text(size = 15))
+```
+]
+
+---
+
+### Changing the model
+
+.large[
+$$Anxiety_{ij} = \beta_0 + u_i + \beta_1 \ SmallEnsemble_{ij} + \beta_2 \ Solo_{ij} + \varepsilon_{ij}$$
+
+$u_i \overset{iid}{\sim} N(0, \sigma_u^2) \hspace{1cm} \varepsilon_{ij} \overset{iid}{\sim} N(0, \sigma_\varepsilon^2)$
+]
+
+.large[
+.question[
+How could we change the model to allow the effect of performance type to differ between musicians?
+]
+]
+
+---
+
+### Fitting the model
+
+```{r, output.lines = c(11:23), message=F, warning=F}
+m2 <- lmer(na ~ perform_type + (perform_type|id), 
+           data = music)
+summary(m2)
+```
+
+---
+
+### Prediction
+
+.large[
+.question[
+What is the estimated anxiety for Musician 1 before a solo performance? 
+]
+]
+
+```{r, output.lines = c(1:5), message=F, warning=F}
+coef(m2)
+```
+
