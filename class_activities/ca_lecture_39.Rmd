@@ -1,0 +1,89 @@
+---
+title: "Class Activity, December 2"
+output: 
+  rmdformats::robobook:
+    css: "homework.css"
+    highlight: pygments
+link-citations: yes
+---
+
+# Does including the random effect help?
+
+Suppose we have data $(X_{ij}, Y_{ij})$ generated from the following model:
+
+$$Y_{ij} = \beta_0 + u_i + \beta_1 X_{ij} + \varepsilon_{ij}$$
+
+where $u_i \overset{iid}{\sim} N(0, \sigma_u^2)$ and $\varepsilon_{ij} \overset{iid}{\sim} N(0, \sigma_\varepsilon^2)$. If we fit this mixed effects model, we should get good estimates of $\beta_0$ and $\beta_1$. But what if we fit a linear regression model (with no random effects) instead?
+
+The following code simulates data from this mixed effects model, then fits three different models:
+
+* $Y_{ij} = \beta_0 + \beta_1 X_{ij} + \varepsilon_{ij}$ (ignoring group effects)
+* $Y_{ij} = \beta_0 + \beta_1 X_{ij} + \beta_2 \ Group2_{ij} + \cdots + \beta_{20} \ Group20_{ij} + \varepsilon_{ij}$ (using a fixed effect for each group)
+* $Y_{ij} = \beta_0 + u_i + \beta_1 X_{ij} + \varepsilon_{ij}$ (using a random effect for group)
+
+We then compare the estimates of $\beta_1$ for the different models.
+
+```{r, eval=F}
+library(lme4)
+
+m <- 20 # number of groups
+var_u <- 1 # variance of random effects
+var_e <- 1 # variance of noise
+beta1 <- 1 # effect of X
+
+# observations per group
+obs_per_group <- 2 + round(runif(m, 0, 15))
+
+# vectors to store the estimated beta1s for each model
+coefs_0 <- c()
+coefs_1 <- c()
+coefs_2 <- c()
+
+# do the simulation 500 times
+for(j in 1:500){
+  u <- rnorm(m, sd = sqrt(var_u))
+  
+  x <- c()
+  id <- c()
+  y <- c()
+  for(i in 1:m){
+    x <- c(x, rnorm(obs_per_group[i], mean = i)) # correlation between X and group
+    id <- c(id, rep(i, obs_per_group[i]))
+  }
+  
+  re_data <- data.frame(x = x, id = id) %>%
+    mutate(y = beta1*x + u[id] + rnorm(length(x), sd = sqrt(var_e)))
+  
+  # ignoring group effects
+  m0 <- lm(y ~ x, data = re_data)
+  coefs_0[j] <- m0$coefficients[2] # estimate of beta1
+  
+  # fixed effect for each group
+  m1 <- lm(y ~ x + as.factor(id), data = re_data)
+  coefs_1[j] <- m1$coefficients[2] # estimate of beta1
+  
+  # random effect for each group
+  m2 <- lmer(y ~ x + (1|id), data = re_data)
+  coefs_2[j] <- coef(m2)$id[1,2] # estimate of beta1
+  
+  # print(j)
+}
+
+# average estimates of beta1 for each model
+# ideally should be close to the true beta1
+mean(coefs_0)
+mean(coefs_1)
+mean(coefs_2)
+
+# variance of the estimates of beta1 for each model
+# smaller is better
+var(coefs_0)
+var(coefs_1)
+var(coefs_2)
+```
+
+## Questions
+
+1. Run the code. Which of the three models does best at estimating $\beta_1$?
+
+2. Experiment with changing parts of the simulation, such as $\sigma_u^2$ (`var_u`), heterogeneity in the number of observations per group (`obs_per_group`), and correlation between the explanatory variable $X$ and the group label. How does the relative performance of the different models change?
