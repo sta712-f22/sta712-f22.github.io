@@ -4,9 +4,16 @@ library(tidyverse)
 # import the data
 wdrinks <- read.csv("~/Documents/Teaching/sta279-s22.github.io/slides/weekendDrinks.csv")
 
+FirstYear <- ifelse( wdrinks$dorm %in% c("mohn","kittlesby", "kildahl"), "TRUE", "FALSE")
+OffCampus <- ifelse( wdrinks$dorm == "off campus", "TRUE", "FALSE")
+
+wdrinks <- cbind(wdrinks, FirstYear, OffCampus)
+wdrinks <- wdrinks |>
+  dplyr::select(drinks, FirstYear, OffCampus, sex)
+
 ### ZIP model fit using the pscl package
-m1 <- zeroinfl(drinks ~ FirstYear + OffCampus + sex | 
-                 FirstYear + OffCampus + sex, 
+m1 <- zeroinfl(drinks ~ FirstYear + OffCampus + sex, 
+               dist = "poisson",
                data = wdrinks)
 summary(m1)
 
@@ -30,7 +37,7 @@ phat <- mean(wdrinks$drinks == 0)
 gamma <- c(log(phat/(1- phat)), 0, 0, 0)
 
 
-for(i in 1:10){
+for(i in 1:20){
   
   # E step: guesses for zs
   
@@ -63,4 +70,4 @@ beta
 gamma
 
 # they are very close to what we saw from the zeroinfl function!
-summary(m1)
+coefficients(m1)
